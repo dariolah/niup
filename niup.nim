@@ -69,7 +69,7 @@ type
 
 proc Open*(argc: var cint; argv: ptr cstringArray): cint {.cdecl, importc: "IupOpen", dynlib: libiupSONAME.}
 proc Close*() {.cdecl, importc: "IupClose", dynlib: libiupSONAME.}
-proc ImageLibOpen*() {.cdecl, importc: "IupImageLibOpen", dynlib: libiupimglibSONAME}
+proc ImageLibOpen*() {.cdecl, importc: "IupImageLibOpen", dynlib: libiupimglibSONAME.}
 proc MainLoop*(): cint {.cdecl, importc: "IupMainLoop", dynlib: libiupSONAME.}
 proc LoopStep*(): cint {.cdecl, importc: "IupLoopStep", dynlib: libiupSONAME.}
 proc LoopStepWait*(): cint {.cdecl, importc: "IupLoopStepWait", dynlib: libiupSONAME.}
@@ -265,7 +265,7 @@ proc ColorBrowser*(): PIhandle {.cdecl, importc: "IupColorBrowser", dynlib: libi
 proc Spin*(): PIhandle {.cdecl, importc: "IupSpin", dynlib: libiupSONAME.}
 proc Spinbox*(child: PIhandle): PIhandle {.cdecl, importc: "IupSpinbox", dynlib: libiupSONAME.}
 proc StringCompare*(str1: cstring; str2: cstring; casesensitive: cint; lexicographic: cint): cint {.cdecl, importc: "IupStringCompare", dynlib: libiupSONAME.}
-proc SaveImageAsText*(ih: PIhandle; file_name: cstring; format: cstring; name: cstring): cint {.cdecl, importc: "IupSaveImageAsText", dynlib: libiupSONAME.}
+proc SaveImageAsText*(ih: PIhandle; file_name: cstring; format: cstring; name: cstring): cint {.cdecl, importc: "IupSaveImageAsText", dynlib: libiupimSONAME.}
 proc TextConvertLinColToPos*(ih: PIhandle; lin: cint; col: cint; pos: var cint) {.cdecl, importc: "IupTextConvertLinColToPos", dynlib: libiupSONAME.}
 proc TextConvertPosToLinCol*(ih: PIhandle; pos: cint; lin: var cint; col: var cint) {. cdecl, importc: "IupTextConvertPosToLinCol", dynlib: libiupSONAME.}
 proc ConvertXYToPos*(ih: PIhandle; x: cint; y: cint): cint {.cdecl, importc: "IupConvertXYToPos", dynlib: libiupSONAME.}
@@ -448,13 +448,13 @@ proc ConfigRecentInit*(ih: PIhandle; menu: PIhandle; recent_cb: Icallback; max_r
 proc ConfigRecentUpdate*(ih: PIhandle; filename: cstring) {.cdecl, importc: "IupConfigRecentUpdate", dynlib: libiupSONAME.}
 proc ConfigDialogShow*(ih: PIhandle; dialog: PIhandle; name: cstring) {.cdecl, importc: "IupConfigDialogShow", dynlib: libiupSONAME.}
 proc ConfigDialogClosed*(ih: PIhandle; dialog: PIhandle; name: cstring) {.cdecl, importc: "IupConfigDialogClosed", dynlib: libiupSONAME.}
-proc ControlsOpen*(): cint {.cdecl, importc: "IupControlsOpen", dynlib: libiupSONAME.}
-proc Cells*(): PIhandle {.cdecl, importc: "IupCells", dynlib: libiupSONAME.}
-proc Matrix*(action: cstring): PIhandle {.cdecl, importc: "IupMatrix", dynlib: libiupSONAME.}
-proc MatrixList*(): PIhandle {.cdecl, importc: "IupMatrixList", dynlib: libiupSONAME.}
-proc MatrixEx*(): PIhandle {.cdecl, importc: "IupMatrixEx", dynlib: libiupSONAME.}
-proc MatrixSetFormula*(ih: PIhandle; col: cint; formula: cstring; init: cstring) {. cdecl, importc: "IupMatrixSetFormula", dynlib: libiupSONAME.}
-proc MatrixSetDynamic*(ih: PIhandle; init: cstring) {.cdecl, importc: "IupMatrixSetDynamic", dynlib: libiupSONAME.}
+proc ControlsOpen*(): cint {.cdecl, importc: "IupControlsOpen", dynlib: libiupcontrolsSONAME.}
+proc Cells*(): PIhandle {.cdecl, importc: "IupCells", dynlib: libiupcontrolsSONAME.}
+proc Matrix*(action: cstring): PIhandle {.cdecl, importc: "IupMatrix", dynlib: libiupcontrolsSONAME.}
+proc MatrixList*(): PIhandle {.cdecl, importc: "IupMatrixList", dynlib: libiupcontrolsSONAME.}
+proc MatrixEx*(): PIhandle {.cdecl, importc: "IupMatrixEx", dynlib: libiupcontrolsSONAME.}
+proc MatrixSetFormula*(ih: PIhandle; col: cint; formula: cstring; init: cstring) {. cdecl, importc: "IupMatrixSetFormula", dynlib: libiupcontrolsSONAME.}
+proc MatrixSetDynamic*(ih: PIhandle; init: cstring) {.cdecl, importc: "IupMatrixSetDynamic", dynlib: libiupcontrolsSONAME.}
 proc cdContextIupDraw*(): ptr cdContext {.cdecl, importc: "cdContextIupDraw", dynlib: libiupSONAME.}
 proc DrawBegin*(ih: PIhandle) {.cdecl, importc: "IupDrawBegin", dynlib: libiupSONAME.}
 proc DrawEnd*(ih: PIhandle) {.cdecl, importc: "IupDrawEnd", dynlib: libiupSONAME.}
@@ -474,26 +474,26 @@ proc DrawGetSize*(ih: PIhandle; w: var cint; h: var cint) {.cdecl, importc: "Iup
 proc DrawGetTextSize*(ih: PIhandle; text: cstring; len: cint; w: var cint; h: var cint) {. cdecl, importc: "IupDrawGetTextSize", dynlib: libiupSONAME.}
 proc DrawGetImageInfo*(name: cstring; w: var cint; h: var cint; bpp: var cint) {.cdecl, importc: "IupDrawGetImageInfo", dynlib: libiupSONAME.}
 proc NewFileDlgOpen*(): cint {.cdecl, importc: "IupNewFileDlgOpen", dynlib: libiupSONAME.}
-proc GLControlsOpen*(): cint {.cdecl, importc: "IupGLControlsOpen", dynlib: libiupSONAME.}
-proc GLCanvasBoxv*(children: ptr PIhandle): PIhandle {.cdecl, importc: "IupGLCanvasBoxv", dynlib: libiupSONAME.}
-proc GLCanvasBox*(child: PIhandle): PIhandle {.varargs, cdecl, importc: "IupGLCanvasBox", dynlib: libiupSONAME.}
-proc GLSubCanvas*(): PIhandle {.cdecl, importc: "IupGLSubCanvas", dynlib: libiupSONAME.}
-proc GLLabel*(title: cstring): PIhandle {.cdecl, importc: "IupGLLabel", dynlib: libiupSONAME.}
-proc GLSeparator*(): PIhandle {.cdecl, importc: "IupGLSeparator", dynlib: libiupSONAME.}
-proc GLButton*(title: cstring): PIhandle {.cdecl, importc: "IupGLButton", dynlib: libiupSONAME.}
-proc GLToggle*(title: cstring): PIhandle {.cdecl, importc: "IupGLToggle", dynlib: libiupSONAME.}
-proc GLLink*(url: cstring; title: cstring): PIhandle {.cdecl, importc: "IupGLLink", dynlib: libiupSONAME.}
-proc GLProgressBar*(): PIhandle {.cdecl, importc: "IupGLProgressBar", dynlib: libiupSONAME.}
-proc GLVal*(): PIhandle {.cdecl, importc: "IupGLVal", dynlib: libiupSONAME.}
-proc GLFrame*(child: PIhandle): PIhandle {.cdecl, importc: "IupGLFrame", dynlib: libiupSONAME.}
-proc GLExpander*(child: PIhandle): PIhandle {.cdecl, importc: "IupGLExpander", dynlib: libiupSONAME.}
-proc GLScrollBox*(child: PIhandle): PIhandle {.cdecl, importc: "IupGLScrollBox", dynlib: libiupSONAME.}
-proc GLSizeBox*(child: PIhandle): PIhandle {.cdecl, importc: "IupGLSizeBox", dynlib: libiupSONAME.}
-proc GLText*(): PIhandle {.cdecl, importc: "IupGLText", dynlib: libiupSONAME.}
-proc GLDrawImage*(ih: PIhandle; name: cstring; x: cint; y: cint; active: cint) {.cdecl, importc: "IupGLDrawImage", dynlib: libiupSONAME.}
-proc GLDrawText*(ih: PIhandle; str: cstring; len: cint; x: cint; y: cint) {.cdecl, importc: "IupGLDrawText", dynlib: libiupSONAME.}
-proc GLDrawGetTextSize*(ih: PIhandle; str: cstring; w: var cint; h: var cint) {.cdecl, importc: "IupGLDrawGetTextSize", dynlib: libiupSONAME.}
-proc GLDrawGetImageInfo*(name: cstring; w: var cint; h: var cint; bpp: var cint) {.cdecl, importc: "IupGLDrawGetImageInfo", dynlib: libiupSONAME.}
+proc GLControlsOpen*(): cint {.cdecl, importc: "IupGLControlsOpen", dynlib: libiupglcontrolsSONAME.}
+proc GLCanvasBoxv*(children: ptr PIhandle): PIhandle {.cdecl, importc: "IupGLCanvasBoxv", dynlib: libiupglcontrolsSONAME.}
+proc GLCanvasBox*(child: PIhandle): PIhandle {.varargs, cdecl, importc: "IupGLCanvasBox", dynlib: libiupglcontrolsSONAME.}
+proc GLSubCanvas*(): PIhandle {.cdecl, importc: "IupGLSubCanvas", dynlib: libiupglcontrolsSONAME.}
+proc GLLabel*(title: cstring): PIhandle {.cdecl, importc: "IupGLLabel", dynlib: libiupglcontrolsSONAME.}
+proc GLSeparator*(): PIhandle {.cdecl, importc: "IupGLSeparator", dynlib: libiupglcontrolsSONAME.}
+proc GLButton*(title: cstring): PIhandle {.cdecl, importc: "IupGLButton", dynlib: libiupglcontrolsSONAME.}
+proc GLToggle*(title: cstring): PIhandle {.cdecl, importc: "IupGLToggle", dynlib: libiupglcontrolsSONAME.}
+proc GLLink*(url: cstring; title: cstring): PIhandle {.cdecl, importc: "IupGLLink", dynlib: libiupglcontrolsSONAME.}
+proc GLProgressBar*(): PIhandle {.cdecl, importc: "IupGLProgressBar", dynlib: libiupglcontrolsSONAME.}
+proc GLVal*(): PIhandle {.cdecl, importc: "IupGLVal", dynlib: libiupglcontrolsSONAME.}
+proc GLFrame*(child: PIhandle): PIhandle {.cdecl, importc: "IupGLFrame", dynlib: libiupglcontrolsSONAME.}
+proc GLExpander*(child: PIhandle): PIhandle {.cdecl, importc: "IupGLExpander", dynlib: libiupglcontrolsSONAME.}
+proc GLScrollBox*(child: PIhandle): PIhandle {.cdecl, importc: "IupGLScrollBox", dynlib: libiupglcontrolsSONAME.}
+proc GLSizeBox*(child: PIhandle): PIhandle {.cdecl, importc: "IupGLSizeBox", dynlib: libiupglcontrolsSONAME.}
+proc GLText*(): PIhandle {.cdecl, importc: "IupGLText", dynlib: libiupglcontrolsSONAME.}
+proc GLDrawImage*(ih: PIhandle; name: cstring; x: cint; y: cint; active: cint) {.cdecl, importc: "IupGLDrawImage", dynlib: libiupglcontrolsSONAME.}
+proc GLDrawText*(ih: PIhandle; str: cstring; len: cint; x: cint; y: cint) {.cdecl, importc: "IupGLDrawText", dynlib: libiupglcontrolsSONAME.}
+proc GLDrawGetTextSize*(ih: PIhandle; str: cstring; w: var cint; h: var cint) {.cdecl, importc: "IupGLDrawGetTextSize", dynlib: libiupglcontrolsSONAME.}
+proc GLDrawGetImageInfo*(name: cstring; w: var cint; h: var cint; bpp: var cint) {.cdecl, importc: "IupGLDrawGetImageInfo", dynlib: libiupglcontrolsSONAME.}
 const
  IUP_BUFFER* = "BUFFER"
  IUP_STEREO* = "STEREO"
@@ -515,19 +515,19 @@ const
  IUP_YES* = "YES"
  IUP_NO* = "NO"
 
-proc GLCanvasOpen*() {.cdecl, importc: "IupGLCanvasOpen", dynlib: libiupSONAME.}
-proc GLCanvas*(action: cstring): PIhandle {.cdecl, importc: "IupGLCanvas", dynlib: libiupSONAME.}
-proc GLBackgroundBox*(child: PIhandle): PIhandle {.cdecl, importc: "IupGLBackgroundBox", dynlib: libiupSONAME.}
-proc GLMakeCurrent*(ih: PIhandle) {.cdecl, importc: "IupGLMakeCurrent", dynlib: libiupSONAME.}
-proc GLIsCurrent*(ih: PIhandle): cint {.cdecl, importc: "IupGLIsCurrent", dynlib: libiupSONAME.}
-proc GLSwapBuffers*(ih: PIhandle) {.cdecl, importc: "IupGLSwapBuffers", dynlib: libiupSONAME.}
-proc GLPalette*(ih: PIhandle; index: cint; r: cfloat; g: cfloat; b: cfloat) {.cdecl, importc: "IupGLPalette", dynlib: libiupSONAME.}
-proc GLUseFont*(ih: PIhandle; first: cint; count: cint; list_base: cint) {.cdecl, importc: "IupGLUseFont", dynlib: libiupSONAME.}
-proc GLWait*(gl: cint) {.cdecl, importc: "IupGLWait", dynlib: libiupSONAME.}
-proc LoadImage*(file_name: cstring): PIhandle {.cdecl, importc: "IupLoadImage", dynlib: libiupSONAME.}
-proc SaveImage*(ih: PIhandle; file_name: cstring; format: cstring): cint {.cdecl, importc: "IupSaveImage", dynlib: libiupSONAME.}
-proc LoadAnimation*(file_name: cstring): PIhandle {.cdecl, importc: "IupLoadAnimation", dynlib: libiupSONAME.}
-proc LoadAnimationFrames*(file_name_list: cstringArray; file_count: cint): PIhandle {. cdecl, importc: "IupLoadAnimationFrames", dynlib: libiupSONAME.}
+proc GLCanvasOpen*() {.cdecl, importc: "IupGLCanvasOpen", dynlib: libiupglSONAME.}
+proc GLCanvas*(action: cstring): PIhandle {.cdecl, importc: "IupGLCanvas", dynlib: libiupglSONAME.}
+proc GLBackgroundBox*(child: PIhandle): PIhandle {.cdecl, importc: "IupGLBackgroundBox", dynlib: libiupglSONAME.}
+proc GLMakeCurrent*(ih: PIhandle) {.cdecl, importc: "IupGLMakeCurrent", dynlib: libiupglSONAME.}
+proc GLIsCurrent*(ih: PIhandle): cint {.cdecl, importc: "IupGLIsCurrent", dynlib: libiupglSONAME.}
+proc GLSwapBuffers*(ih: PIhandle) {.cdecl, importc: "IupGLSwapBuffers", dynlib: libiupglSONAME.}
+proc GLPalette*(ih: PIhandle; index: cint; r: cfloat; g: cfloat; b: cfloat) {.cdecl, importc: "IupGLPalette", dynlib: libiupglSONAME.}
+proc GLUseFont*(ih: PIhandle; first: cint; count: cint; list_base: cint) {.cdecl, importc: "IupGLUseFont", dynlib: libiupglSONAME.}
+proc GLWait*(gl: cint) {.cdecl, importc: "IupGLWait", dynlib: libiupglSONAME.}
+proc LoadImage*(file_name: cstring): PIhandle {.cdecl, importc: "IupLoadImage", dynlib: libiupimSONAME.}
+proc SaveImage*(ih: PIhandle; file_name: cstring; format: cstring): cint {.cdecl, importc: "IupSaveImage", dynlib: libiupimSONAME.}
+proc LoadAnimation*(file_name: cstring): PIhandle {.cdecl, importc: "IupLoadAnimation", dynlib: libiupimSONAME.}
+proc LoadAnimationFrames*(file_name_list: cstringArray; file_count: cint): PIhandle {. cdecl, importc: "IupLoadAnimationFrames", dynlib: libiupimSONAME.}
 const
  K_SP* = cint(ord(' '))
  K_exclam* = cint(ord('!'))
@@ -984,68 +984,68 @@ const
  K_yBackslash* = iup_XkeySys(K_backslash)
  K_yAsterisk* = iup_XkeySys(K_asterisk)
 
-proc MglPlotOpen*() {.cdecl, importc: "IupMglPlotOpen", dynlib: libiupSONAME.}
-proc MglPlot*(): PIhandle {.cdecl, importc: "IupMglPlot", dynlib: libiupSONAME.}
-proc MglPlotBegin*(ih: PIhandle; dim: cint) {.cdecl, importc: "IupMglPlotBegin", dynlib: libiupSONAME.}
-proc MglPlotAdd1D*(ih: PIhandle; name: cstring; y: cdouble) {.cdecl, importc: "IupMglPlotAdd1D", dynlib: libiupSONAME.}
-proc MglPlotAdd2D*(ih: PIhandle; x: cdouble; y: cdouble) {.cdecl, importc: "IupMglPlotAdd2D", dynlib: libiupSONAME.}
-proc MglPlotAdd3D*(ih: PIhandle; x: cdouble; y: cdouble; z: cdouble) {.cdecl, importc: "IupMglPlotAdd3D", dynlib: libiupSONAME.}
-proc MglPlotEnd*(ih: PIhandle): cint {.cdecl, importc: "IupMglPlotEnd", dynlib: libiupSONAME.}
-proc MglPlotNewDataSet*(ih: PIhandle; dim: cint): cint {.cdecl, importc: "IupMglPlotNewDataSet", dynlib: libiupSONAME.}
-proc MglPlotInsert1D*(ih: PIhandle; ds_index: cint; sample_index: cint; names: cstringArray; y: ptr cdouble; count: cint) {.cdecl, importc: "IupMglPlotInsert1D", dynlib: libiupSONAME.}
-proc MglPlotInsert2D*(ih: PIhandle; ds_index: cint; sample_index: cint; x: ptr cdouble; y: ptr cdouble; count: cint) {.cdecl, importc: "IupMglPlotInsert2D", dynlib: libiupSONAME.}
-proc MglPlotInsert3D*(ih: PIhandle; ds_index: cint; sample_index: cint; x: ptr cdouble; y: ptr cdouble; z: ptr cdouble; count: cint) {.cdecl, importc: "IupMglPlotInsert3D", dynlib: libiupSONAME.}
-proc MglPlotSet1D*(ih: PIhandle; ds_index: cint; names: cstringArray; y: ptr cdouble; count: cint) {.cdecl, importc: "IupMglPlotSet1D", dynlib: libiupSONAME.}
-proc MglPlotSet2D*(ih: PIhandle; ds_index: cint; x: ptr cdouble; y: ptr cdouble; count: cint) {.cdecl, importc: "IupMglPlotSet2D", dynlib: libiupSONAME.}
-proc MglPlotSet3D*(ih: PIhandle; ds_index: cint; x: ptr cdouble; y: ptr cdouble; z: ptr cdouble; count: cint) {.cdecl, importc: "IupMglPlotSet3D", dynlib: libiupSONAME.}
-proc MglPlotSetFormula*(ih: PIhandle; ds_index: cint; formulaX: cstring; formulaY: cstring; formulaZ: cstring; count: cint) {.cdecl, importc: "IupMglPlotSetFormula", dynlib: libiupSONAME.}
-proc MglPlotSetData*(ih: PIhandle; ds_index: cint; data: ptr cdouble; count_x: cint; count_y: cint; count_z: cint) {.cdecl, importc: "IupMglPlotSetData", dynlib: libiupSONAME.}
-proc MglPlotLoadData*(ih: PIhandle; ds_index: cint; filename: cstring; count_x: cint; count_y: cint; count_z: cint) {.cdecl, importc: "IupMglPlotLoadData", dynlib: libiupSONAME.}
-proc MglPlotSetFromFormula*(ih: PIhandle; ds_index: cint; formula: cstring; count_x: cint; count_y: cint; count_z: cint) {.cdecl, importc: "IupMglPlotSetFromFormula", dynlib: libiupSONAME.}
-proc MglPlotTransform*(ih: PIhandle; x: cdouble; y: cdouble; z: cdouble; ix: var cint; iy: var cint) {.cdecl, importc: "IupMglPlotTransform", dynlib: libiupSONAME.}
-proc MglPlotTransformTo*(ih: PIhandle; ix: cint; iy: cint; x: ptr cdouble; y: ptr cdouble; z: ptr cdouble) {.cdecl, importc: "IupMglPlotTransformTo", dynlib: libiupSONAME.}
-proc MglPlotDrawMark*(ih: PIhandle; x: cdouble; y: cdouble; z: cdouble) {.cdecl, importc: "IupMglPlotDrawMark", dynlib: libiupSONAME.}
-proc MglPlotDrawLine*(ih: PIhandle; x1: cdouble; y1: cdouble; z1: cdouble; x2: cdouble; y2: cdouble; z2: cdouble) {.cdecl, importc: "IupMglPlotDrawLine", dynlib: libiupSONAME.}
-proc MglPlotDrawText*(ih: PIhandle; text: cstring; x: cdouble; y: cdouble; z: cdouble) {. cdecl, importc: "IupMglPlotDrawText", dynlib: libiupSONAME.}
-proc MglPlotPaintTo*(ih: PIhandle; format: cstring; w: cint; h: cint; dpi: cdouble; data: pointer) {.cdecl, importc: "IupMglPlotPaintTo", dynlib: libiupSONAME.}
-proc MglLabel*(title: cstring): PIhandle {.cdecl, importc: "IupMglLabel", dynlib: libiupSONAME.}
-proc PlotOpen*() {.cdecl, importc: "IupPlotOpen", dynlib: libiupSONAME.}
-proc Plot*(): PIhandle {.cdecl, importc: "IupPlot", dynlib: libiupSONAME.}
-proc PlotBegin*(ih: PIhandle; strXdata: cint) {.cdecl, importc: "IupPlotBegin", dynlib: libiupSONAME.}
-proc PlotAdd*(ih: PIhandle; x: cdouble; y: cdouble) {.cdecl, importc: "IupPlotAdd", dynlib: libiupSONAME.}
-proc PlotAddStr*(ih: PIhandle; x: cstring; y: cdouble) {.cdecl, importc: "IupPlotAddStr", dynlib: libiupSONAME.}
-proc PlotAddSegment*(ih: PIhandle; x: cdouble; y: cdouble) {.cdecl, importc: "IupPlotAddSegment", dynlib: libiupSONAME.}
-proc PlotEnd*(ih: PIhandle): cint {.cdecl, importc: "IupPlotEnd", dynlib: libiupSONAME.}
-proc PlotLoadData*(ih: PIhandle; filename: cstring; strXdata: cint): cint {.cdecl, importc: "IupPlotLoadData", dynlib: libiupSONAME.}
-proc PlotSetFormula*(ih: PIhandle; sample_count: cint; formula: cstring; init: cstring): cint {.cdecl, importc: "IupPlotSetFormula", dynlib: libiupSONAME.}
-proc PlotInsert*(ih: PIhandle; ds_index: cint; sample_index: cint; x: cdouble; y: cdouble) {.cdecl, importc: "IupPlotInsert", dynlib: libiupSONAME.}
-proc PlotInsertStr*(ih: PIhandle; ds_index: cint; sample_index: cint; x: cstring; y: cdouble) {.cdecl, importc: "IupPlotInsertStr", dynlib: libiupSONAME.}
-proc PlotInsertSegment*(ih: PIhandle; ds_index: cint; sample_index: cint; x: cdouble; y: cdouble) {.cdecl, importc: "IupPlotInsertSegment", dynlib: libiupSONAME.}
-proc PlotInsertStrSamples*(ih: PIhandle; ds_index: cint; sample_index: cint; x: cstringArray; y: ptr cdouble; count: cint) {.cdecl, importc: "IupPlotInsertStrSamples", dynlib: libiupSONAME.}
-proc PlotInsertSamples*(ih: PIhandle; ds_index: cint; sample_index: cint; x: ptr cdouble; y: ptr cdouble; count: cint) {.cdecl, importc: "IupPlotInsertSamples", dynlib: libiupSONAME.}
-proc PlotAddSamples*(ih: PIhandle; ds_index: cint; x: ptr cdouble; y: ptr cdouble; count: cint) {.cdecl, importc: "IupPlotAddSamples", dynlib: libiupSONAME.}
-proc PlotAddStrSamples*(ih: PIhandle; ds_index: cint; x: cstringArray; y: ptr cdouble; count: cint) {.cdecl, importc: "IupPlotAddStrSamples", dynlib: libiupSONAME.}
-proc PlotGetSample*(ih: PIhandle; ds_index: cint; sample_index: cint; x: ptr cdouble; y: ptr cdouble) {.cdecl, importc: "IupPlotGetSample", dynlib: libiupSONAME.}
-proc PlotGetSampleStr*(ih: PIhandle; ds_index: cint; sample_index: cint; x: cstringArray; y: ptr cdouble) {.cdecl, importc: "IupPlotGetSampleStr", dynlib: libiupSONAME.}
-proc PlotGetSampleSelection*(ih: PIhandle; ds_index: cint; sample_index: cint): cint {. cdecl, importc: "IupPlotGetSampleSelection", dynlib: libiupSONAME.}
-proc PlotGetSampleExtra*(ih: PIhandle; ds_index: cint; sample_index: cint): cdouble {. cdecl, importc: "IupPlotGetSampleExtra", dynlib: libiupSONAME.}
-proc PlotSetSample*(ih: PIhandle; ds_index: cint; sample_index: cint; x: cdouble; y: cdouble) {.cdecl, importc: "IupPlotSetSample", dynlib: libiupSONAME.}
-proc PlotSetSampleStr*(ih: PIhandle; ds_index: cint; sample_index: cint; x: cstring; y: cdouble) {.cdecl, importc: "IupPlotSetSampleStr", dynlib: libiupSONAME.}
-proc PlotSetSampleSelection*(ih: PIhandle; ds_index: cint; sample_index: cint; selected: cint) {.cdecl, importc: "IupPlotSetSampleSelection", dynlib: libiupSONAME.}
-proc PlotSetSampleExtra*(ih: PIhandle; ds_index: cint; sample_index: cint; extra: cdouble) {.cdecl, importc: "IupPlotSetSampleExtra", dynlib: libiupSONAME.}
-proc PlotTransform*(ih: PIhandle; x: cdouble; y: cdouble; cnv_x: ptr cdouble; cnv_y: ptr cdouble) {.cdecl, importc: "IupPlotTransform", dynlib: libiupSONAME.}
-proc PlotTransformTo*(ih: PIhandle; cnv_x: cdouble; cnv_y: cdouble; x: ptr cdouble; y: ptr cdouble) {.cdecl, importc: "IupPlotTransformTo", dynlib: libiupSONAME.}
-proc PlotFindSample*(ih: PIhandle; cnv_x: cdouble; cnv_y: cdouble; ds_index: var cint; sample_index: var cint): cint {.cdecl, importc: "IupPlotFindSample", dynlib: libiupSONAME.}
-proc PlotFindSegment*(ih: PIhandle; cnv_x: cdouble; cnv_y: cdouble; ds_index: var cint; sample_index1: var cint; sample_index2: var cint): cint {.cdecl, importc: "IupPlotFindSegment", dynlib: libiupSONAME.}
+proc MglPlotOpen*() {.cdecl, importc: "IupMglPlotOpen", dynlib: libiup_mglplotSONAME.}
+proc MglPlot*(): PIhandle {.cdecl, importc: "IupMglPlot", dynlib: libiup_mglplotSONAME.}
+proc MglPlotBegin*(ih: PIhandle; dim: cint) {.cdecl, importc: "IupMglPlotBegin", dynlib: libiup_mglplotSONAME.}
+proc MglPlotAdd1D*(ih: PIhandle; name: cstring; y: cdouble) {.cdecl, importc: "IupMglPlotAdd1D", dynlib: libiup_mglplotSONAME.}
+proc MglPlotAdd2D*(ih: PIhandle; x: cdouble; y: cdouble) {.cdecl, importc: "IupMglPlotAdd2D", dynlib: libiup_mglplotSONAME.}
+proc MglPlotAdd3D*(ih: PIhandle; x: cdouble; y: cdouble; z: cdouble) {.cdecl, importc: "IupMglPlotAdd3D", dynlib: libiup_mglplotSONAME.}
+proc MglPlotEnd*(ih: PIhandle): cint {.cdecl, importc: "IupMglPlotEnd", dynlib: libiup_mglplotSONAME.}
+proc MglPlotNewDataSet*(ih: PIhandle; dim: cint): cint {.cdecl, importc: "IupMglPlotNewDataSet", dynlib: libiup_mglplotSONAME.}
+proc MglPlotInsert1D*(ih: PIhandle; ds_index: cint; sample_index: cint; names: cstringArray; y: ptr cdouble; count: cint) {.cdecl, importc: "IupMglPlotInsert1D", dynlib: libiup_mglplotSONAME.}
+proc MglPlotInsert2D*(ih: PIhandle; ds_index: cint; sample_index: cint; x: ptr cdouble; y: ptr cdouble; count: cint) {.cdecl, importc: "IupMglPlotInsert2D", dynlib: libiup_mglplotSONAME.}
+proc MglPlotInsert3D*(ih: PIhandle; ds_index: cint; sample_index: cint; x: ptr cdouble; y: ptr cdouble; z: ptr cdouble; count: cint) {.cdecl, importc: "IupMglPlotInsert3D", dynlib: libiup_mglplotSONAME.}
+proc MglPlotSet1D*(ih: PIhandle; ds_index: cint; names: cstringArray; y: ptr cdouble; count: cint) {.cdecl, importc: "IupMglPlotSet1D", dynlib: libiup_mglplotSONAME.}
+proc MglPlotSet2D*(ih: PIhandle; ds_index: cint; x: ptr cdouble; y: ptr cdouble; count: cint) {.cdecl, importc: "IupMglPlotSet2D", dynlib: libiup_mglplotSONAME.}
+proc MglPlotSet3D*(ih: PIhandle; ds_index: cint; x: ptr cdouble; y: ptr cdouble; z: ptr cdouble; count: cint) {.cdecl, importc: "IupMglPlotSet3D", dynlib: libiup_mglplotSONAME.}
+proc MglPlotSetFormula*(ih: PIhandle; ds_index: cint; formulaX: cstring; formulaY: cstring; formulaZ: cstring; count: cint) {.cdecl, importc: "IupMglPlotSetFormula", dynlib: libiup_mglplotSONAME.}
+proc MglPlotSetData*(ih: PIhandle; ds_index: cint; data: ptr cdouble; count_x: cint; count_y: cint; count_z: cint) {.cdecl, importc: "IupMglPlotSetData", dynlib: libiup_mglplotSONAME.}
+proc MglPlotLoadData*(ih: PIhandle; ds_index: cint; filename: cstring; count_x: cint; count_y: cint; count_z: cint) {.cdecl, importc: "IupMglPlotLoadData", dynlib: libiup_mglplotSONAME.}
+proc MglPlotSetFromFormula*(ih: PIhandle; ds_index: cint; formula: cstring; count_x: cint; count_y: cint; count_z: cint) {.cdecl, importc: "IupMglPlotSetFromFormula", dynlib: libiup_mglplotSONAME.}
+proc MglPlotTransform*(ih: PIhandle; x: cdouble; y: cdouble; z: cdouble; ix: var cint; iy: var cint) {.cdecl, importc: "IupMglPlotTransform", dynlib: libiup_mglplotSONAME.}
+proc MglPlotTransformTo*(ih: PIhandle; ix: cint; iy: cint; x: ptr cdouble; y: ptr cdouble; z: ptr cdouble) {.cdecl, importc: "IupMglPlotTransformTo", dynlib: libiup_mglplotSONAME.}
+proc MglPlotDrawMark*(ih: PIhandle; x: cdouble; y: cdouble; z: cdouble) {.cdecl, importc: "IupMglPlotDrawMark", dynlib: libiup_mglplotSONAME.}
+proc MglPlotDrawLine*(ih: PIhandle; x1: cdouble; y1: cdouble; z1: cdouble; x2: cdouble; y2: cdouble; z2: cdouble) {.cdecl, importc: "IupMglPlotDrawLine", dynlib: libiup_mglplotSONAME.}
+proc MglPlotDrawText*(ih: PIhandle; text: cstring; x: cdouble; y: cdouble; z: cdouble) {. cdecl, importc: "IupMglPlotDrawText", dynlib: libiup_mglplotSONAME.}
+proc MglPlotPaintTo*(ih: PIhandle; format: cstring; w: cint; h: cint; dpi: cdouble; data: pointer) {.cdecl, importc: "IupMglPlotPaintTo", dynlib: libiup_mglplotSONAME.}
+proc MglLabel*(title: cstring): PIhandle {.cdecl, importc: "IupMglLabel", dynlib: libiup_mglplotSONAME.}
+proc PlotOpen*() {.cdecl, importc: "IupPlotOpen", dynlib: libiup_plotSONAME.}
+proc Plot*(): PIhandle {.cdecl, importc: "IupPlot", dynlib: libiup_plotSONAME.}
+proc PlotBegin*(ih: PIhandle; strXdata: cint) {.cdecl, importc: "IupPlotBegin", dynlib: libiup_plotSONAME.}
+proc PlotAdd*(ih: PIhandle; x: cdouble; y: cdouble) {.cdecl, importc: "IupPlotAdd", dynlib: libiup_plotSONAME.}
+proc PlotAddStr*(ih: PIhandle; x: cstring; y: cdouble) {.cdecl, importc: "IupPlotAddStr", dynlib: libiup_plotSONAME.}
+proc PlotAddSegment*(ih: PIhandle; x: cdouble; y: cdouble) {.cdecl, importc: "IupPlotAddSegment", dynlib: libiup_plotSONAME.}
+proc PlotEnd*(ih: PIhandle): cint {.cdecl, importc: "IupPlotEnd", dynlib: libiup_plotSONAME.}
+proc PlotLoadData*(ih: PIhandle; filename: cstring; strXdata: cint): cint {.cdecl, importc: "IupPlotLoadData", dynlib: libiup_plotSONAME.}
+proc PlotSetFormula*(ih: PIhandle; sample_count: cint; formula: cstring; init: cstring): cint {.cdecl, importc: "IupPlotSetFormula", dynlib: libiup_plotSONAME.}
+proc PlotInsert*(ih: PIhandle; ds_index: cint; sample_index: cint; x: cdouble; y: cdouble) {.cdecl, importc: "IupPlotInsert", dynlib: libiup_plotSONAME.}
+proc PlotInsertStr*(ih: PIhandle; ds_index: cint; sample_index: cint; x: cstring; y: cdouble) {.cdecl, importc: "IupPlotInsertStr", dynlib: libiup_plotSONAME.}
+proc PlotInsertSegment*(ih: PIhandle; ds_index: cint; sample_index: cint; x: cdouble; y: cdouble) {.cdecl, importc: "IupPlotInsertSegment", dynlib: libiup_plotSONAME.}
+proc PlotInsertStrSamples*(ih: PIhandle; ds_index: cint; sample_index: cint; x: cstringArray; y: ptr cdouble; count: cint) {.cdecl, importc: "IupPlotInsertStrSamples", dynlib: libiup_plotSONAME.}
+proc PlotInsertSamples*(ih: PIhandle; ds_index: cint; sample_index: cint; x: ptr cdouble; y: ptr cdouble; count: cint) {.cdecl, importc: "IupPlotInsertSamples", dynlib: libiup_plotSONAME.}
+proc PlotAddSamples*(ih: PIhandle; ds_index: cint; x: ptr cdouble; y: ptr cdouble; count: cint) {.cdecl, importc: "IupPlotAddSamples", dynlib: libiup_plotSONAME.}
+proc PlotAddStrSamples*(ih: PIhandle; ds_index: cint; x: cstringArray; y: ptr cdouble; count: cint) {.cdecl, importc: "IupPlotAddStrSamples", dynlib: libiup_plotSONAME.}
+proc PlotGetSample*(ih: PIhandle; ds_index: cint; sample_index: cint; x: ptr cdouble; y: ptr cdouble) {.cdecl, importc: "IupPlotGetSample", dynlib: libiup_plotSONAME.}
+proc PlotGetSampleStr*(ih: PIhandle; ds_index: cint; sample_index: cint; x: cstringArray; y: ptr cdouble) {.cdecl, importc: "IupPlotGetSampleStr", dynlib: libiup_plotSONAME.}
+proc PlotGetSampleSelection*(ih: PIhandle; ds_index: cint; sample_index: cint): cint {. cdecl, importc: "IupPlotGetSampleSelection", dynlib: libiup_plotSONAME.}
+proc PlotGetSampleExtra*(ih: PIhandle; ds_index: cint; sample_index: cint): cdouble {. cdecl, importc: "IupPlotGetSampleExtra", dynlib: libiup_plotSONAME.}
+proc PlotSetSample*(ih: PIhandle; ds_index: cint; sample_index: cint; x: cdouble; y: cdouble) {.cdecl, importc: "IupPlotSetSample", dynlib: libiup_plotSONAME.}
+proc PlotSetSampleStr*(ih: PIhandle; ds_index: cint; sample_index: cint; x: cstring; y: cdouble) {.cdecl, importc: "IupPlotSetSampleStr", dynlib: libiup_plotSONAME.}
+proc PlotSetSampleSelection*(ih: PIhandle; ds_index: cint; sample_index: cint; selected: cint) {.cdecl, importc: "IupPlotSetSampleSelection", dynlib: libiup_plotSONAME.}
+proc PlotSetSampleExtra*(ih: PIhandle; ds_index: cint; sample_index: cint; extra: cdouble) {.cdecl, importc: "IupPlotSetSampleExtra", dynlib: libiup_plotSONAME.}
+proc PlotTransform*(ih: PIhandle; x: cdouble; y: cdouble; cnv_x: ptr cdouble; cnv_y: ptr cdouble) {.cdecl, importc: "IupPlotTransform", dynlib: libiup_plotSONAME.}
+proc PlotTransformTo*(ih: PIhandle; cnv_x: cdouble; cnv_y: cdouble; x: ptr cdouble; y: ptr cdouble) {.cdecl, importc: "IupPlotTransformTo", dynlib: libiup_plotSONAME.}
+proc PlotFindSample*(ih: PIhandle; cnv_x: cdouble; cnv_y: cdouble; ds_index: var cint; sample_index: var cint): cint {.cdecl, importc: "IupPlotFindSample", dynlib: libiup_plotSONAME.}
+proc PlotFindSegment*(ih: PIhandle; cnv_x: cdouble; cnv_y: cdouble; ds_index: var cint; sample_index1: var cint; sample_index2: var cint): cint {.cdecl, importc: "IupPlotFindSegment", dynlib: libiup_plotSONAME.}
 type
  cdCanvas* {.bycopy.} = object
 
 
-proc PlotPaintTo*(ih: PIhandle; cnv: ptr cdCanvas) {.cdecl, importc: "IupPlotPaintTo", dynlib: libiupSONAME.}
-proc ScintillaOpen*() {.cdecl, importc: "IupScintillaOpen", dynlib: libiupSONAME.}
-proc Scintilla*(): PIhandle {.cdecl, importc: "IupScintilla", dynlib: libiupSONAME.}
-proc ScintillaDlg*(): PIhandle {.cdecl, importc: "IupScintillaDlg", dynlib: libiupSONAME.}
-proc TuioOpen*(): cint {.cdecl, importc: "IupTuioOpen", dynlib: libiupSONAME.}
-proc TuioClient*(port: cint): PIhandle {.cdecl, importc: "IupTuioClient", dynlib: libiupSONAME.}
-proc WebBrowserOpen*(): cint {.cdecl, importc: "IupWebBrowserOpen", dynlib: libiupSONAME.}
-proc WebBrowser*(): PIhandle {.cdecl, importc: "IupWebBrowser", dynlib: libiupSONAME.}
+proc PlotPaintTo*(ih: PIhandle; cnv: ptr cdCanvas) {.cdecl, importc: "IupPlotPaintTo", dynlib: libiup_plotSONAME.}
+proc ScintillaOpen*() {.cdecl, importc: "IupScintillaOpen", dynlib: libiup_scintillaSONAME.}
+proc Scintilla*(): PIhandle {.cdecl, importc: "IupScintilla", dynlib: libiup_scintillaSONAME.}
+proc ScintillaDlg*(): PIhandle {.cdecl, importc: "IupScintillaDlg", dynlib: libiup_scintillaSONAME.}
+proc TuioOpen*(): cint {.cdecl, importc: "IupTuioOpen", dynlib: libiuptuioSONAME.}
+proc TuioClient*(port: cint): PIhandle {.cdecl, importc: "IupTuioClient", dynlib: libiuptuioSONAME.}
+proc WebBrowserOpen*(): cint {.cdecl, importc: "IupWebBrowserOpen", dynlib: libiupwebSONAME.}
+proc WebBrowser*(): PIhandle {.cdecl, importc: "IupWebBrowser", dynlib: libiupwebSONAME.}

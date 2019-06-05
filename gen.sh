@@ -39,7 +39,7 @@ do
     SONAME=${SONAME/\.so/SONAME}
 
     functions=()
-    for s in $(nm -g --defined-only $i | sed -e '/ Iup/!d; s/0.* T //')
+    for s in $(nm -g --defined-only $i | sed -e '/ Iup/!d; s/0.* T //; s/^Iup//')
     do
         functions+=($s)
     done
