@@ -21,7 +21,7 @@ rm -f iup_concat.h
 
 for h in "${HEADERS[@]}"
 do
-    ./prepare.sh /usr/include/iup/$h >> iup_concat.h
+    ./prepare.sh /usr/include/iup/$h '-DSCINTILLA_H' >> iup_concat.h
 done
 
 sed -i '/ CD_IUPDRAW /d' iup_concat.h
@@ -65,7 +65,7 @@ done
 sed -i -E '
     /IUP_VERSION/d;
     s/ptr Ihandle/PIhandle/g;
-    s/Ihandle\* = Ihandle_/Ihandle = object\n PIhandle* = ptr Ihandle\n cdContext = object/;
+    s/Ihandle\* = Ihandle_/Ihandle = object\n PIhandle* = ptr Ihandle\n cdContext = object\n uptr_t = clong\n sptr_t = clong/;
     s/= (-?\d+|0x[[:xdigit:]]+)$/= cint(\1)/;
     /K_\w+\* =/{ s/('"'.*'"')/cint(ord(\1))/};
     /IUPMASK_/d;
