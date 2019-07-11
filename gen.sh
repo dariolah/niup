@@ -1,5 +1,6 @@
 #!/bin/bash
 
+#Lib IUP
 HEADERS=(iup.h \
              iup_config.h \
              iupcontrols.h \
@@ -21,7 +22,7 @@ rm -f iup_concat.h
 
 for h in "${HEADERS[@]}"
 do
-    ./prepare.sh /usr/include/iup/$h '-DSCINTILLA_H' >> iup_concat.h
+    ./prepare.sh /usr/include/iup/$h '-DSCINTILLA_H -D__IM_IMAGE_H' >> iup_concat.h
 done
 
 sed -i '/ CD_IUPDRAW /d' iup_concat.h
@@ -72,6 +73,34 @@ sed -i -E '
     s/ptr cint/var cint/g;
     /proc ImageLibOpen/{ s/libiupSONAME./libiupimglibSONAME/ }
     ' iup_concat.nim
+#~Lib IUP
+
+
+#Lib IM
+HEADERS=(im.h \
+         im_image.h \
+	 im_convert.h)
+
+rm -f im_concat.h
+
+for h in "${HEADERS[@]}"
+do
+    ./prepare.sh /usr/include/im/$h >> im_concat.h
+done
+
+c2nim --dynlib:libiupimSONAME --cdecl im_concat.h
+
+sed -i -E '
+    s/_imFile/object/;
+    s/(\(| )_/\1x_/g;
+    /color_space\*:/{s/cint/imColorSpace/};
+    /color_space:/{s/color_space: cint/color_space: imColorSpace/};
+    /proc imFileImageSave/{s/: cint/: imErrorCodes/};
+    s/error: ptr cint/error: ptr imErrorCodes/;
+    s/ data_type: cint/ data_type: imDataType/;
+    ' im_concat.nim
+#~Lib IM
+
 
 cat << 'EOF' > niup.nim
 {.deadCodeElim: on.}
@@ -134,6 +163,9 @@ else:
 
 EOF
 
+echo -e "\n#Lib IM" >> niup.nim
+cat im_concat.nim >> niup.nim
+echo -e "\n#Lib IUP" >> niup.nim
 cat iup_concat.nim >> niup.nim
 rm iup_concat.*
-
+rm im_concat.*

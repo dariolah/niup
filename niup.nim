@@ -56,6 +56,289 @@ else:
         libiuptuioSONAME = "libiuptuio.so"
         libiupwebSONAME = "libiupweb.so"
 
+
+#Lib IM
+type
+  imDataType* {.size: sizeof(cint).} = enum
+    IM_BYTE, IM_SHORT, IM_USHORT, IM_INT, IM_FLOAT, IM_DOUBLE, IM_CFLOAT, IM_CDOUBLE
+
+
+type
+  imColorSpace* {.size: sizeof(cint).} = enum
+    IM_RGB, IM_MAP, IM_GRAY, IM_BINARY, IM_CMYK, IM_YCBCR, IM_LAB, IM_LUV, IM_XYZ
+
+
+type
+  imColorModeConfig* {.size: sizeof(cint).} = enum
+    IM_ALPHA = 0x00000100, IM_PACKED = 0x00000200, IM_TOPDOWN = 0x00000400
+
+
+type
+  imErrorCodes* {.size: sizeof(cint).} = enum
+    IM_ERR_NONE, IM_ERR_OPEN, IM_ERR_ACCESS, IM_ERR_FORMAT, IM_ERR_DATA,
+    IM_ERR_COMPRESS, IM_ERR_MEM, IM_ERR_COUNTER
+
+
+type
+  imFile* = object
+
+proc imFileOpen*(file_name: cstring; error: ptr imErrorCodes): ptr imFile {.cdecl,
+    importc: "imFileOpen", dynlib: libiupimSONAME.}
+proc imFileOpenAs*(file_name: cstring; format: cstring; error: ptr imErrorCodes): ptr imFile {.
+    cdecl, importc: "imFileOpenAs", dynlib: libiupimSONAME.}
+proc imFileNew*(file_name: cstring; format: cstring; error: ptr imErrorCodes): ptr imFile {.cdecl,
+    importc: "imFileNew", dynlib: libiupimSONAME.}
+proc imFileClose*(ifile: ptr imFile) {.cdecl, importc: "imFileClose",
+                                   dynlib: libiupimSONAME.}
+proc imFileHandle*(ifile: ptr imFile; index: cint): pointer {.cdecl,
+    importc: "imFileHandle", dynlib: libiupimSONAME.}
+proc imFileGetInfo*(ifile: ptr imFile; format: cstring; compression: cstring;
+                   image_count: ptr cint) {.cdecl, importc: "imFileGetInfo",
+    dynlib: libiupimSONAME.}
+proc imFileSetInfo*(ifile: ptr imFile; compression: cstring) {.cdecl,
+    importc: "imFileSetInfo", dynlib: libiupimSONAME.}
+proc imFileSetAttribute*(ifile: ptr imFile; attrib: cstring; data_type: imDataType;
+                        count: cint; data: pointer) {.cdecl,
+    importc: "imFileSetAttribute", dynlib: libiupimSONAME.}
+proc imFileSetAttribInteger*(ifile: ptr imFile; attrib: cstring; data_type: imDataType;
+                            value: cint) {.cdecl,
+    importc: "imFileSetAttribInteger", dynlib: libiupimSONAME.}
+proc imFileSetAttribReal*(ifile: ptr imFile; attrib: cstring; data_type: imDataType;
+                         value: cdouble) {.cdecl, importc: "imFileSetAttribReal",
+    dynlib: libiupimSONAME.}
+proc imFileSetAttribString*(ifile: ptr imFile; attrib: cstring; value: cstring) {.cdecl,
+    importc: "imFileSetAttribString", dynlib: libiupimSONAME.}
+proc imFileGetAttribute*(ifile: ptr imFile; attrib: cstring; data_type: ptr cint;
+                        count: ptr cint): pointer {.cdecl,
+    importc: "imFileGetAttribute", dynlib: libiupimSONAME.}
+proc imFileGetAttribInteger*(ifile: ptr imFile; attrib: cstring; index: cint): cint {.
+    cdecl, importc: "imFileGetAttribInteger", dynlib: libiupimSONAME.}
+proc imFileGetAttribReal*(ifile: ptr imFile; attrib: cstring; index: cint): cdouble {.
+    cdecl, importc: "imFileGetAttribReal", dynlib: libiupimSONAME.}
+proc imFileGetAttribString*(ifile: ptr imFile; attrib: cstring): cstring {.cdecl,
+    importc: "imFileGetAttribString", dynlib: libiupimSONAME.}
+proc imFileGetAttributeList*(ifile: ptr imFile; attrib: cstringArray;
+                            attrib_count: ptr cint) {.cdecl,
+    importc: "imFileGetAttributeList", dynlib: libiupimSONAME.}
+proc imFileGetPalette*(ifile: ptr imFile; palette: ptr clong; palette_count: ptr cint) {.
+    cdecl, importc: "imFileGetPalette", dynlib: libiupimSONAME.}
+proc imFileSetPalette*(ifile: ptr imFile; palette: ptr clong; palette_count: cint) {.
+    cdecl, importc: "imFileSetPalette", dynlib: libiupimSONAME.}
+proc imFileReadImageInfo*(ifile: ptr imFile; index: cint; width: ptr cint;
+                         height: ptr cint; file_color_mode: ptr cint;
+                         file_data_type: ptr cint): cint {.cdecl,
+    importc: "imFileReadImageInfo", dynlib: libiupimSONAME.}
+proc imFileWriteImageInfo*(ifile: ptr imFile; width: cint; height: cint;
+                          user_color_mode: cint; user_data_type: cint): cint {.cdecl,
+    importc: "imFileWriteImageInfo", dynlib: libiupimSONAME.}
+proc imFileReadImageData*(ifile: ptr imFile; data: pointer; convert2bitmap: cint;
+                         color_mode_flags: cint): cint {.cdecl,
+    importc: "imFileReadImageData", dynlib: libiupimSONAME.}
+proc imFileWriteImageData*(ifile: ptr imFile; data: pointer): cint {.cdecl,
+    importc: "imFileWriteImageData", dynlib: libiupimSONAME.}
+proc imFormatRegisterInternal*() {.cdecl, importc: "imFormatRegisterInternal",
+                                 dynlib: libiupimSONAME.}
+proc imFormatRemoveAll*() {.cdecl, importc: "imFormatRemoveAll",
+                          dynlib: libiupimSONAME.}
+proc imFormatList*(format_list: cstringArray; format_count: ptr cint) {.cdecl,
+    importc: "imFormatList", dynlib: libiupimSONAME.}
+proc imFormatInfo*(format: cstring; desc: cstring; ext: cstring; can_sequence: ptr cint): cint {.
+    cdecl, importc: "imFormatInfo", dynlib: libiupimSONAME.}
+proc imFormatInfoExtra*(format: cstring; extra: cstring): cint {.cdecl,
+    importc: "imFormatInfoExtra", dynlib: libiupimSONAME.}
+proc imFormatCompressions*(format: cstring; comp: cstringArray; comp_count: ptr cint;
+                          color_mode: cint; data_type: imDataType): cint {.cdecl,
+    importc: "imFormatCompressions", dynlib: libiupimSONAME.}
+proc imFormatCanWriteImage*(format: cstring; compression: cstring; color_mode: cint;
+                           data_type: imDataType): cint {.cdecl,
+    importc: "imFormatCanWriteImage", dynlib: libiupimSONAME.}
+type
+  imImage* {.bycopy.} = object
+    width*: cint
+    height*: cint
+    color_space*: imColorSpace
+    data_type*: cint
+    has_alpha*: cint
+    depth*: cint
+    line_size*: cint
+    plane_size*: cint
+    size*: cint
+    count*: cint
+    data*: ptr pointer
+    palette*: ptr clong
+    palette_count*: cint
+    attrib_table*: pointer
+
+
+proc imImageCreate*(width: cint; height: cint; color_space: imColorSpace; data_type: imDataType): ptr imImage {.
+    cdecl, importc: "imImageCreate", dynlib: libiupimSONAME.}
+proc imImageInit*(width: cint; height: cint; color_mode: cint; data_type: imDataType;
+                 data_buffer: pointer; palette: ptr clong; palette_count: cint): ptr imImage {.
+    cdecl, importc: "imImageInit", dynlib: libiupimSONAME.}
+proc imImageCreateBased*(image: ptr imImage; width: cint; height: cint;
+                        color_space: imColorSpace; data_type: imDataType): ptr imImage {.cdecl,
+    importc: "imImageCreateBased", dynlib: libiupimSONAME.}
+proc imImageDestroy*(image: ptr imImage) {.cdecl, importc: "imImageDestroy",
+                                       dynlib: libiupimSONAME.}
+proc imImageAddAlpha*(image: ptr imImage) {.cdecl, importc: "imImageAddAlpha",
+                                        dynlib: libiupimSONAME.}
+proc imImageSetAlpha*(image: ptr imImage; alpha: cfloat) {.cdecl,
+    importc: "imImageSetAlpha", dynlib: libiupimSONAME.}
+proc imImageRemoveAlpha*(image: ptr imImage) {.cdecl, importc: "imImageRemoveAlpha",
+    dynlib: libiupimSONAME.}
+proc imImageReshape*(image: ptr imImage; width: cint; height: cint) {.cdecl,
+    importc: "imImageReshape", dynlib: libiupimSONAME.}
+proc imImageCopy*(src_image: ptr imImage; dst_image: ptr imImage) {.cdecl,
+    importc: "imImageCopy", dynlib: libiupimSONAME.}
+proc imImageCopyData*(src_image: ptr imImage; dst_image: ptr imImage) {.cdecl,
+    importc: "imImageCopyData", dynlib: libiupimSONAME.}
+proc imImageCopyAttributes*(src_image: ptr imImage; dst_image: ptr imImage) {.cdecl,
+    importc: "imImageCopyAttributes", dynlib: libiupimSONAME.}
+proc imImageMergeAttributes*(src_image: ptr imImage; dst_image: ptr imImage) {.cdecl,
+    importc: "imImageMergeAttributes", dynlib: libiupimSONAME.}
+proc imImageCopyPlane*(src_image: ptr imImage; src_plane: cint;
+                      dst_image: ptr imImage; dst_plane: cint) {.cdecl,
+    importc: "imImageCopyPlane", dynlib: libiupimSONAME.}
+proc imImageDuplicate*(image: ptr imImage): ptr imImage {.cdecl,
+    importc: "imImageDuplicate", dynlib: libiupimSONAME.}
+proc imImageClone*(image: ptr imImage): ptr imImage {.cdecl, importc: "imImageClone",
+    dynlib: libiupimSONAME.}
+proc imImageSetAttribute*(image: ptr imImage; attrib: cstring; data_type: imDataType;
+                         count: cint; data: pointer) {.cdecl,
+    importc: "imImageSetAttribute", dynlib: libiupimSONAME.}
+proc imImageSetAttribInteger*(image: ptr imImage; attrib: cstring; data_type: imDataType;
+                             value: cint) {.cdecl,
+    importc: "imImageSetAttribInteger", dynlib: libiupimSONAME.}
+proc imImageSetAttribReal*(image: ptr imImage; attrib: cstring; data_type: imDataType;
+                          value: cdouble) {.cdecl, importc: "imImageSetAttribReal",
+    dynlib: libiupimSONAME.}
+proc imImageSetAttribString*(image: ptr imImage; attrib: cstring; value: cstring) {.
+    cdecl, importc: "imImageSetAttribString", dynlib: libiupimSONAME.}
+proc imImageGetAttribute*(image: ptr imImage; attrib: cstring; data_type: ptr cint;
+                         count: ptr cint): pointer {.cdecl,
+    importc: "imImageGetAttribute", dynlib: libiupimSONAME.}
+proc imImageGetAttribInteger*(image: ptr imImage; attrib: cstring; index: cint): cint {.
+    cdecl, importc: "imImageGetAttribInteger", dynlib: libiupimSONAME.}
+proc imImageGetAttribReal*(image: ptr imImage; attrib: cstring; index: cint): cdouble {.
+    cdecl, importc: "imImageGetAttribReal", dynlib: libiupimSONAME.}
+proc imImageGetAttribString*(image: ptr imImage; attrib: cstring): cstring {.cdecl,
+    importc: "imImageGetAttribString", dynlib: libiupimSONAME.}
+proc imImageGetAttributeList*(image: ptr imImage; attrib: cstringArray;
+                             attrib_count: ptr cint) {.cdecl,
+    importc: "imImageGetAttributeList", dynlib: libiupimSONAME.}
+proc imImageClear*(image: ptr imImage) {.cdecl, importc: "imImageClear",
+                                     dynlib: libiupimSONAME.}
+proc imImageIsBitmap*(image: ptr imImage): cint {.cdecl, importc: "imImageIsBitmap",
+    dynlib: libiupimSONAME.}
+proc imImageSetPalette*(image: ptr imImage; palette: ptr clong; palette_count: cint) {.
+    cdecl, importc: "imImageSetPalette", dynlib: libiupimSONAME.}
+proc imImageMatchSize*(image1: ptr imImage; image2: ptr imImage): cint {.cdecl,
+    importc: "imImageMatchSize", dynlib: libiupimSONAME.}
+proc imImageMatchColor*(image1: ptr imImage; image2: ptr imImage): cint {.cdecl,
+    importc: "imImageMatchColor", dynlib: libiupimSONAME.}
+proc imImageMatchDataType*(image1: ptr imImage; image2: ptr imImage): cint {.cdecl,
+    importc: "imImageMatchDataType", dynlib: libiupimSONAME.}
+proc imImageMatchColorSpace*(image1: ptr imImage; image2: ptr imImage): cint {.cdecl,
+    importc: "imImageMatchColorSpace", dynlib: libiupimSONAME.}
+proc imImageMatch*(image1: ptr imImage; image2: ptr imImage): cint {.cdecl,
+    importc: "imImageMatch", dynlib: libiupimSONAME.}
+proc imImageSetMap*(image: ptr imImage) {.cdecl, importc: "imImageSetMap",
+                                      dynlib: libiupimSONAME.}
+proc imImageSetBinary*(image: ptr imImage) {.cdecl, importc: "imImageSetBinary",
+    dynlib: libiupimSONAME.}
+proc imImageSetGray*(image: ptr imImage) {.cdecl, importc: "imImageSetGray",
+                                       dynlib: libiupimSONAME.}
+proc imImageMakeBinary*(image: ptr imImage) {.cdecl, importc: "imImageMakeBinary",
+    dynlib: libiupimSONAME.}
+proc imImageMakeGray*(image: ptr imImage) {.cdecl, importc: "imImageMakeGray",
+                                        dynlib: libiupimSONAME.}
+proc imFileLoadImage*(ifile: ptr imFile; index: cint; error: ptr imErrorCodes): ptr imImage {.
+    cdecl, importc: "imFileLoadImage", dynlib: libiupimSONAME.}
+proc imFileLoadImageFrame*(ifile: ptr imFile; index: cint; image: ptr imImage;
+                          error: ptr imErrorCodes) {.cdecl, importc: "imFileLoadImageFrame",
+    dynlib: libiupimSONAME.}
+proc imFileLoadBitmap*(ifile: ptr imFile; index: cint; error: ptr imErrorCodes): ptr imImage {.
+    cdecl, importc: "imFileLoadBitmap", dynlib: libiupimSONAME.}
+proc imFileLoadImageRegion*(ifile: ptr imFile; index: cint; bitmap: cint;
+                           error: ptr imErrorCodes; xmin: cint; xmax: cint; ymin: cint;
+                           ymax: cint; width: cint; height: cint): ptr imImage {.cdecl,
+    importc: "imFileLoadImageRegion", dynlib: libiupimSONAME.}
+proc imFileLoadBitmapFrame*(ifile: ptr imFile; index: cint; image: ptr imImage;
+                           error: ptr imErrorCodes) {.cdecl,
+    importc: "imFileLoadBitmapFrame", dynlib: libiupimSONAME.}
+proc imFileSaveImage*(ifile: ptr imFile; image: ptr imImage): cint {.cdecl,
+    importc: "imFileSaveImage", dynlib: libiupimSONAME.}
+proc imFileImageLoad*(file_name: cstring; index: cint; error: ptr imErrorCodes): ptr imImage {.
+    cdecl, importc: "imFileImageLoad", dynlib: libiupimSONAME.}
+proc imFileImageLoadBitmap*(file_name: cstring; index: cint; error: ptr imErrorCodes): ptr imImage {.
+    cdecl, importc: "imFileImageLoadBitmap", dynlib: libiupimSONAME.}
+proc imFileImageLoadRegion*(file_name: cstring; index: cint; bitmap: cint;
+                           error: ptr imErrorCodes; xmin: cint; xmax: cint; ymin: cint;
+                           ymax: cint; width: cint; height: cint): ptr imImage {.cdecl,
+    importc: "imFileImageLoadRegion", dynlib: libiupimSONAME.}
+proc imFileImageSave*(file_name: cstring; format: cstring; image: ptr imImage): imErrorCodes {.
+    cdecl, importc: "imFileImageSave", dynlib: libiupimSONAME.}
+template imcdCanvasPutImage*(x_canvas, x_image, x_x, x_y, x_w, x_h, x_xmin, x_xmax, x_ymin, x_ymax: untyped): void =
+  if x_image.color_space == IM_RGB:
+    if x_image.has_alpha:
+      cdCanvasPutImageRectRGBA(x_canvas, x_image.width, x_image.height,
+                               cast[ptr cuchar](x_image.data[0]),
+                               cast[ptr cuchar](x_image.data[1]),
+                               cast[ptr cuchar](x_image.data[2]),
+                               cast[ptr cuchar](x_image.data[3]), x_x, x_y, x_w, x_h,
+                               x_xmin, x_xmax, x_ymin, x_ymax)
+    else:
+      cdCanvasPutImageRectRGB(x_canvas, x_image.width, x_image.height,
+                              cast[ptr cuchar](x_image.data[0]),
+                              cast[ptr cuchar](x_image.data[1]),
+                              cast[ptr cuchar](x_image.data[2]), x_x, x_y, x_w, x_h, x_xmin,
+                              x_xmax, x_ymin, x_ymax)
+  else:
+    cdCanvasPutImageRectMap(x_canvas, x_image.width, x_image.height,
+                            cast[ptr cuchar](x_image.data[0]), x_image.palette, x_x,
+                            x_y, x_w, x_h, x_xmin, x_xmax, x_ymin, x_ymax)
+
+type
+  imComplex2Real* {.size: sizeof(cint).} = enum
+    IM_CPX_REAL, IM_CPX_IMAG, IM_CPX_MAG, IM_CPX_PHASE
+
+
+type
+  imGammaFactor* {.size: sizeof(cint).} = enum
+    IM_GAMMA_LOGHEAVY = -1000, IM_GAMMA_LOGLITE = -10, IM_GAMMA_LINEAR = 0,
+    IM_GAMMA_EXPLITE = 2, IM_GAMMA_EXPHEAVY = 7
+
+
+type
+  imCastMode* {.size: sizeof(cint).} = enum
+    IM_CAST_MINMAX, IM_CAST_FIXED, IM_CAST_DIRECT, IM_CAST_USER
+
+
+proc imConvertDataType*(src_image: ptr imImage; dst_image: ptr imImage; cpx2real: cint;
+                       gamma: cfloat; absolute: cint; cast_mode: cint): cint {.cdecl,
+    importc: "imConvertDataType", dynlib: libiupimSONAME.}
+proc imConvertColorSpace*(src_image: ptr imImage; dst_image: ptr imImage): cint {.cdecl,
+    importc: "imConvertColorSpace", dynlib: libiupimSONAME.}
+proc imConvertToBitmap*(src_image: ptr imImage; dst_image: ptr imImage; cpx2real: cint;
+                       gamma: cfloat; absolute: cint; cast_mode: cint): cint {.cdecl,
+    importc: "imConvertToBitmap", dynlib: libiupimSONAME.}
+proc imImageGetOpenGLData*(image: ptr imImage; glformat: ptr cint): pointer {.cdecl,
+    importc: "imImageGetOpenGLData", dynlib: libiupimSONAME.}
+proc imImageCreateFromOpenGLData*(width: cint; height: cint; glformat: cint;
+                                 gldata: pointer): ptr imImage {.cdecl,
+    importc: "imImageCreateFromOpenGLData", dynlib: libiupimSONAME.}
+proc imConvertPacking*(src_data: pointer; dst_data: pointer; width: cint; height: cint;
+                      src_depth: cint; dst_depth: cint; data_type: imDataType;
+                      src_is_packed: cint) {.cdecl, importc: "imConvertPacking",
+    dynlib: libiupimSONAME.}
+proc imConvertMapToRGB*(data: ptr cuchar; count: cint; depth: cint; packed: cint;
+                       palette: ptr clong; palette_count: cint) {.cdecl,
+    importc: "imConvertMapToRGB", dynlib: libiupimSONAME.}
+proc imConvertRGB2Map*(width: cint; height: cint; red: ptr cuchar; green: ptr cuchar;
+                      blue: ptr cuchar; map: ptr cuchar; palette: ptr clong;
+                      palette_count: ptr cint): cint {.cdecl,
+    importc: "imConvertRGB2Map", dynlib: libiupimSONAME.}
+#Lib IUP
 const
  IUP_NAME* = "IUP - Portable User Interface"
  IUP_DESCRIPTION* = "Multi-platform Toolkit for Building Graphical User Interfaces"
@@ -530,6 +813,10 @@ proc LoadImage*(file_name: cstring): PIhandle {.cdecl, importc: "IupLoadImage", 
 proc SaveImage*(ih: PIhandle; file_name: cstring; format: cstring): cint {.cdecl, importc: "IupSaveImage", dynlib: libiupimSONAME.}
 proc LoadAnimation*(file_name: cstring): PIhandle {.cdecl, importc: "IupLoadAnimation", dynlib: libiupimSONAME.}
 proc LoadAnimationFrames*(file_name_list: cstringArray; file_count: cint): PIhandle {. cdecl, importc: "IupLoadAnimationFrames", dynlib: libiupimSONAME.}
+proc GetNativeHandleImage*(handle: pointer): ptr imImage {.cdecl, importc: "IupGetNativeHandleImage", dynlib: libiupimSONAME.}
+proc GetImageNativeHandle*(image: ptr imImage): pointer {.cdecl, importc: "IupGetImageNativeHandle", dynlib: libiupimSONAME.}
+proc ImageFromImImage*(image: ptr imImage): PIhandle {.cdecl, importc: "IupImageFromImImage", dynlib: libiupimSONAME.}
+proc ImageToImImage*(iup_image: PIhandle): ptr imImage {.cdecl, importc: "IupImageToImImage", dynlib: libiupimSONAME.}
 const
  K_SP* = cint(ord(' '))
  K_exclam* = cint(ord('!'))
