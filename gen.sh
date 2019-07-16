@@ -26,6 +26,7 @@ do
 done
 
 sed -i '/ CD_IUPDRAW /d' iup_concat.h
+sed -i '/struct _cdCanvas;/d' iup_concat.h
 
 c2nim --dynlib:libiupSONAME --cdecl --prefix:Iup iup_concat.h
 
@@ -66,7 +67,7 @@ done
 sed -i -E '
     /IUP_VERSION/d;
     s/ptr Ihandle/PIhandle/g;
-    s/Ihandle\* = Ihandle_/Ihandle = object\n PIhandle* = ptr Ihandle\n cdContext = object\n uptr_t = clong\n sptr_t = clong/;
+    s/Ihandle\* = Ihandle_/Ihandle = object\n PIhandle* = ptr Ihandle\n\n uptr_t = clong\n sptr_t = clong/;
     s/= (-?\d+|0x[[:xdigit:]]+)$/= cint(\1)/;
     /K_\w+\* =/{ s/('"'.*'"')/cint(ord(\1))/};
     /IUPMASK_/d;
@@ -98,9 +99,33 @@ sed -i -E '
     /proc imFileImageSave/{s/: cint/: imErrorCodes/};
     s/error: ptr cint/error: ptr imErrorCodes/;
     s/ data_type: cint/ data_type: imDataType/;
+    s/if x_image.has_alpha:/if x_image.has_alpha > 0:/;
+    s/cast\[ptr cuchar\]\(x_image.data\[([0-9])\]\)/cast[ptr cuchar](cast[ByteAddress](x_image.data[]) +% \1 * x_image.plane_size)/;
+    s/data\*: ptr pointer/data*: ptr cstring/;
     ' im_concat.nim
 #~Lib IM
 
+#Lib CD
+HEADERS=(cd.h \
+             cdiup.h \
+             cdprint.h
+        )
+
+rm -f cd_concat.h
+
+for h in "${HEADERS[@]}"
+do
+    ./prepare.sh /usr/include/cd/$h >> cd_concat.h
+done
+
+sed -i '/CD_IUP\|CD_IUPDBUFFER\|CD_IUPDBUFFERRGB\|CD_PRINTER/d' cd_concat.h
+
+c2nim --dynlib:libiupcdSONAME --cdecl cd_concat.h
+
+sed -i -E '
+    s/(_cdContext|_cdCanvas|_cdCanvas|_cdImage)/object/;
+    ' cd_concat.nim
+#~Lib CD
 
 cat << 'EOF' > niup.nim
 {.deadCodeElim: on.}
@@ -165,7 +190,10 @@ EOF
 
 echo -e "\n#Lib IM" >> niup.nim
 cat im_concat.nim >> niup.nim
+echo -e "\n#Lib CD" >> niup.nim
+cat cd_concat.nim >> niup.nim
 echo -e "\n#Lib IUP" >> niup.nim
 cat iup_concat.nim >> niup.nim
 rm iup_concat.*
 rm im_concat.*
+rm cd_concat.*
