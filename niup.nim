@@ -1,19 +1,20 @@
 {.deadCodeElim: on.}
 
-# BEGIN workaround for dlopen(RTLD_GLOBAL) in Linux
-# https://forum.nim-lang.org/t/3996
-{. passL:"-rdynamic -Wl,-wrap,dlopen".}
-{.emit: """
-#include <dlfcn.h>
-void *__real_dlopen(const char *filename, int flags);
-void *__wrap_dlopen(const char *filename, int flags)
-{
-  return __real_dlopen(filename, flags | RTLD_GLOBAL);
-}
-""".}
-# END workaround
+when defined(Linux):
+     # BEGIN workaround for dlopen(RTLD_GLOBAL) in Linux
+     # https://forum.nim-lang.org/t/3996
+     {. passL:"-rdynamic -Wl,-wrap,dlopen".}
+     {.emit: """
+     #include <dlfcn.h>
+     void *__real_dlopen(const char *filename, int flags);
+     void *__wrap_dlopen(const char *filename, int flags)
+     {
+       return __real_dlopen(filename, flags | RTLD_GLOBAL);
+     }
+     """.}
+     # END workaround
 
-when defined(windows):
+when defined(Windows):
   const 
         libiupSONAME = "iup.dll"
         libiupcdSONAME = "libiupcd.dll"
@@ -27,7 +28,7 @@ when defined(windows):
         libiup_scintillaSONAME = "libiup_scintilla.dll"
         libiuptuioSONAME = "libiuptuio.dll"
         libiupwebSONAME = "libiupweb.dll"
-elif defined(macosx):
+elif defined(MacOSX):
   const 
         libiupSONAME = "libiup.dylib"
         libiupcdSONAME = "libiupcd.dylib"
@@ -1012,6 +1013,18 @@ proc cdContextIupDBufferRGB*(): ptr cdContext {.cdecl,
     importc: "cdContextIupDBufferRGB", dynlib: libiupcdSONAME.}
 proc cdContextPrinter*(): ptr cdContext {.cdecl, importc: "cdContextPrinter",
                                       dynlib: libiupcdSONAME.}
+proc cdContextImageRGB*(): ptr cdContext {.cdecl, importc: "cdContextImageRGB",
+                                       dynlib: libiupcdSONAME.}
+proc cdContextDBufferRGB*(): ptr cdContext {.cdecl, importc: "cdContextDBufferRGB",
+    dynlib: libiupcdSONAME.}
+proc cdRedImage*(cnv: ptr cdCanvas): ptr cuchar {.cdecl, importc: "cdRedImage",
+    dynlib: libiupcdSONAME.}
+proc cdGreenImage*(cnv: ptr cdCanvas): ptr cuchar {.cdecl, importc: "cdGreenImage",
+    dynlib: libiupcdSONAME.}
+proc cdBlueImage*(cnv: ptr cdCanvas): ptr cuchar {.cdecl, importc: "cdBlueImage",
+    dynlib: libiupcdSONAME.}
+proc cdAlphaImage*(cnv: ptr cdCanvas): ptr cuchar {.cdecl, importc: "cdAlphaImage",
+    dynlib: libiupcdSONAME.}
 #Lib IUP
 const
  IUP_NAME* = "IUP - Portable User Interface"

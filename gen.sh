@@ -108,7 +108,8 @@ sed -i -E '
 #Lib CD
 HEADERS=(cd.h \
              cdiup.h \
-             cdprint.h
+             cdprint.h \
+	     cdirgb.h
         )
 
 rm -f cd_concat.h
@@ -118,7 +119,7 @@ do
     ./prepare.sh /usr/include/cd/$h >> cd_concat.h
 done
 
-sed -i '/CD_IUP\|CD_IUPDBUFFER\|CD_IUPDBUFFERRGB\|CD_PRINTER/d' cd_concat.h
+sed -i '/CD_IUP\|CD_IUPDBUFFER\|CD_IUPDBUFFERRGB\|CD_PRINTER\|CD_IMAGERGB\|CD_DBUFFERRGB/d' cd_concat.h
 
 c2nim --dynlib:libiupcdSONAME --cdecl cd_concat.h
 
@@ -130,20 +131,21 @@ sed -i -E '
 cat << 'EOF' > niup.nim
 {.deadCodeElim: on.}
 
-# BEGIN workaround for dlopen(RTLD_GLOBAL) in Linux
-# https://forum.nim-lang.org/t/3996
-{. passL:"-rdynamic -Wl,-wrap,dlopen".}
-{.emit: """
-#include <dlfcn.h>
-void *__real_dlopen(const char *filename, int flags);
-void *__wrap_dlopen(const char *filename, int flags)
-{
-  return __real_dlopen(filename, flags | RTLD_GLOBAL);
-}
-""".}
-# END workaround
+when defined(Linux):
+     # BEGIN workaround for dlopen(RTLD_GLOBAL) in Linux
+     # https://forum.nim-lang.org/t/3996
+     {. passL:"-rdynamic -Wl,-wrap,dlopen".}
+     {.emit: """
+     #include <dlfcn.h>
+     void *__real_dlopen(const char *filename, int flags);
+     void *__wrap_dlopen(const char *filename, int flags)
+     {
+       return __real_dlopen(filename, flags | RTLD_GLOBAL);
+     }
+     """.}
+     # END workaround
 
-when defined(windows):
+when defined(Windows):
   const 
         libiupSONAME = "iup.dll"
         libiupcdSONAME = "libiupcd.dll"
@@ -157,7 +159,7 @@ when defined(windows):
         libiup_scintillaSONAME = "libiup_scintilla.dll"
         libiuptuioSONAME = "libiuptuio.dll"
         libiupwebSONAME = "libiupweb.dll"
-elif defined(macosx):
+elif defined(MacOSX):
   const 
         libiupSONAME = "libiup.dylib"
         libiupcdSONAME = "libiupcd.dylib"
