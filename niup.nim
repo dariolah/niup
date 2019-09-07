@@ -17,17 +17,17 @@ when defined(Linux):
 when defined(Windows):
   const 
         libiupSONAME = "iup.dll"
-        libiupcdSONAME = "libiupcd.dll"
-        libiupcontrolsSONAME = "libiupcontrols.dll"
-        libiupglcontrolsSONAME = "libiupglcontrols.dll"
-        libiupglSONAME = "libiupgl.dll"
-        libiupimglibSONAME = "libiupimglib.dll"
-        libiupimSONAME = "libiupim.dll"
-        libiup_mglplotSONAME = "libiup_mglplot.dll"
-        libiup_plotSONAME = "libiup_plot.dll"
-        libiup_scintillaSONAME = "libiup_scintilla.dll"
-        libiuptuioSONAME = "libiuptuio.dll"
-        libiupwebSONAME = "libiupweb.dll"
+        libiupcdSONAME = "iupcd.dll"
+        libiupcontrolsSONAME = "iupcontrols.dll"
+        libiupglcontrolsSONAME = "iupglcontrols.dll"
+        libiupglSONAME = "iupgl.dll"
+        libiupimglibSONAME = "iupimglib.dll"
+        libiupimSONAME = "iupim.dll"
+        libiup_mglplotSONAME = "iup_mglplot.dll"
+        libiup_plotSONAME = "iup_plot.dll"
+        libiup_scintillaSONAME = "iup_scintilla.dll"
+        libiuptuioSONAME = "iuptuio.dll"
+        libiupwebSONAME = "iupweb.dll"
 elif defined(MacOSX):
   const 
         libiupSONAME = "libiup.dylib"
