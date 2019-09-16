@@ -49,11 +49,9 @@ do
     fnregex="^proc (${fnregex%?}).*libiupSONAME.*"
 
     sed -i -E ': a; 
-                 /^(proc| Iparamcb).*[^}]$/{ 
-                                 N ; s/\n// 
-                               }; 
+                 /^(proc| Iparamcb).*[^}]$/{ N; s/\n// }; 
                  /^(proc| Iparamcb).*[^}]$/b a; 
-                 s/\s+/ /g;
+                 /^proc/{ s/\s+/ /g; }
                  s/_([cs][:\[\)])/X\1/;
                  s/K_([A-Z][\*\)])/K_upper\1/;
                  s/K_([a-z]\*)/K_lower\1/;
@@ -61,18 +59,21 @@ do
                  s/K_c([A-Z]\*)/K_cupper\1/;
                  /isxkey\*/d;
                  s/_cdCanvas/cdCanvas/g;
-                 /'"$fnregex"'/{s/libiupSONAME/'"$SONAME"'/}' iup_concat.nim  
+                 /'"$fnregex"'/{s/libiupSONAME/'"$SONAME"'/}' iup_concat.nim
 done
 
 sed -i -E '
     /IUP_VERSION/d;
     s/ptr Ihandle/PIhandle/g;
-    s/Ihandle\* = Ihandle_/Ihandle = object\n PIhandle* = ptr Ihandle\n\n uptr_t = clong\n sptr_t = clong/;
+    s/Ihandle\* = Ihandle_/Ihandle = object\n  PIhandle* = ptr Ihandle\n\n  uptr_t = clong\n  sptr_t = clong/;
     s/= (-?\d+|0x[[:xdigit:]]+)$/= cint(\1)/;
     /K_\w+\* =/{ s/('"'.*'"')/cint(ord(\1))/};
     /IUPMASK_/d;
     s/ptr cint/var cint/g;
     /proc ImageLibOpen/{ s/libiupSONAME./libiupimglibSONAME/ }
+    /(ConfigLoad|ConfigSave|GetIntInt|Help|Hide|MainLoop|Open|Popup|SetCallback|SetFocus|ShowXY|ControlsOpen|SetAttributes|SetHandle)/{
+        s/\.\}/, discardable.\}/
+    }
     ' iup_concat.nim
 #~Lib IUP
 
@@ -92,6 +93,10 @@ done
 c2nim --dynlib:libiupimSONAME --cdecl im_concat.h
 
 sed -i -E '
+    : a; 
+    /^(proc| Iparamcb).*[^}]$/{ N; s/\n// }; 
+    /^(proc| Iparamcb).*[^}]$/b a; 
+    /^proc/{ s/\s+/ /g; }
     s/_imFile/object/;
     s/(\(| )_/\1x_/g;
     /color_space\*:/{s/cint/imColorSpace/};
@@ -102,6 +107,9 @@ sed -i -E '
     s/if x_image.has_alpha:/if x_image.has_alpha > 0:/;
     s/cast\[ptr cuchar\]\(x_image.data\[([0-9])\]\)/cast[ptr cuchar](cast[ByteAddress](x_image.data[]) +% \1 * x_image.plane_size)/;
     s/data\*: ptr pointer/data*: ptr cstring/;
+    /(imConvertColorSpace|imImageGetOpenGLData)/{
+        s/\.\}/, discardable.\}/
+    }
     ' im_concat.nim
 #~Lib IM
 
@@ -124,9 +132,17 @@ sed -i '/CD_IUP\|CD_IUPDBUFFER\|CD_IUPDBUFFERRGB\|CD_PRINTER\|CD_IMAGERGB\|CD_DB
 c2nim --dynlib:libiupcdSONAME --cdecl cd_concat.h
 
 sed -i -E '
+    : a; 
+    /^(proc| Iparamcb).*[^}]$/{ N; s/\n// }; 
+    /^(proc| Iparamcb).*[^}]$/b a; 
+    /^proc/{ s/\s+/ /g; }
     s/(_cdContext|_cdCanvas|_cdCanvas|_cdImage)/object/;
+    /(cdCanvasActivate|cdCanvasBackground|cdCanvasForeground)/{
+        s/\.\}/, discardable.\}/
+    }
     ' cd_concat.nim
 #~Lib CD
+
 
 cat << 'EOF' > niup.nim
 {.deadCodeElim: on.}
