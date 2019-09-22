@@ -8,6 +8,7 @@ IUP is a multi-platform toolkit for building graphical user interfaces.
 - [NIUP module](#niup-module)
 - [NIUPEXT module](#niupext-module)
 - [Examples](#examples)
+- [screenshots](#screenshots)
 
 ## QuickStart
 
@@ -26,7 +27,7 @@ if isMainModule:
   mainProc()
 ```
 
-Program **helloworld.nim** displays popup message. Function ``Open`` (``IupOpen`` in C) initializes IUP library. ``Message`` (``IupMessage`` in C) displays a dialog centralized on the screen, showing message and the **OK** button. ``Close`` (``IupClose`` IN C) ends the IUP toolkit and releases internal memory. It will also automatically destroy all dialogs and all elements that have names.
+Program **helloworld.nim** displays popup message. Function ``Open`` (``IupOpen`` in C) initializes IUP library. ``Message`` (``IupMessage`` in C) displays a dialog centralized on the screen, showing message and the **OK** button. ``Close`` (``IupClose`` in C) ends the IUP toolkit and releases internal memory. It will also automatically destroy all dialogs and all elements that have names.
 
 helloworldcb.nim
 
@@ -97,11 +98,15 @@ This is low level API so for callbacks Nim binary compatible types should be use
 
 **NIUPEXT** is set of templates, functions and macros to provide better Nim API and simplify coding.
 
-### Documentation
+## Documentation
 
 Main guide to IUP and detailed documentation is at <https://www.tecgraf.puc-rio.br/iup/>. It's focused on C but matches Nim API with very few exceptions.
 
-### Examples
+## Examples
 
 Examples are at <https://github.com/dariolah/nim-iup-examples>
+
+## screenshots
+
+[![screenshots](https://raw.githubusercontent.com/dariolah/niup/master/screenshots.gif)](#screenshots)
 
