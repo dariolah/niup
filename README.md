@@ -71,7 +71,6 @@ if isMainModule:
 Program **helloworldcb.nim** displays ``Dialog`` with ``Label`` and ``Button``. Click on button activates callback ``btn_exit_cb`` which terminates program.
 ``PIhandle`` (``Ihandle`` in C) is type for IUP objects. ``SetAttribute`` (``IupSetAttribute`` in C) sets values to propertie labels. This method for setting options is used for everything: numeric and text properties, options, callback functions. ``ShowXY`` (``IupShowXY`` in C) displays a dialog in a given position on the screen. ``MainLoop`` (``IupMainLoop`` in C) executes the user interaction until a callback returns ``IUP_CLOSE``, ``ExitLoop`` (``IupExitLoop`` in C) is called, or hiding the last visible dialog.
 
-<a name="niupmodule"/>
 ## NIUP module
 
 **NIUP** is low level wrapper for IUP libraries. API is very similiar to C.
@@ -93,7 +92,6 @@ This is low level API so for callbacks Nim binary compatible types should be use
 | char* | cstring |
 | int | cint |
 
-<a name="niupextmodule"/>
 ## NIUPEXT module
 
 **NIUPEXT** is set of templates, functions and macros to provide better Nim API and simplify coding.
