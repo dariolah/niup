@@ -5,9 +5,9 @@ IUP is a multi-platform toolkit for building graphical user interfaces.
 #### Table of Contents
 
 - [QuickStart](#quickstart)
-- [NIUP module](#niupmodule)
-- [NIUPEXT module](#niupextmodule)
-
+- [NIUP module](#niup-module)
+- [NIUPEXT module](#niupext-module)
+- [Examples](#examples)
 
 ## QuickStart
 
@@ -100,5 +100,7 @@ This is low level API so for callbacks Nim binary compatible types should be use
 
 Main guide to IUP and detailed documentation is at <https://www.tecgraf.puc-rio.br/iup/>. It's focused on C but matches Nim API with very few exceptions.
 
-Nim examples are at <https://github.com/dariolah/nim-iup-examples>
+### Examples
+
+Examples are at <https://github.com/dariolah/nim-iup-examples>
 
