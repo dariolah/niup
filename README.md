@@ -2,13 +2,13 @@
 
 IUP is a multi-platform toolkit for building graphical user interfaces.
 
-##### Table of Contents
-[QuickStart](#quickstart)
-[NIUP module](#niupmodule)
-[NIUPEXT module](#niupextmodule)
+#### Table of Contents
+
+- [QuickStart](#quickstart)
+- [NIUP module](#niupmodule)
+- [NIUPEXT module](#niupextmodule)
 
 
-<a name="quickstart"/>
 ## QuickStart
 
 helloworld.nim
