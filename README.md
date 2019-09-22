@@ -86,6 +86,7 @@ Main difference with C API is that functions from IUP don't have prefix ``Iup``.
 #### Callbacks
 
 This is low level API so for callbacks Nim binary compatible types should be used.
+
 | C  | Nim |
 | --- | --- |
 | Ihandle* | PIhandle  |
