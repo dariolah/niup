@@ -139,7 +139,8 @@ sed -i -E '
     s/(_cdContext|_cdCanvas|_cdCanvas|_cdImage)/object/;
     /(cdCanvasActivate|cdCanvasBackground|cdCanvasForeground)/{
         s/\.\}/, discardable.\}/
-    }
+    };
+    /^proc cd/{s/.\}/, dynlib: libcdSONAME.\}/};
     ' cd_concat.nim
 #~Lib CD
 
@@ -165,6 +166,7 @@ when defined(Windows):
   const 
         libiupSONAME = "iup.dll"
         libiupcdSONAME = "iupcd.dll"
+        libcdSONAME = "cd.dll"
         libiupcontrolsSONAME = "iupcontrols.dll"
         libiupglcontrolsSONAME = "iupglcontrols.dll"
         libiupglSONAME = "iupgl.dll"
@@ -179,6 +181,7 @@ elif defined(MacOSX):
   const 
         libiupSONAME = "libiup.dylib"
         libiupcdSONAME = "libiupcd.dylib"
+        libcdSONAME = "libcd.dylib"
         libiupcontrolsSONAME = "libiupcontrols.dylib"
         libiupglcontrolsSONAME = "libiupglcontrols.dylib"
         libiupglSONAME = "libiupgl.dylib"
@@ -193,6 +196,7 @@ else:
   const 
         libiupSONAME = "libiup.so"
         libiupcdSONAME = "libiupcd.so"
+        libcdSONAME = "libcd.so"
         libiupcontrolsSONAME = "libiupcontrols.so"
         libiupglcontrolsSONAME = "libiupglcontrols.so"
         libiupglSONAME = "libiupgl.so"
