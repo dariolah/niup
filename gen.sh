@@ -71,7 +71,7 @@ sed -i -E '
     /IUPMASK_/d;
     s/ptr cint/var cint/g;
     /proc ImageLibOpen/{ s/libiupSONAME./libiupimglibSONAME/ }
-    /(ConfigLoad|ConfigSave|GetIntInt|Help|Hide|MainLoop|Open|Popup|SetCallback|SetFocus|ShowXY|ControlsOpen|SetAttributes|SetHandle)/{
+    /(SetCallback|SetHandle|SetFocus|SetAttributes)/{
         s/\.\}/, discardable.\}/
     }
     ' iup_concat.nim
@@ -107,9 +107,6 @@ sed -i -E '
     s/if x_image.has_alpha:/if x_image.has_alpha > 0:/;
     s/cast\[ptr cuchar\]\(x_image.data\[([0-9])\]\)/cast[ptr cuchar](cast[ByteAddress](x_image.data[]) +% \1 * x_image.plane_size)/;
     s/data\*: ptr pointer/data*: ptr cstring/;
-    /(imConvertColorSpace|imImageGetOpenGLData)/{
-        s/\.\}/, discardable.\}/
-    }
     ' im_concat.nim
 #~Lib IM
 
@@ -137,10 +134,10 @@ sed -i -E '
     /^(proc| Iparamcb).*[^}]$/b a; 
     /^proc/{ s/\s+/ /g; }
     s/(_cdContext|_cdCanvas|_cdCanvas|_cdImage)/object/;
-    /(cdCanvasActivate|cdCanvasBackground|cdCanvasForeground)/{
-        s/\.\}/, discardable.\}/
-    };
     /^proc cd/{s/.\}/, dynlib: libcdSONAME.\}/};
+    /(cdCanvasBackground|cdCanvasForeground)/{
+        s/\.\}/, discardable.\}/
+    }
     ' cd_concat.nim
 #~Lib CD
 
@@ -219,3 +216,9 @@ cat iup_concat.nim >> niup.nim
 rm iup_concat.*
 rm im_concat.*
 rm cd_concat.*
+#discardable
+sed -i -E '
+    /^proc .*\): cint \{/{
+        s/\.\}/, discardable.\}/
+    }
+    ' niup.nim
