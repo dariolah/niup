@@ -2,8 +2,6 @@
 
 IUP is a multi-platform toolkit for building graphical user interfaces.
 
-[![version](https://raw.githubusercontent.com/dariolah/niup/master/version.png)](#version)
-
 #### Table of Contents
 
 - [QuickStart](#quickstart)
@@ -112,3 +110,4 @@ Examples are at <https://github.com/dariolah/nim-iup-examples>
 
 [![screenshots](https://raw.githubusercontent.com/dariolah/niup/master/screenshots.gif)](#screenshots)
 
+[![version](https://raw.githubusercontent.com/dariolah/niup/master/version.png)](#version)
