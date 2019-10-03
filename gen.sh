@@ -15,7 +15,7 @@ HEADERS=(iup.h \
              iup_plot.h \
              iup_scintilla.h \
              iuptuio.h \
-             iupweb.h)
+             iupweb.h )
 
 
 rm -f iup_concat.h
@@ -25,8 +25,16 @@ do
     ./prepare.sh /usr/include/iup/$h '-DSCINTILLA_H -D__IM_IMAGE_H' >> iup_concat.h
 done
 
-sed -i '/ CD_IUPDRAW /d' iup_concat.h
-sed -i '/struct _cdCanvas;/d' iup_concat.h
+#iupdef.h multiple re-defines
+./prepare.sh /usr/include/iup/iupdef.h |sort | uniq >> iup_concat.h
+
+grep _NO iup_concat.h
+
+sed -i -E '/ CD_IUPDRAW /d;
+	/struct _cdCanvas;/d;
+	0,/IUP_YES/{/IUP_YES/d};
+	0,/IUP_NO /{/IUP_NO /d};
+	' iup_concat.h
 
 c2nim --dynlib:libiupSONAME --cdecl --prefix:Iup iup_concat.h
 
