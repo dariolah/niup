@@ -134,6 +134,8 @@ This is low level API so for callbacks Nim binary compatible types should be use
 
 Main guide to IUP and detailed documentation is at <https://www.tecgraf.puc-rio.br/iup/>. It's focused on C but matches Nim API with very few exceptions.
 
+Generated html docs for **niup** and **niupext** modules are in *htmldocs/* folder.
+
 ## Examples
 
 Examples are at <https://github.com/dariolah/nim-iup-examples>
