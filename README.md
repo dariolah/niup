@@ -2,13 +2,45 @@
 
 IUP is a multi-platform toolkit for building graphical user interfaces.
 
+Easy to use API for building desktop applications. Same code runs on Linux and Windows.
+
+Tested
+- Linux, GTK
+- Windows on Linux (cross-compiling, mingw, wine)
+- Windows (reported working)
+
 #### Table of Contents
 
+- [Installation](#installation)
 - [QuickStart](#quickstart)
 - [NIUP module](#niup-module)
 - [NIUPEXT module](#niupext-module)
 - [Examples](#examples)
 - [screenshots](#screenshots)
+
+## Installation
+
+**Prerequisites**
+
+Install IUP libraries...
+
+Pre-built binaries:
+https://sourceforge.net/projects/iup/files/
+
+Download tips:
+https://webserver2.tecgraf.puc-rio.br/iup/en/download_tips.html
+
+Compile from source:
+https://webserver2.tecgraf.puc-rio.br/iup/en/guide.html#buildlib
+
+**NIUP package for Nim**
+```
+nimble install niup
+```
+
+Versioning scheme: &lt;IUP version&gt;.&ltniup version;&gt;
+
+Eg. 3.27.7 means API is generated with IUP 3.27 headers, NIUP revision 7
 
 ## QuickStart
 
