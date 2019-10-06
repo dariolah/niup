@@ -38,7 +38,7 @@ https://webserver2.tecgraf.puc-rio.br/iup/en/guide.html#buildlib
 nimble install niup
 ```
 
-Versioning scheme: &lt;IUP version&gt;.&ltniup version;&gt;
+Versioning scheme: &lt;IUP version&gt;.&lt;niup version&gt;
 
 Eg. 3.27.7 means API is generated with IUP 3.27 headers, NIUP revision 7
 
