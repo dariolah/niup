@@ -48,11 +48,10 @@ Eg. 3.27.7 means API is generated with IUP 3.27 headers, NIUP revision 7
 helloworld.nim
 ```Nim
 import niup
+import niupext
 
 proc mainProc =
-  var argc:cint=0
-  var argv:cstringArray=nil
-  Open(argc, addr argv)
+  Open()
   Message("Hello World", "Hello World from IUP.")
   Close()
 
@@ -75,22 +74,22 @@ proc btn_exit_cb(ih:PIhandle):cint {.cdecl.}=
 proc mainProc =
   var dlg, button, label, vbox: PIhandle
 
-  # template from niupext module, calls Open(argc,argv)
   Open()
 
   label =  Label("Hello world from IUP.")
   button = Button("OK", nil)
 
   vbox = Vbox(label, button, nil)
-  SetAttribute(vbox, "ALIGNMENT", "ACENTER")
-  SetAttribute(vbox, "GAP", "10")
-  SetAttribute(vbox, "MARGIN", "10x10")
+  withPIhandle vbox:
+    "ALIGNMENT" "ACENTER"
+    "GAP"       "10"
+    "MARGIN"    "10x10"
 
   dlg = Dialog(vbox)
   SetAttribute(dlg, "TITLE", "Hello World with callback")
 
   # Registers callbacks
-  SetCallback(button, "ACTION", cast[ICallback](btn_exit_cb))
+  SetCallback(button, "ACTION", btn_exit_cb)
 
   ShowXY(dlg, IUP_CENTER, IUP_CENTER)
 
@@ -130,6 +129,10 @@ This is low level API so for callbacks Nim binary compatible types should be use
 ## NIUPEXT module
 
 **NIUPEXT** is set of templates, functions and macros to provide better Nim API and simplify coding.
+
+Focus is mainly on using Nim types.
+
+It doesn't wrapp IUP objects into Nim types. When interfacing with IUP, __take care about object visibility and life time__.
 
 ## Documentation
 
