@@ -138,7 +138,7 @@ It doesn't wrapp IUP objects into Nim types. When interfacing with IUP, __take c
 
 Main guide to IUP and detailed documentation is at <https://www.tecgraf.puc-rio.br/iup/>. It's focused on C but matches Nim API with very few exceptions.
 
-Generated html docs for **niup** and **niupext** modules are in *htmldocs/* folder.
+API docs: <https://dariolah.github.io/niup>
 
 ## Examples
 
