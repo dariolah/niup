@@ -1,6 +1,6 @@
 # Package
 
-version       = "3.27.8"
+version       = "3.28.1"
 author        = "Dario Lah"
 description   = "IUP FFI bindings"
 license       = "MIT"
@@ -8,7 +8,7 @@ license       = "MIT"
 
 # Dependencies
 
-requires "nim >= 0.19.6"
+requires "nim >= 1.0.4"
 
 when defined(nimdistros):
   import distros

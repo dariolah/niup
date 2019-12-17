@@ -138,7 +138,7 @@ proc imImageInit*(width: cint; height: cint; color_mode: cint; data_type: imData
 proc imImageCreateBased*(image: ptr imImage; width: cint; height: cint; color_space: imColorSpace; data_type: imDataType): ptr imImage {.cdecl, importc: "imImageCreateBased", dynlib: libiupimSONAME.}
 proc imImageDestroy*(image: ptr imImage) {.cdecl, importc: "imImageDestroy", dynlib: libiupimSONAME.}
 proc imImageAddAlpha*(image: ptr imImage) {.cdecl, importc: "imImageAddAlpha", dynlib: libiupimSONAME.}
-proc imImageSetAlpha*(image: ptr imImage; alpha: cfloat) {.cdecl, importc: "imImageSetAlpha", dynlib: libiupimSONAME.}
+proc imImageSetAlpha*(image: ptr imImage; alpha: cdouble) {.cdecl, importc: "imImageSetAlpha", dynlib: libiupimSONAME.}
 proc imImageRemoveAlpha*(image: ptr imImage) {.cdecl, importc: "imImageRemoveAlpha", dynlib: libiupimSONAME.}
 proc imImageReshape*(image: ptr imImage; width: cint; height: cint) {.cdecl, importc: "imImageReshape", dynlib: libiupimSONAME.}
 proc imImageCopy*(src_image: ptr imImage; dst_image: ptr imImage) {.cdecl, importc: "imImageCopy", dynlib: libiupimSONAME.}
@@ -216,14 +216,15 @@ type
     IM_CAST_MINMAX, IM_CAST_FIXED, IM_CAST_DIRECT, IM_CAST_USER
 
 
-proc imConvertDataType*(src_image: ptr imImage; dst_image: ptr imImage; cpx2real: cint; gamma: cfloat; absolute: cint; cast_mode: cint): cint {.cdecl, importc: "imConvertDataType", dynlib: libiupimSONAME, discardable.}
+proc imConvertDataType*(src_image: ptr imImage; dst_image: ptr imImage; cpx2real: cint; gamma: cdouble; absolute: cint; cast_mode: cint): cint {.cdecl, importc: "imConvertDataType", dynlib: libiupimSONAME, discardable.}
 proc imConvertColorSpace*(src_image: ptr imImage; dst_image: ptr imImage): cint {.cdecl, importc: "imConvertColorSpace", dynlib: libiupimSONAME, discardable.}
-proc imConvertToBitmap*(src_image: ptr imImage; dst_image: ptr imImage; cpx2real: cint; gamma: cfloat; absolute: cint; cast_mode: cint): cint {.cdecl, importc: "imConvertToBitmap", dynlib: libiupimSONAME, discardable.}
-proc imImageGetOpenGLData*(image: ptr imImage; glformat: ptr cint): pointer {.cdecl, importc: "imImageGetOpenGLData", dynlib: libiupimSONAME.}
+proc imConvertToBitmap*(src_image: ptr imImage; dst_image: ptr imImage; cpx2real: cint; gamma: cdouble; absolute: cint; cast_mode: cint): cint {.cdecl, importc: "imConvertToBitmap", dynlib: libiupimSONAME, discardable.}
+proc imImageGetOpenGLData*(image: ptr imImage; glformat: ptr cint): pointer {.cdecl, importc: "imImageGetOpenGLData", dynlib: libiupimSONAME, discardable.}
 proc imImageCreateFromOpenGLData*(width: cint; height: cint; glformat: cint; gldata: pointer): ptr imImage {.cdecl, importc: "imImageCreateFromOpenGLData", dynlib: libiupimSONAME.}
 proc imConvertPacking*(src_data: pointer; dst_data: pointer; width: cint; height: cint; src_depth: cint; dst_depth: cint; data_type: imDataType; src_is_packed: cint) {.cdecl, importc: "imConvertPacking", dynlib: libiupimSONAME.}
 proc imConvertMapToRGB*(data: ptr cuchar; count: cint; depth: cint; packed: cint; palette: ptr clong; palette_count: cint) {.cdecl, importc: "imConvertMapToRGB", dynlib: libiupimSONAME.}
 proc imConvertRGB2Map*(width: cint; height: cint; red: ptr cuchar; green: ptr cuchar; blue: ptr cuchar; map: ptr cuchar; palette: ptr clong; palette_count: ptr cint): cint {.cdecl, importc: "imConvertRGB2Map", dynlib: libiupimSONAME, discardable.}
+proc imConvertRGB2MapCounter*(width: cint; height: cint; red: ptr cuchar; green: ptr cuchar; blue: ptr cuchar; map: ptr cuchar; palette: ptr clong; palette_count: ptr cint; counter: cint): cint {.cdecl, importc: "imConvertRGB2MapCounter", dynlib: libiupimSONAME, discardable.}
 #Lib CD
 const
   CD_NAME* = "CD - A 2D Graphics Library"
@@ -245,167 +246,167 @@ type
     data*: pointer
 
 
-proc cdVersion*(): cstring {.cdecl, importc: "cdVersion", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdVersionDate*(): cstring {.cdecl, importc: "cdVersionDate", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdVersionNumber*(): cint {.cdecl, importc: "cdVersionNumber", dynlib: libiupcdSONAME, dynlib: libcdSONAME, discardable.}
-proc cdCreateCanvas*(context: ptr cdContext; data: pointer): ptr cdCanvas {.cdecl, importc: "cdCreateCanvas", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCreateCanvasf*(context: ptr cdContext; format: cstring): ptr cdCanvas {.varargs, cdecl, importc: "cdCreateCanvasf", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdKillCanvas*(canvas: ptr cdCanvas) {.cdecl, importc: "cdKillCanvas", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasGetContext*(canvas: ptr cdCanvas): ptr cdContext {.cdecl, importc: "cdCanvasGetContext", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasActivate*(canvas: ptr cdCanvas): cint {.cdecl, importc: "cdCanvasActivate", dynlib: libiupcdSONAME, dynlib: libcdSONAME, discardable.}
-proc cdCanvasDeactivate*(canvas: ptr cdCanvas) {.cdecl, importc: "cdCanvasDeactivate", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdUseContextPlus*(use: cint): cint {.cdecl, importc: "cdUseContextPlus", dynlib: libiupcdSONAME, dynlib: libcdSONAME, discardable.}
-proc cdInitContextPlus*() {.cdecl, importc: "cdInitContextPlus", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdFinishContextPlus*() {.cdecl, importc: "cdFinishContextPlus", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
+proc cdVersion*(): cstring {.cdecl, importc: "cdVersion", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdVersionDate*(): cstring {.cdecl, importc: "cdVersionDate", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdVersionNumber*(): cint {.cdecl, importc: "cdVersionNumber", dynlib: libcdSONAME, dynlib: libiupcdSONAME, discardable.}
+proc cdCreateCanvas*(context: ptr cdContext; data: pointer): ptr cdCanvas {.cdecl, importc: "cdCreateCanvas", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCreateCanvasf*(context: ptr cdContext; format: cstring): ptr cdCanvas {.varargs, cdecl, importc: "cdCreateCanvasf", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdKillCanvas*(canvas: ptr cdCanvas) {.cdecl, importc: "cdKillCanvas", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasGetContext*(canvas: ptr cdCanvas): ptr cdContext {.cdecl, importc: "cdCanvasGetContext", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasActivate*(canvas: ptr cdCanvas): cint {.cdecl, importc: "cdCanvasActivate", dynlib: libcdSONAME, dynlib: libiupcdSONAME, discardable.}
+proc cdCanvasDeactivate*(canvas: ptr cdCanvas) {.cdecl, importc: "cdCanvasDeactivate", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdUseContextPlus*(use: cint): cint {.cdecl, importc: "cdUseContextPlus", dynlib: libcdSONAME, dynlib: libiupcdSONAME, discardable.}
+proc cdInitContextPlus*() {.cdecl, importc: "cdInitContextPlus", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdFinishContextPlus*() {.cdecl, importc: "cdFinishContextPlus", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
 type
   cdCallback* = proc (canvas: ptr cdCanvas): cint {.cdecl, varargs.}
 
-proc cdContextRegisterCallback*(context: ptr cdContext; cb: cint; `func`: cdCallback): cint {. cdecl, importc: "cdContextRegisterCallback", dynlib: libiupcdSONAME, dynlib: libcdSONAME, discardable.}
-proc cdContextCaps*(context: ptr cdContext): culong {.cdecl, importc: "cdContextCaps", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdContextIsPlus*(context: ptr cdContext): cint {.cdecl, importc: "cdContextIsPlus", dynlib: libiupcdSONAME, dynlib: libcdSONAME, discardable.}
-proc cdContextType*(context: ptr cdContext): cint {.cdecl, importc: "cdContextType", dynlib: libiupcdSONAME, dynlib: libcdSONAME, discardable.}
-proc cdCanvasSimulate*(canvas: ptr cdCanvas; mode: cint): cint {.cdecl, importc: "cdCanvasSimulate", dynlib: libiupcdSONAME, dynlib: libcdSONAME, discardable.}
-proc cdCanvasFlush*(canvas: ptr cdCanvas) {.cdecl, importc: "cdCanvasFlush", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasClear*(canvas: ptr cdCanvas) {.cdecl, importc: "cdCanvasClear", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasSaveState*(canvas: ptr cdCanvas): ptr cdState {.cdecl, importc: "cdCanvasSaveState", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasRestoreState*(canvas: ptr cdCanvas; state: ptr cdState) {.cdecl, importc: "cdCanvasRestoreState", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdReleaseState*(state: ptr cdState) {.cdecl, importc: "cdReleaseState", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasSetAttribute*(canvas: ptr cdCanvas; name: cstring; data: cstring) {.cdecl, importc: "cdCanvasSetAttribute", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasSetfAttribute*(canvas: ptr cdCanvas; name: cstring; format: cstring) {. varargs, cdecl, importc: "cdCanvasSetfAttribute", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasGetAttribute*(canvas: ptr cdCanvas; name: cstring): cstring {.cdecl, importc: "cdCanvasGetAttribute", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasPlay*(canvas: ptr cdCanvas; context: ptr cdContext; xmin: cint; xmax: cint; ymin: cint; ymax: cint; data: pointer): cint {.cdecl, importc: "cdCanvasPlay", dynlib: libiupcdSONAME, dynlib: libcdSONAME, discardable.}
-proc cdCanvasGetSize*(canvas: ptr cdCanvas; width: ptr cint; height: ptr cint; width_mm: ptr cdouble; height_mm: ptr cdouble) {.cdecl, importc: "cdCanvasGetSize", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasUpdateYAxis*(canvas: ptr cdCanvas; y: ptr cint): cint {.cdecl, importc: "cdCanvasUpdateYAxis", dynlib: libiupcdSONAME, dynlib: libcdSONAME, discardable.}
-proc cdfCanvasUpdateYAxis*(canvas: ptr cdCanvas; y: ptr cdouble): cdouble {.cdecl, importc: "cdfCanvasUpdateYAxis", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasInvertYAxis*(canvas: ptr cdCanvas; y: cint): cint {.cdecl, importc: "cdCanvasInvertYAxis", dynlib: libiupcdSONAME, dynlib: libcdSONAME, discardable.}
-proc cdfCanvasInvertYAxis*(canvas: ptr cdCanvas; y: cdouble): cdouble {.cdecl, importc: "cdfCanvasInvertYAxis", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasMM2Pixel*(canvas: ptr cdCanvas; mm_dx: cdouble; mm_dy: cdouble; dx: ptr cint; dy: ptr cint) {.cdecl, importc: "cdCanvasMM2Pixel", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasPixel2MM*(canvas: ptr cdCanvas; dx: cint; dy: cint; mm_dx: ptr cdouble; mm_dy: ptr cdouble) {.cdecl, importc: "cdCanvasPixel2MM", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdfCanvasMM2Pixel*(canvas: ptr cdCanvas; mm_dx: cdouble; mm_dy: cdouble; dx: ptr cdouble; dy: ptr cdouble) {.cdecl, importc: "cdfCanvasMM2Pixel", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdfCanvasPixel2MM*(canvas: ptr cdCanvas; dx: cdouble; dy: cdouble; mm_dx: ptr cdouble; mm_dy: ptr cdouble) {.cdecl, importc: "cdfCanvasPixel2MM", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasOrigin*(canvas: ptr cdCanvas; x: cint; y: cint) {.cdecl, importc: "cdCanvasOrigin", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdfCanvasOrigin*(canvas: ptr cdCanvas; x: cdouble; y: cdouble) {.cdecl, importc: "cdfCanvasOrigin", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasGetOrigin*(canvas: ptr cdCanvas; x: ptr cint; y: ptr cint) {.cdecl, importc: "cdCanvasGetOrigin", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdfCanvasGetOrigin*(canvas: ptr cdCanvas; x: ptr cdouble; y: ptr cdouble) {.cdecl, importc: "cdfCanvasGetOrigin", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasTransform*(canvas: ptr cdCanvas; matrix: ptr cdouble) {.cdecl, importc: "cdCanvasTransform", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasGetTransform*(canvas: ptr cdCanvas): ptr cdouble {.cdecl, importc: "cdCanvasGetTransform", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasTransformMultiply*(canvas: ptr cdCanvas; matrix: ptr cdouble) {.cdecl, importc: "cdCanvasTransformMultiply", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasTransformRotate*(canvas: ptr cdCanvas; angle: cdouble) {.cdecl, importc: "cdCanvasTransformRotate", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasTransformScale*(canvas: ptr cdCanvas; sx: cdouble; sy: cdouble) {.cdecl, importc: "cdCanvasTransformScale", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasTransformTranslate*(canvas: ptr cdCanvas; dx: cdouble; dy: cdouble) {. cdecl, importc: "cdCanvasTransformTranslate", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasTransformPoint*(canvas: ptr cdCanvas; x: cint; y: cint; tx: ptr cint; ty: ptr cint) {.cdecl, importc: "cdCanvasTransformPoint", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdfCanvasTransformPoint*(canvas: ptr cdCanvas; x: cdouble; y: cdouble; tx: ptr cdouble; ty: ptr cdouble) {.cdecl, importc: "cdfCanvasTransformPoint", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasClip*(canvas: ptr cdCanvas; mode: cint): cint {.cdecl, importc: "cdCanvasClip", dynlib: libiupcdSONAME, dynlib: libcdSONAME, discardable.}
-proc cdCanvasClipArea*(canvas: ptr cdCanvas; xmin: cint; xmax: cint; ymin: cint; ymax: cint) {.cdecl, importc: "cdCanvasClipArea", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasGetClipArea*(canvas: ptr cdCanvas; xmin: ptr cint; xmax: ptr cint; ymin: ptr cint; ymax: ptr cint): cint {.cdecl, importc: "cdCanvasGetClipArea", dynlib: libiupcdSONAME, dynlib: libcdSONAME, discardable.}
-proc cdfCanvasClipArea*(canvas: ptr cdCanvas; xmin: cdouble; xmax: cdouble; ymin: cdouble; ymax: cdouble) {.cdecl, importc: "cdfCanvasClipArea", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdfCanvasGetClipArea*(canvas: ptr cdCanvas; xmin: ptr cdouble; xmax: ptr cdouble; ymin: ptr cdouble; ymax: ptr cdouble): cint {.cdecl, importc: "cdfCanvasGetClipArea", dynlib: libiupcdSONAME, dynlib: libcdSONAME, discardable.}
-proc cdCanvasIsPointInRegion*(canvas: ptr cdCanvas; x: cint; y: cint): cint {.cdecl, importc: "cdCanvasIsPointInRegion", dynlib: libiupcdSONAME, dynlib: libcdSONAME, discardable.}
-proc cdCanvasOffsetRegion*(canvas: ptr cdCanvas; x: cint; y: cint) {.cdecl, importc: "cdCanvasOffsetRegion", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasGetRegionBox*(canvas: ptr cdCanvas; xmin: ptr cint; xmax: ptr cint; ymin: ptr cint; ymax: ptr cint) {.cdecl, importc: "cdCanvasGetRegionBox", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasRegionCombineMode*(canvas: ptr cdCanvas; mode: cint): cint {.cdecl, importc: "cdCanvasRegionCombineMode", dynlib: libiupcdSONAME, dynlib: libcdSONAME, discardable.}
-proc cdCanvasPixel*(canvas: ptr cdCanvas; x: cint; y: cint; color: clong) {.cdecl, importc: "cdCanvasPixel", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasMark*(canvas: ptr cdCanvas; x: cint; y: cint) {.cdecl, importc: "cdCanvasMark", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdfCanvasPixel*(canvas: ptr cdCanvas; x: cdouble; y: cdouble; color: clong) {.cdecl, importc: "cdfCanvasPixel", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdfCanvasMark*(canvas: ptr cdCanvas; x: cdouble; y: cdouble) {.cdecl, importc: "cdfCanvasMark", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasBegin*(canvas: ptr cdCanvas; mode: cint) {.cdecl, importc: "cdCanvasBegin", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasPathSet*(canvas: ptr cdCanvas; action: cint) {.cdecl, importc: "cdCanvasPathSet", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasEnd*(canvas: ptr cdCanvas) {.cdecl, importc: "cdCanvasEnd", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasLine*(canvas: ptr cdCanvas; x1: cint; y1: cint; x2: cint; y2: cint) {.cdecl, importc: "cdCanvasLine", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasVertex*(canvas: ptr cdCanvas; x: cint; y: cint) {.cdecl, importc: "cdCanvasVertex", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasRect*(canvas: ptr cdCanvas; xmin: cint; xmax: cint; ymin: cint; ymax: cint) {. cdecl, importc: "cdCanvasRect", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasBox*(canvas: ptr cdCanvas; xmin: cint; xmax: cint; ymin: cint; ymax: cint) {. cdecl, importc: "cdCanvasBox", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasArc*(canvas: ptr cdCanvas; xc: cint; yc: cint; w: cint; h: cint; angle1: cdouble; angle2: cdouble) {.cdecl, importc: "cdCanvasArc", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasSector*(canvas: ptr cdCanvas; xc: cint; yc: cint; w: cint; h: cint; angle1: cdouble; angle2: cdouble) {.cdecl, importc: "cdCanvasSector", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasChord*(canvas: ptr cdCanvas; xc: cint; yc: cint; w: cint; h: cint; angle1: cdouble; angle2: cdouble) {.cdecl, importc: "cdCanvasChord", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasText*(canvas: ptr cdCanvas; x: cint; y: cint; s: cstring) {.cdecl, importc: "cdCanvasText", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdfCanvasLine*(canvas: ptr cdCanvas; x1: cdouble; y1: cdouble; x2: cdouble; y2: cdouble) {.cdecl, importc: "cdfCanvasLine", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdfCanvasVertex*(canvas: ptr cdCanvas; x: cdouble; y: cdouble) {.cdecl, importc: "cdfCanvasVertex", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdfCanvasRect*(canvas: ptr cdCanvas; xmin: cdouble; xmax: cdouble; ymin: cdouble; ymax: cdouble) {.cdecl, importc: "cdfCanvasRect", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdfCanvasBox*(canvas: ptr cdCanvas; xmin: cdouble; xmax: cdouble; ymin: cdouble; ymax: cdouble) {.cdecl, importc: "cdfCanvasBox", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdfCanvasArc*(canvas: ptr cdCanvas; xc: cdouble; yc: cdouble; w: cdouble; h: cdouble; angle1: cdouble; angle2: cdouble) {.cdecl, importc: "cdfCanvasArc", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdfCanvasSector*(canvas: ptr cdCanvas; xc: cdouble; yc: cdouble; w: cdouble; h: cdouble; angle1: cdouble; angle2: cdouble) {.cdecl, importc: "cdfCanvasSector", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdfCanvasChord*(canvas: ptr cdCanvas; xc: cdouble; yc: cdouble; w: cdouble; h: cdouble; angle1: cdouble; angle2: cdouble) {.cdecl, importc: "cdfCanvasChord", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdfCanvasText*(canvas: ptr cdCanvas; x: cdouble; y: cdouble; s: cstring) {.cdecl, importc: "cdfCanvasText", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasSetBackground*(canvas: ptr cdCanvas; color: clong) {.cdecl, importc: "cdCanvasSetBackground", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasSetForeground*(canvas: ptr cdCanvas; color: clong) {.cdecl, importc: "cdCanvasSetForeground", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasBackground*(canvas: ptr cdCanvas; color: clong): clong {.cdecl, importc: "cdCanvasBackground", dynlib: libiupcdSONAME, dynlib: libcdSONAME, discardable.}
-proc cdCanvasForeground*(canvas: ptr cdCanvas; color: clong): clong {.cdecl, importc: "cdCanvasForeground", dynlib: libiupcdSONAME, dynlib: libcdSONAME, discardable.}
-proc cdCanvasBackOpacity*(canvas: ptr cdCanvas; opacity: cint): cint {.cdecl, importc: "cdCanvasBackOpacity", dynlib: libiupcdSONAME, dynlib: libcdSONAME, discardable.}
-proc cdCanvasWriteMode*(canvas: ptr cdCanvas; mode: cint): cint {.cdecl, importc: "cdCanvasWriteMode", dynlib: libiupcdSONAME, dynlib: libcdSONAME, discardable.}
-proc cdCanvasLineStyle*(canvas: ptr cdCanvas; style: cint): cint {.cdecl, importc: "cdCanvasLineStyle", dynlib: libiupcdSONAME, dynlib: libcdSONAME, discardable.}
-proc cdCanvasLineStyleDashes*(canvas: ptr cdCanvas; dashes: ptr cint; count: cint) {. cdecl, importc: "cdCanvasLineStyleDashes", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasLineWidth*(canvas: ptr cdCanvas; width: cint): cint {.cdecl, importc: "cdCanvasLineWidth", dynlib: libiupcdSONAME, dynlib: libcdSONAME, discardable.}
-proc cdCanvasLineJoin*(canvas: ptr cdCanvas; join: cint): cint {.cdecl, importc: "cdCanvasLineJoin", dynlib: libiupcdSONAME, dynlib: libcdSONAME, discardable.}
-proc cdCanvasLineCap*(canvas: ptr cdCanvas; cap: cint): cint {.cdecl, importc: "cdCanvasLineCap", dynlib: libiupcdSONAME, dynlib: libcdSONAME, discardable.}
-proc cdCanvasInteriorStyle*(canvas: ptr cdCanvas; style: cint): cint {.cdecl, importc: "cdCanvasInteriorStyle", dynlib: libiupcdSONAME, dynlib: libcdSONAME, discardable.}
-proc cdCanvasHatch*(canvas: ptr cdCanvas; style: cint): cint {.cdecl, importc: "cdCanvasHatch", dynlib: libiupcdSONAME, dynlib: libcdSONAME, discardable.}
-proc cdCanvasStipple*(canvas: ptr cdCanvas; w: cint; h: cint; stipple: ptr cuchar) {.cdecl, importc: "cdCanvasStipple", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasGetStipple*(canvas: ptr cdCanvas; n: ptr cint; m: ptr cint): ptr cuchar {. cdecl, importc: "cdCanvasGetStipple", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasPattern*(canvas: ptr cdCanvas; w: cint; h: cint; pattern: ptr clong) {.cdecl, importc: "cdCanvasPattern", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasGetPattern*(canvas: ptr cdCanvas; n: ptr cint; m: ptr cint): ptr clong {.cdecl, importc: "cdCanvasGetPattern", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasFillMode*(canvas: ptr cdCanvas; mode: cint): cint {.cdecl, importc: "cdCanvasFillMode", dynlib: libiupcdSONAME, dynlib: libcdSONAME, discardable.}
-proc cdCanvasFont*(canvas: ptr cdCanvas; type_face: cstring; style: cint; size: cint): cint {. cdecl, importc: "cdCanvasFont", dynlib: libiupcdSONAME, dynlib: libcdSONAME, discardable.}
-proc cdCanvasGetFont*(canvas: ptr cdCanvas; type_face: cstring; style: ptr cint; size: ptr cint) {.cdecl, importc: "cdCanvasGetFont", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasNativeFont*(canvas: ptr cdCanvas; font: cstring): cstring {.cdecl, importc: "cdCanvasNativeFont", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasTextAlignment*(canvas: ptr cdCanvas; alignment: cint): cint {.cdecl, importc: "cdCanvasTextAlignment", dynlib: libiupcdSONAME, dynlib: libcdSONAME, discardable.}
-proc cdCanvasTextOrientation*(canvas: ptr cdCanvas; angle: cdouble): cdouble {.cdecl, importc: "cdCanvasTextOrientation", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasMarkType*(canvas: ptr cdCanvas; `type`: cint): cint {.cdecl, importc: "cdCanvasMarkType", dynlib: libiupcdSONAME, dynlib: libcdSONAME, discardable.}
-proc cdCanvasMarkSize*(canvas: ptr cdCanvas; size: cint): cint {.cdecl, importc: "cdCanvasMarkSize", dynlib: libiupcdSONAME, dynlib: libcdSONAME, discardable.}
-proc cdCanvasVectorText*(canvas: ptr cdCanvas; x: cint; y: cint; s: cstring) {.cdecl, importc: "cdCanvasVectorText", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasMultiLineVectorText*(canvas: ptr cdCanvas; x: cint; y: cint; s: cstring) {. cdecl, importc: "cdCanvasMultiLineVectorText", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasVectorFont*(canvas: ptr cdCanvas; filename: cstring): cstring {.cdecl, importc: "cdCanvasVectorFont", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasVectorTextDirection*(canvas: ptr cdCanvas; x1: cint; y1: cint; x2: cint; y2: cint) {.cdecl, importc: "cdCanvasVectorTextDirection", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasVectorTextTransform*(canvas: ptr cdCanvas; matrix: ptr cdouble): ptr cdouble {. cdecl, importc: "cdCanvasVectorTextTransform", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasVectorTextSize*(canvas: ptr cdCanvas; size_x: cint; size_y: cint; s: cstring) {.cdecl, importc: "cdCanvasVectorTextSize", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasVectorCharSize*(canvas: ptr cdCanvas; size: cint): cint {.cdecl, importc: "cdCanvasVectorCharSize", dynlib: libiupcdSONAME, dynlib: libcdSONAME, discardable.}
-proc cdCanvasVectorFontSize*(canvas: ptr cdCanvas; size_x: cdouble; size_y: cdouble) {. cdecl, importc: "cdCanvasVectorFontSize", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasGetVectorFontSize*(canvas: ptr cdCanvas; size_x: ptr cdouble; size_y: ptr cdouble) {.cdecl, importc: "cdCanvasGetVectorFontSize", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasGetVectorTextSize*(canvas: ptr cdCanvas; s: cstring; x: ptr cint; y: ptr cint) {.cdecl, importc: "cdCanvasGetVectorTextSize", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasGetVectorTextBounds*(canvas: ptr cdCanvas; s: cstring; x: cint; y: cint; rect: ptr cint) {.cdecl, importc: "cdCanvasGetVectorTextBounds", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasGetVectorTextBox*(canvas: ptr cdCanvas; x: cint; y: cint; s: cstring; xmin: ptr cint; xmax: ptr cint; ymin: ptr cint; ymax: ptr cint) {.cdecl, importc: "cdCanvasGetVectorTextBox", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdfCanvasVectorTextDirection*(canvas: ptr cdCanvas; x1: cdouble; y1: cdouble; x2: cdouble; y2: cdouble) {.cdecl, importc: "cdfCanvasVectorTextDirection", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdfCanvasVectorTextSize*(canvas: ptr cdCanvas; size_x: cdouble; size_y: cdouble; s: cstring) {.cdecl, importc: "cdfCanvasVectorTextSize", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdfCanvasGetVectorTextSize*(canvas: ptr cdCanvas; s: cstring; x: ptr cdouble; y: ptr cdouble) {.cdecl, importc: "cdfCanvasGetVectorTextSize", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdfCanvasVectorCharSize*(canvas: ptr cdCanvas; size: cdouble): cdouble {.cdecl, importc: "cdfCanvasVectorCharSize", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdfCanvasVectorText*(canvas: ptr cdCanvas; x: cdouble; y: cdouble; s: cstring) {. cdecl, importc: "cdfCanvasVectorText", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdfCanvasMultiLineVectorText*(canvas: ptr cdCanvas; x: cdouble; y: cdouble; s: cstring) {.cdecl, importc: "cdfCanvasMultiLineVectorText", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdfCanvasGetVectorTextBounds*(canvas: ptr cdCanvas; s: cstring; x: cdouble; y: cdouble; rect: ptr cdouble) {.cdecl, importc: "cdfCanvasGetVectorTextBounds", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdfCanvasGetVectorTextBox*(canvas: ptr cdCanvas; x: cdouble; y: cdouble; s: cstring; xmin: ptr cdouble; xmax: ptr cdouble; ymin: ptr cdouble; ymax: ptr cdouble) {.cdecl, importc: "cdfCanvasGetVectorTextBox", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasGetFontDim*(canvas: ptr cdCanvas; max_width: ptr cint; height: ptr cint; ascent: ptr cint; descent: ptr cint) {.cdecl, importc: "cdCanvasGetFontDim", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasGetTextSize*(canvas: ptr cdCanvas; s: cstring; width: ptr cint; height: ptr cint) {.cdecl, importc: "cdCanvasGetTextSize", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasGetTextBox*(canvas: ptr cdCanvas; x: cint; y: cint; s: cstring; xmin: ptr cint; xmax: ptr cint; ymin: ptr cint; ymax: ptr cint) {. cdecl, importc: "cdCanvasGetTextBox", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdfCanvasGetTextBox*(canvas: ptr cdCanvas; x: cdouble; y: cdouble; s: cstring; xmin: ptr cdouble; xmax: ptr cdouble; ymin: ptr cdouble; ymax: ptr cdouble) {.cdecl, importc: "cdfCanvasGetTextBox", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasGetTextBounds*(canvas: ptr cdCanvas; x: cint; y: cint; s: cstring; rect: ptr cint) {.cdecl, importc: "cdCanvasGetTextBounds", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdfCanvasGetTextBounds*(canvas: ptr cdCanvas; x: cdouble; y: cdouble; s: cstring; rect: ptr cdouble) {.cdecl, importc: "cdfCanvasGetTextBounds", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasGetColorPlanes*(canvas: ptr cdCanvas): cint {.cdecl, importc: "cdCanvasGetColorPlanes", dynlib: libiupcdSONAME, dynlib: libcdSONAME, discardable.}
-proc cdCanvasPalette*(canvas: ptr cdCanvas; n: cint; palette: ptr clong; mode: cint) {. cdecl, importc: "cdCanvasPalette", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasGetImageRGB*(canvas: ptr cdCanvas; r: ptr cuchar; g: ptr cuchar; b: ptr cuchar; x: cint; y: cint; iw: cint; ih: cint) {.cdecl, importc: "cdCanvasGetImageRGB", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasPutImageRectRGB*(canvas: ptr cdCanvas; iw: cint; ih: cint; r: ptr cuchar; g: ptr cuchar; b: ptr cuchar; x: cint; y: cint; w: cint; h: cint; xmin: cint; xmax: cint; ymin: cint; ymax: cint) {. cdecl, importc: "cdCanvasPutImageRectRGB", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasPutImageRectRGBA*(canvas: ptr cdCanvas; iw: cint; ih: cint; r: ptr cuchar; g: ptr cuchar; b: ptr cuchar; a: ptr cuchar; x: cint; y: cint; w: cint; h: cint; xmin: cint; xmax: cint; ymin: cint; ymax: cint) {.cdecl, importc: "cdCanvasPutImageRectRGBA", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasPutImageRectMap*(canvas: ptr cdCanvas; iw: cint; ih: cint; index: ptr cuchar; colors: ptr clong; x: cint; y: cint; w: cint; h: cint; xmin: cint; xmax: cint; ymin: cint; ymax: cint) {.cdecl, importc: "cdCanvasPutImageRectMap", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdfCanvasPutImageRectRGB*(canvas: ptr cdCanvas; iw: cint; ih: cint; r: ptr cuchar; g: ptr cuchar; b: ptr cuchar; x: cdouble; y: cdouble; w: cdouble; h: cdouble; xmin: cint; xmax: cint; ymin: cint; ymax: cint) {.cdecl, importc: "cdfCanvasPutImageRectRGB", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdfCanvasPutImageRectRGBA*(canvas: ptr cdCanvas; iw: cint; ih: cint; r: ptr cuchar; g: ptr cuchar; b: ptr cuchar; a: ptr cuchar; x: cdouble; y: cdouble; w: cdouble; h: cdouble; xmin: cint; xmax: cint; ymin: cint; ymax: cint) {.cdecl, importc: "cdfCanvasPutImageRectRGBA", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdfCanvasPutImageRectMap*(canvas: ptr cdCanvas; iw: cint; ih: cint; index: ptr cuchar; colors: ptr clong; x: cdouble; y: cdouble; w: cdouble; h: cdouble; xmin: cint; xmax: cint; ymin: cint; ymax: cint) {.cdecl, importc: "cdfCanvasPutImageRectMap", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasCreateImage*(canvas: ptr cdCanvas; w: cint; h: cint): ptr cdImage {.cdecl, importc: "cdCanvasCreateImage", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdKillImage*(image: ptr cdImage) {.cdecl, importc: "cdKillImage", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasGetImage*(canvas: ptr cdCanvas; image: ptr cdImage; x: cint; y: cint) {.cdecl, importc: "cdCanvasGetImage", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasPutImageRect*(canvas: ptr cdCanvas; image: ptr cdImage; x: cint; y: cint; xmin: cint; xmax: cint; ymin: cint; ymax: cint) {.cdecl, importc: "cdCanvasPutImageRect", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasScrollArea*(canvas: ptr cdCanvas; xmin: cint; xmax: cint; ymin: cint; ymax: cint; dx: cint; dy: cint) {.cdecl, importc: "cdCanvasScrollArea", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCreateBitmap*(w: cint; h: cint; `type`: cint): ptr cdBitmap {.cdecl, importc: "cdCreateBitmap", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdInitBitmap*(w: cint; h: cint; `type`: cint): ptr cdBitmap {.varargs, cdecl, importc: "cdInitBitmap", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdKillBitmap*(bitmap: ptr cdBitmap) {.cdecl, importc: "cdKillBitmap", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdBitmapGetData*(bitmap: ptr cdBitmap; dataptr: cint): ptr cuchar {.cdecl, importc: "cdBitmapGetData", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdBitmapSetRect*(bitmap: ptr cdBitmap; xmin: cint; xmax: cint; ymin: cint; ymax: cint) {. cdecl, importc: "cdBitmapSetRect", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasPutBitmap*(canvas: ptr cdCanvas; bitmap: ptr cdBitmap; x: cint; y: cint; w: cint; h: cint) {.cdecl, importc: "cdCanvasPutBitmap", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdCanvasGetBitmap*(canvas: ptr cdCanvas; bitmap: ptr cdBitmap; x: cint; y: cint) {. cdecl, importc: "cdCanvasGetBitmap", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdBitmapRGB2Map*(bitmap_rgb: ptr cdBitmap; bitmap_map: ptr cdBitmap) {.cdecl, importc: "cdBitmapRGB2Map", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdEncodeColor*(red: cuchar; green: cuchar; blue: cuchar): clong {.cdecl, importc: "cdEncodeColor", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdEncodeColorAlpha*(red: cuchar; green: cuchar; blue: cuchar; alpha: cuchar): clong {. cdecl, importc: "cdEncodeColorAlpha", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdEncodeAlpha*(color: clong; alpha: cuchar): clong {.cdecl, importc: "cdEncodeAlpha", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdDecodeColor*(color: clong; red: ptr cuchar; green: ptr cuchar; blue: ptr cuchar) {. cdecl, importc: "cdDecodeColor", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdDecodeColorAlpha*(color: clong; red: ptr cuchar; green: ptr cuchar; blue: ptr cuchar; alpha: ptr cuchar) {.cdecl, importc: "cdDecodeColorAlpha", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdDecodeAlpha*(color: clong): cuchar {.cdecl, importc: "cdDecodeAlpha", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
+proc cdContextRegisterCallback*(context: ptr cdContext; cb: cint; `func`: cdCallback): cint {. cdecl, importc: "cdContextRegisterCallback", dynlib: libcdSONAME, dynlib: libiupcdSONAME, discardable.}
+proc cdContextCaps*(context: ptr cdContext): culong {.cdecl, importc: "cdContextCaps", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdContextIsPlus*(context: ptr cdContext): cint {.cdecl, importc: "cdContextIsPlus", dynlib: libcdSONAME, dynlib: libiupcdSONAME, discardable.}
+proc cdContextType*(context: ptr cdContext): cint {.cdecl, importc: "cdContextType", dynlib: libcdSONAME, dynlib: libiupcdSONAME, discardable.}
+proc cdCanvasSimulate*(canvas: ptr cdCanvas; mode: cint): cint {.cdecl, importc: "cdCanvasSimulate", dynlib: libcdSONAME, dynlib: libiupcdSONAME, discardable.}
+proc cdCanvasFlush*(canvas: ptr cdCanvas) {.cdecl, importc: "cdCanvasFlush", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasClear*(canvas: ptr cdCanvas) {.cdecl, importc: "cdCanvasClear", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasSaveState*(canvas: ptr cdCanvas): ptr cdState {.cdecl, importc: "cdCanvasSaveState", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasRestoreState*(canvas: ptr cdCanvas; state: ptr cdState) {.cdecl, importc: "cdCanvasRestoreState", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdReleaseState*(state: ptr cdState) {.cdecl, importc: "cdReleaseState", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasSetAttribute*(canvas: ptr cdCanvas; name: cstring; data: cstring) {.cdecl, importc: "cdCanvasSetAttribute", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasSetfAttribute*(canvas: ptr cdCanvas; name: cstring; format: cstring) {. varargs, cdecl, importc: "cdCanvasSetfAttribute", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasGetAttribute*(canvas: ptr cdCanvas; name: cstring): cstring {.cdecl, importc: "cdCanvasGetAttribute", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasPlay*(canvas: ptr cdCanvas; context: ptr cdContext; xmin: cint; xmax: cint; ymin: cint; ymax: cint; data: pointer): cint {.cdecl, importc: "cdCanvasPlay", dynlib: libcdSONAME, dynlib: libiupcdSONAME, discardable.}
+proc cdCanvasGetSize*(canvas: ptr cdCanvas; width: ptr cint; height: ptr cint; width_mm: ptr cdouble; height_mm: ptr cdouble) {.cdecl, importc: "cdCanvasGetSize", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasUpdateYAxis*(canvas: ptr cdCanvas; y: ptr cint): cint {.cdecl, importc: "cdCanvasUpdateYAxis", dynlib: libcdSONAME, dynlib: libiupcdSONAME, discardable.}
+proc cdfCanvasUpdateYAxis*(canvas: ptr cdCanvas; y: ptr cdouble): cdouble {.cdecl, importc: "cdfCanvasUpdateYAxis", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasInvertYAxis*(canvas: ptr cdCanvas; y: cint): cint {.cdecl, importc: "cdCanvasInvertYAxis", dynlib: libcdSONAME, dynlib: libiupcdSONAME, discardable.}
+proc cdfCanvasInvertYAxis*(canvas: ptr cdCanvas; y: cdouble): cdouble {.cdecl, importc: "cdfCanvasInvertYAxis", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasMM2Pixel*(canvas: ptr cdCanvas; mm_dx: cdouble; mm_dy: cdouble; dx: ptr cint; dy: ptr cint) {.cdecl, importc: "cdCanvasMM2Pixel", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasPixel2MM*(canvas: ptr cdCanvas; dx: cint; dy: cint; mm_dx: ptr cdouble; mm_dy: ptr cdouble) {.cdecl, importc: "cdCanvasPixel2MM", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdfCanvasMM2Pixel*(canvas: ptr cdCanvas; mm_dx: cdouble; mm_dy: cdouble; dx: ptr cdouble; dy: ptr cdouble) {.cdecl, importc: "cdfCanvasMM2Pixel", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdfCanvasPixel2MM*(canvas: ptr cdCanvas; dx: cdouble; dy: cdouble; mm_dx: ptr cdouble; mm_dy: ptr cdouble) {.cdecl, importc: "cdfCanvasPixel2MM", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasOrigin*(canvas: ptr cdCanvas; x: cint; y: cint) {.cdecl, importc: "cdCanvasOrigin", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdfCanvasOrigin*(canvas: ptr cdCanvas; x: cdouble; y: cdouble) {.cdecl, importc: "cdfCanvasOrigin", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasGetOrigin*(canvas: ptr cdCanvas; x: ptr cint; y: ptr cint) {.cdecl, importc: "cdCanvasGetOrigin", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdfCanvasGetOrigin*(canvas: ptr cdCanvas; x: ptr cdouble; y: ptr cdouble) {.cdecl, importc: "cdfCanvasGetOrigin", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasTransform*(canvas: ptr cdCanvas; matrix: ptr cdouble) {.cdecl, importc: "cdCanvasTransform", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasGetTransform*(canvas: ptr cdCanvas): ptr cdouble {.cdecl, importc: "cdCanvasGetTransform", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasTransformMultiply*(canvas: ptr cdCanvas; matrix: ptr cdouble) {.cdecl, importc: "cdCanvasTransformMultiply", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasTransformRotate*(canvas: ptr cdCanvas; angle: cdouble) {.cdecl, importc: "cdCanvasTransformRotate", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasTransformScale*(canvas: ptr cdCanvas; sx: cdouble; sy: cdouble) {.cdecl, importc: "cdCanvasTransformScale", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasTransformTranslate*(canvas: ptr cdCanvas; dx: cdouble; dy: cdouble) {. cdecl, importc: "cdCanvasTransformTranslate", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasTransformPoint*(canvas: ptr cdCanvas; x: cint; y: cint; tx: ptr cint; ty: ptr cint) {.cdecl, importc: "cdCanvasTransformPoint", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdfCanvasTransformPoint*(canvas: ptr cdCanvas; x: cdouble; y: cdouble; tx: ptr cdouble; ty: ptr cdouble) {.cdecl, importc: "cdfCanvasTransformPoint", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasClip*(canvas: ptr cdCanvas; mode: cint): cint {.cdecl, importc: "cdCanvasClip", dynlib: libcdSONAME, dynlib: libiupcdSONAME, discardable.}
+proc cdCanvasClipArea*(canvas: ptr cdCanvas; xmin: cint; xmax: cint; ymin: cint; ymax: cint) {.cdecl, importc: "cdCanvasClipArea", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasGetClipArea*(canvas: ptr cdCanvas; xmin: ptr cint; xmax: ptr cint; ymin: ptr cint; ymax: ptr cint): cint {.cdecl, importc: "cdCanvasGetClipArea", dynlib: libcdSONAME, dynlib: libiupcdSONAME, discardable.}
+proc cdfCanvasClipArea*(canvas: ptr cdCanvas; xmin: cdouble; xmax: cdouble; ymin: cdouble; ymax: cdouble) {.cdecl, importc: "cdfCanvasClipArea", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdfCanvasGetClipArea*(canvas: ptr cdCanvas; xmin: ptr cdouble; xmax: ptr cdouble; ymin: ptr cdouble; ymax: ptr cdouble): cint {.cdecl, importc: "cdfCanvasGetClipArea", dynlib: libcdSONAME, dynlib: libiupcdSONAME, discardable.}
+proc cdCanvasIsPointInRegion*(canvas: ptr cdCanvas; x: cint; y: cint): cint {.cdecl, importc: "cdCanvasIsPointInRegion", dynlib: libcdSONAME, dynlib: libiupcdSONAME, discardable.}
+proc cdCanvasOffsetRegion*(canvas: ptr cdCanvas; x: cint; y: cint) {.cdecl, importc: "cdCanvasOffsetRegion", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasGetRegionBox*(canvas: ptr cdCanvas; xmin: ptr cint; xmax: ptr cint; ymin: ptr cint; ymax: ptr cint) {.cdecl, importc: "cdCanvasGetRegionBox", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasRegionCombineMode*(canvas: ptr cdCanvas; mode: cint): cint {.cdecl, importc: "cdCanvasRegionCombineMode", dynlib: libcdSONAME, dynlib: libiupcdSONAME, discardable.}
+proc cdCanvasPixel*(canvas: ptr cdCanvas; x: cint; y: cint; color: clong) {.cdecl, importc: "cdCanvasPixel", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasMark*(canvas: ptr cdCanvas; x: cint; y: cint) {.cdecl, importc: "cdCanvasMark", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdfCanvasPixel*(canvas: ptr cdCanvas; x: cdouble; y: cdouble; color: clong) {.cdecl, importc: "cdfCanvasPixel", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdfCanvasMark*(canvas: ptr cdCanvas; x: cdouble; y: cdouble) {.cdecl, importc: "cdfCanvasMark", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasBegin*(canvas: ptr cdCanvas; mode: cint) {.cdecl, importc: "cdCanvasBegin", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasPathSet*(canvas: ptr cdCanvas; action: cint) {.cdecl, importc: "cdCanvasPathSet", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasEnd*(canvas: ptr cdCanvas) {.cdecl, importc: "cdCanvasEnd", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasLine*(canvas: ptr cdCanvas; x1: cint; y1: cint; x2: cint; y2: cint) {.cdecl, importc: "cdCanvasLine", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasVertex*(canvas: ptr cdCanvas; x: cint; y: cint) {.cdecl, importc: "cdCanvasVertex", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasRect*(canvas: ptr cdCanvas; xmin: cint; xmax: cint; ymin: cint; ymax: cint) {. cdecl, importc: "cdCanvasRect", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasBox*(canvas: ptr cdCanvas; xmin: cint; xmax: cint; ymin: cint; ymax: cint) {. cdecl, importc: "cdCanvasBox", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasArc*(canvas: ptr cdCanvas; xc: cint; yc: cint; w: cint; h: cint; angle1: cdouble; angle2: cdouble) {.cdecl, importc: "cdCanvasArc", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasSector*(canvas: ptr cdCanvas; xc: cint; yc: cint; w: cint; h: cint; angle1: cdouble; angle2: cdouble) {.cdecl, importc: "cdCanvasSector", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasChord*(canvas: ptr cdCanvas; xc: cint; yc: cint; w: cint; h: cint; angle1: cdouble; angle2: cdouble) {.cdecl, importc: "cdCanvasChord", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasText*(canvas: ptr cdCanvas; x: cint; y: cint; s: cstring) {.cdecl, importc: "cdCanvasText", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdfCanvasLine*(canvas: ptr cdCanvas; x1: cdouble; y1: cdouble; x2: cdouble; y2: cdouble) {.cdecl, importc: "cdfCanvasLine", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdfCanvasVertex*(canvas: ptr cdCanvas; x: cdouble; y: cdouble) {.cdecl, importc: "cdfCanvasVertex", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdfCanvasRect*(canvas: ptr cdCanvas; xmin: cdouble; xmax: cdouble; ymin: cdouble; ymax: cdouble) {.cdecl, importc: "cdfCanvasRect", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdfCanvasBox*(canvas: ptr cdCanvas; xmin: cdouble; xmax: cdouble; ymin: cdouble; ymax: cdouble) {.cdecl, importc: "cdfCanvasBox", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdfCanvasArc*(canvas: ptr cdCanvas; xc: cdouble; yc: cdouble; w: cdouble; h: cdouble; angle1: cdouble; angle2: cdouble) {.cdecl, importc: "cdfCanvasArc", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdfCanvasSector*(canvas: ptr cdCanvas; xc: cdouble; yc: cdouble; w: cdouble; h: cdouble; angle1: cdouble; angle2: cdouble) {.cdecl, importc: "cdfCanvasSector", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdfCanvasChord*(canvas: ptr cdCanvas; xc: cdouble; yc: cdouble; w: cdouble; h: cdouble; angle1: cdouble; angle2: cdouble) {.cdecl, importc: "cdfCanvasChord", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdfCanvasText*(canvas: ptr cdCanvas; x: cdouble; y: cdouble; s: cstring) {.cdecl, importc: "cdfCanvasText", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasSetBackground*(canvas: ptr cdCanvas; color: clong) {.cdecl, importc: "cdCanvasSetBackground", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasSetForeground*(canvas: ptr cdCanvas; color: clong) {.cdecl, importc: "cdCanvasSetForeground", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasBackground*(canvas: ptr cdCanvas; color: clong): clong {.cdecl, importc: "cdCanvasBackground", dynlib: libcdSONAME, dynlib: libiupcdSONAME, discardable.}
+proc cdCanvasForeground*(canvas: ptr cdCanvas; color: clong): clong {.cdecl, importc: "cdCanvasForeground", dynlib: libcdSONAME, dynlib: libiupcdSONAME, discardable.}
+proc cdCanvasBackOpacity*(canvas: ptr cdCanvas; opacity: cint): cint {.cdecl, importc: "cdCanvasBackOpacity", dynlib: libcdSONAME, dynlib: libiupcdSONAME, discardable.}
+proc cdCanvasWriteMode*(canvas: ptr cdCanvas; mode: cint): cint {.cdecl, importc: "cdCanvasWriteMode", dynlib: libcdSONAME, dynlib: libiupcdSONAME, discardable.}
+proc cdCanvasLineStyle*(canvas: ptr cdCanvas; style: cint): cint {.cdecl, importc: "cdCanvasLineStyle", dynlib: libcdSONAME, dynlib: libiupcdSONAME, discardable.}
+proc cdCanvasLineStyleDashes*(canvas: ptr cdCanvas; dashes: ptr cint; count: cint) {. cdecl, importc: "cdCanvasLineStyleDashes", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasLineWidth*(canvas: ptr cdCanvas; width: cint): cint {.cdecl, importc: "cdCanvasLineWidth", dynlib: libcdSONAME, dynlib: libiupcdSONAME, discardable.}
+proc cdCanvasLineJoin*(canvas: ptr cdCanvas; join: cint): cint {.cdecl, importc: "cdCanvasLineJoin", dynlib: libcdSONAME, dynlib: libiupcdSONAME, discardable.}
+proc cdCanvasLineCap*(canvas: ptr cdCanvas; cap: cint): cint {.cdecl, importc: "cdCanvasLineCap", dynlib: libcdSONAME, dynlib: libiupcdSONAME, discardable.}
+proc cdCanvasInteriorStyle*(canvas: ptr cdCanvas; style: cint): cint {.cdecl, importc: "cdCanvasInteriorStyle", dynlib: libcdSONAME, dynlib: libiupcdSONAME, discardable.}
+proc cdCanvasHatch*(canvas: ptr cdCanvas; style: cint): cint {.cdecl, importc: "cdCanvasHatch", dynlib: libcdSONAME, dynlib: libiupcdSONAME, discardable.}
+proc cdCanvasStipple*(canvas: ptr cdCanvas; w: cint; h: cint; stipple: ptr cuchar) {.cdecl, importc: "cdCanvasStipple", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasGetStipple*(canvas: ptr cdCanvas; n: ptr cint; m: ptr cint): ptr cuchar {. cdecl, importc: "cdCanvasGetStipple", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasPattern*(canvas: ptr cdCanvas; w: cint; h: cint; pattern: ptr clong) {.cdecl, importc: "cdCanvasPattern", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasGetPattern*(canvas: ptr cdCanvas; n: ptr cint; m: ptr cint): ptr clong {.cdecl, importc: "cdCanvasGetPattern", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasFillMode*(canvas: ptr cdCanvas; mode: cint): cint {.cdecl, importc: "cdCanvasFillMode", dynlib: libcdSONAME, dynlib: libiupcdSONAME, discardable.}
+proc cdCanvasFont*(canvas: ptr cdCanvas; type_face: cstring; style: cint; size: cint): cint {. cdecl, importc: "cdCanvasFont", dynlib: libcdSONAME, dynlib: libiupcdSONAME, discardable.}
+proc cdCanvasGetFont*(canvas: ptr cdCanvas; type_face: cstring; style: ptr cint; size: ptr cint) {.cdecl, importc: "cdCanvasGetFont", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasNativeFont*(canvas: ptr cdCanvas; font: cstring): cstring {.cdecl, importc: "cdCanvasNativeFont", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasTextAlignment*(canvas: ptr cdCanvas; alignment: cint): cint {.cdecl, importc: "cdCanvasTextAlignment", dynlib: libcdSONAME, dynlib: libiupcdSONAME, discardable.}
+proc cdCanvasTextOrientation*(canvas: ptr cdCanvas; angle: cdouble): cdouble {.cdecl, importc: "cdCanvasTextOrientation", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasMarkType*(canvas: ptr cdCanvas; `type`: cint): cint {.cdecl, importc: "cdCanvasMarkType", dynlib: libcdSONAME, dynlib: libiupcdSONAME, discardable.}
+proc cdCanvasMarkSize*(canvas: ptr cdCanvas; size: cint): cint {.cdecl, importc: "cdCanvasMarkSize", dynlib: libcdSONAME, dynlib: libiupcdSONAME, discardable.}
+proc cdCanvasVectorText*(canvas: ptr cdCanvas; x: cint; y: cint; s: cstring) {.cdecl, importc: "cdCanvasVectorText", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasMultiLineVectorText*(canvas: ptr cdCanvas; x: cint; y: cint; s: cstring) {. cdecl, importc: "cdCanvasMultiLineVectorText", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasVectorFont*(canvas: ptr cdCanvas; filename: cstring): cstring {.cdecl, importc: "cdCanvasVectorFont", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasVectorTextDirection*(canvas: ptr cdCanvas; x1: cint; y1: cint; x2: cint; y2: cint) {.cdecl, importc: "cdCanvasVectorTextDirection", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasVectorTextTransform*(canvas: ptr cdCanvas; matrix: ptr cdouble): ptr cdouble {. cdecl, importc: "cdCanvasVectorTextTransform", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasVectorTextSize*(canvas: ptr cdCanvas; size_x: cint; size_y: cint; s: cstring) {.cdecl, importc: "cdCanvasVectorTextSize", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasVectorCharSize*(canvas: ptr cdCanvas; size: cint): cint {.cdecl, importc: "cdCanvasVectorCharSize", dynlib: libcdSONAME, dynlib: libiupcdSONAME, discardable.}
+proc cdCanvasVectorFontSize*(canvas: ptr cdCanvas; size_x: cdouble; size_y: cdouble) {. cdecl, importc: "cdCanvasVectorFontSize", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasGetVectorFontSize*(canvas: ptr cdCanvas; size_x: ptr cdouble; size_y: ptr cdouble) {.cdecl, importc: "cdCanvasGetVectorFontSize", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasGetVectorTextSize*(canvas: ptr cdCanvas; s: cstring; x: ptr cint; y: ptr cint) {.cdecl, importc: "cdCanvasGetVectorTextSize", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasGetVectorTextBounds*(canvas: ptr cdCanvas; s: cstring; x: cint; y: cint; rect: ptr cint) {.cdecl, importc: "cdCanvasGetVectorTextBounds", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasGetVectorTextBox*(canvas: ptr cdCanvas; x: cint; y: cint; s: cstring; xmin: ptr cint; xmax: ptr cint; ymin: ptr cint; ymax: ptr cint) {.cdecl, importc: "cdCanvasGetVectorTextBox", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdfCanvasVectorTextDirection*(canvas: ptr cdCanvas; x1: cdouble; y1: cdouble; x2: cdouble; y2: cdouble) {.cdecl, importc: "cdfCanvasVectorTextDirection", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdfCanvasVectorTextSize*(canvas: ptr cdCanvas; size_x: cdouble; size_y: cdouble; s: cstring) {.cdecl, importc: "cdfCanvasVectorTextSize", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdfCanvasGetVectorTextSize*(canvas: ptr cdCanvas; s: cstring; x: ptr cdouble; y: ptr cdouble) {.cdecl, importc: "cdfCanvasGetVectorTextSize", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdfCanvasVectorCharSize*(canvas: ptr cdCanvas; size: cdouble): cdouble {.cdecl, importc: "cdfCanvasVectorCharSize", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdfCanvasVectorText*(canvas: ptr cdCanvas; x: cdouble; y: cdouble; s: cstring) {. cdecl, importc: "cdfCanvasVectorText", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdfCanvasMultiLineVectorText*(canvas: ptr cdCanvas; x: cdouble; y: cdouble; s: cstring) {.cdecl, importc: "cdfCanvasMultiLineVectorText", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdfCanvasGetVectorTextBounds*(canvas: ptr cdCanvas; s: cstring; x: cdouble; y: cdouble; rect: ptr cdouble) {.cdecl, importc: "cdfCanvasGetVectorTextBounds", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdfCanvasGetVectorTextBox*(canvas: ptr cdCanvas; x: cdouble; y: cdouble; s: cstring; xmin: ptr cdouble; xmax: ptr cdouble; ymin: ptr cdouble; ymax: ptr cdouble) {.cdecl, importc: "cdfCanvasGetVectorTextBox", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasGetFontDim*(canvas: ptr cdCanvas; max_width: ptr cint; height: ptr cint; ascent: ptr cint; descent: ptr cint) {.cdecl, importc: "cdCanvasGetFontDim", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasGetTextSize*(canvas: ptr cdCanvas; s: cstring; width: ptr cint; height: ptr cint) {.cdecl, importc: "cdCanvasGetTextSize", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasGetTextBox*(canvas: ptr cdCanvas; x: cint; y: cint; s: cstring; xmin: ptr cint; xmax: ptr cint; ymin: ptr cint; ymax: ptr cint) {. cdecl, importc: "cdCanvasGetTextBox", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdfCanvasGetTextBox*(canvas: ptr cdCanvas; x: cdouble; y: cdouble; s: cstring; xmin: ptr cdouble; xmax: ptr cdouble; ymin: ptr cdouble; ymax: ptr cdouble) {.cdecl, importc: "cdfCanvasGetTextBox", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasGetTextBounds*(canvas: ptr cdCanvas; x: cint; y: cint; s: cstring; rect: ptr cint) {.cdecl, importc: "cdCanvasGetTextBounds", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdfCanvasGetTextBounds*(canvas: ptr cdCanvas; x: cdouble; y: cdouble; s: cstring; rect: ptr cdouble) {.cdecl, importc: "cdfCanvasGetTextBounds", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasGetColorPlanes*(canvas: ptr cdCanvas): cint {.cdecl, importc: "cdCanvasGetColorPlanes", dynlib: libcdSONAME, dynlib: libiupcdSONAME, discardable.}
+proc cdCanvasPalette*(canvas: ptr cdCanvas; n: cint; palette: ptr clong; mode: cint) {. cdecl, importc: "cdCanvasPalette", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasGetImageRGB*(canvas: ptr cdCanvas; r: ptr cuchar; g: ptr cuchar; b: ptr cuchar; x: cint; y: cint; iw: cint; ih: cint) {.cdecl, importc: "cdCanvasGetImageRGB", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasPutImageRectRGB*(canvas: ptr cdCanvas; iw: cint; ih: cint; r: ptr cuchar; g: ptr cuchar; b: ptr cuchar; x: cint; y: cint; w: cint; h: cint; xmin: cint; xmax: cint; ymin: cint; ymax: cint) {. cdecl, importc: "cdCanvasPutImageRectRGB", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasPutImageRectRGBA*(canvas: ptr cdCanvas; iw: cint; ih: cint; r: ptr cuchar; g: ptr cuchar; b: ptr cuchar; a: ptr cuchar; x: cint; y: cint; w: cint; h: cint; xmin: cint; xmax: cint; ymin: cint; ymax: cint) {.cdecl, importc: "cdCanvasPutImageRectRGBA", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasPutImageRectMap*(canvas: ptr cdCanvas; iw: cint; ih: cint; index: ptr cuchar; colors: ptr clong; x: cint; y: cint; w: cint; h: cint; xmin: cint; xmax: cint; ymin: cint; ymax: cint) {.cdecl, importc: "cdCanvasPutImageRectMap", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdfCanvasPutImageRectRGB*(canvas: ptr cdCanvas; iw: cint; ih: cint; r: ptr cuchar; g: ptr cuchar; b: ptr cuchar; x: cdouble; y: cdouble; w: cdouble; h: cdouble; xmin: cint; xmax: cint; ymin: cint; ymax: cint) {.cdecl, importc: "cdfCanvasPutImageRectRGB", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdfCanvasPutImageRectRGBA*(canvas: ptr cdCanvas; iw: cint; ih: cint; r: ptr cuchar; g: ptr cuchar; b: ptr cuchar; a: ptr cuchar; x: cdouble; y: cdouble; w: cdouble; h: cdouble; xmin: cint; xmax: cint; ymin: cint; ymax: cint) {.cdecl, importc: "cdfCanvasPutImageRectRGBA", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdfCanvasPutImageRectMap*(canvas: ptr cdCanvas; iw: cint; ih: cint; index: ptr cuchar; colors: ptr clong; x: cdouble; y: cdouble; w: cdouble; h: cdouble; xmin: cint; xmax: cint; ymin: cint; ymax: cint) {.cdecl, importc: "cdfCanvasPutImageRectMap", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasCreateImage*(canvas: ptr cdCanvas; w: cint; h: cint): ptr cdImage {.cdecl, importc: "cdCanvasCreateImage", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdKillImage*(image: ptr cdImage) {.cdecl, importc: "cdKillImage", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasGetImage*(canvas: ptr cdCanvas; image: ptr cdImage; x: cint; y: cint) {.cdecl, importc: "cdCanvasGetImage", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasPutImageRect*(canvas: ptr cdCanvas; image: ptr cdImage; x: cint; y: cint; xmin: cint; xmax: cint; ymin: cint; ymax: cint) {.cdecl, importc: "cdCanvasPutImageRect", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasScrollArea*(canvas: ptr cdCanvas; xmin: cint; xmax: cint; ymin: cint; ymax: cint; dx: cint; dy: cint) {.cdecl, importc: "cdCanvasScrollArea", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCreateBitmap*(w: cint; h: cint; `type`: cint): ptr cdBitmap {.cdecl, importc: "cdCreateBitmap", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdInitBitmap*(w: cint; h: cint; `type`: cint): ptr cdBitmap {.varargs, cdecl, importc: "cdInitBitmap", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdKillBitmap*(bitmap: ptr cdBitmap) {.cdecl, importc: "cdKillBitmap", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdBitmapGetData*(bitmap: ptr cdBitmap; dataptr: cint): ptr cuchar {.cdecl, importc: "cdBitmapGetData", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdBitmapSetRect*(bitmap: ptr cdBitmap; xmin: cint; xmax: cint; ymin: cint; ymax: cint) {. cdecl, importc: "cdBitmapSetRect", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasPutBitmap*(canvas: ptr cdCanvas; bitmap: ptr cdBitmap; x: cint; y: cint; w: cint; h: cint) {.cdecl, importc: "cdCanvasPutBitmap", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdCanvasGetBitmap*(canvas: ptr cdCanvas; bitmap: ptr cdBitmap; x: cint; y: cint) {. cdecl, importc: "cdCanvasGetBitmap", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdBitmapRGB2Map*(bitmap_rgb: ptr cdBitmap; bitmap_map: ptr cdBitmap) {.cdecl, importc: "cdBitmapRGB2Map", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdEncodeColor*(red: cuchar; green: cuchar; blue: cuchar): clong {.cdecl, importc: "cdEncodeColor", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdEncodeColorAlpha*(red: cuchar; green: cuchar; blue: cuchar; alpha: cuchar): clong {. cdecl, importc: "cdEncodeColorAlpha", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdEncodeAlpha*(color: clong; alpha: cuchar): clong {.cdecl, importc: "cdEncodeAlpha", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdDecodeColor*(color: clong; red: ptr cuchar; green: ptr cuchar; blue: ptr cuchar) {. cdecl, importc: "cdDecodeColor", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdDecodeColorAlpha*(color: clong; red: ptr cuchar; green: ptr cuchar; blue: ptr cuchar; alpha: ptr cuchar) {.cdecl, importc: "cdDecodeColorAlpha", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdDecodeAlpha*(color: clong): cuchar {.cdecl, importc: "cdDecodeAlpha", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
 template cdAlpha*(_: untyped): untyped =
   cast[cuchar]((not (((_) shr 24) and 0x000000FF)))
 
@@ -421,7 +422,7 @@ template cdGreen*(_: untyped): untyped =
 template cdBlue*(_: untyped): untyped =
   cast[cuchar]((((_) shr 0) and 0x000000FF))
 
-proc cdRGB2Map*(width: cint; height: cint; red: ptr cuchar; green: ptr cuchar; blue: ptr cuchar; index: ptr cuchar; pal_size: cint; color: ptr clong) {. cdecl, importc: "cdRGB2Map", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
+proc cdRGB2Map*(width: cint; height: cint; red: ptr cuchar; green: ptr cuchar; blue: ptr cuchar; index: ptr cuchar; pal_size: cint; color: ptr clong) {. cdecl, importc: "cdRGB2Map", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
 const
   CD_QUERY* = -1
 
@@ -665,16 +666,16 @@ const
   CD_LETTER* = 6
   CD_LEGAL* = 7
 
-proc cdContextIup*(): ptr cdContext {.cdecl, importc: "cdContextIup", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdContextIupDBuffer*(): ptr cdContext {.cdecl, importc: "cdContextIupDBuffer", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdContextIupDBufferRGB*(): ptr cdContext {.cdecl, importc: "cdContextIupDBufferRGB", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdContextPrinter*(): ptr cdContext {.cdecl, importc: "cdContextPrinter", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdContextImageRGB*(): ptr cdContext {.cdecl, importc: "cdContextImageRGB", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdContextDBufferRGB*(): ptr cdContext {.cdecl, importc: "cdContextDBufferRGB", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdRedImage*(cnv: ptr cdCanvas): ptr cuchar {.cdecl, importc: "cdRedImage", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdGreenImage*(cnv: ptr cdCanvas): ptr cuchar {.cdecl, importc: "cdGreenImage", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdBlueImage*(cnv: ptr cdCanvas): ptr cuchar {.cdecl, importc: "cdBlueImage", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
-proc cdAlphaImage*(cnv: ptr cdCanvas): ptr cuchar {.cdecl, importc: "cdAlphaImage", dynlib: libiupcdSONAME, dynlib: libcdSONAME.}
+proc cdContextIup*(): ptr cdContext {.cdecl, importc: "cdContextIup", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdContextIupDBuffer*(): ptr cdContext {.cdecl, importc: "cdContextIupDBuffer", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdContextIupDBufferRGB*(): ptr cdContext {.cdecl, importc: "cdContextIupDBufferRGB", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdContextPrinter*(): ptr cdContext {.cdecl, importc: "cdContextPrinter", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdContextImageRGB*(): ptr cdContext {.cdecl, importc: "cdContextImageRGB", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdContextDBufferRGB*(): ptr cdContext {.cdecl, importc: "cdContextDBufferRGB", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdRedImage*(cnv: ptr cdCanvas): ptr cuchar {.cdecl, importc: "cdRedImage", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdGreenImage*(cnv: ptr cdCanvas): ptr cuchar {.cdecl, importc: "cdGreenImage", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdBlueImage*(cnv: ptr cdCanvas): ptr cuchar {.cdecl, importc: "cdBlueImage", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
+proc cdAlphaImage*(cnv: ptr cdCanvas): ptr cuchar {.cdecl, importc: "cdAlphaImage", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
 #Lib IUP
 const
   IUP_NAME* = "IUP - Portable User Interface"
@@ -691,6 +692,7 @@ type
 
 proc Open*(argc: var cint; argv: ptr cstringArray): cint {.cdecl, importc: "IupOpen", dynlib: libiupSONAME, discardable.}
 proc Close*() {.cdecl, importc: "IupClose", dynlib: libiupSONAME.}
+proc IsOpened*(): cint {.cdecl, importc: "IupIsOpened", dynlib: libiupSONAME, discardable.}
 proc ImageLibOpen*() {.cdecl, importc: "IupImageLibOpen", dynlib: libiupimglibSONAME.}
 proc MainLoop*(): cint {.cdecl, importc: "IupMainLoop", dynlib: libiupSONAME, discardable.}
 proc LoopStep*(): cint {.cdecl, importc: "IupLoopStep", dynlib: libiupSONAME, discardable.}
@@ -698,6 +700,7 @@ proc LoopStepWait*(): cint {.cdecl, importc: "IupLoopStepWait", dynlib: libiupSO
 proc MainLoopLevel*(): cint {.cdecl, importc: "IupMainLoopLevel", dynlib: libiupSONAME, discardable.}
 proc Flush*() {.cdecl, importc: "IupFlush", dynlib: libiupSONAME.}
 proc ExitLoop*() {.cdecl, importc: "IupExitLoop", dynlib: libiupSONAME.}
+proc PostMessage*(ih: PIhandle; s: cstring; i: cint; d: cdouble; p: pointer) {.cdecl, importc: "IupPostMessage", dynlib: libiupSONAME.}
 proc RecordInput*(filename: cstring; mode: cint): cint {.cdecl, importc: "IupRecordInput", dynlib: libiupSONAME, discardable.}
 proc PlayInput*(filename: cstring): cint {.cdecl, importc: "IupPlayInput", dynlib: libiupSONAME, discardable.}
 proc Update*(ih: PIhandle) {.cdecl, importc: "IupUpdate", dynlib: libiupSONAME.}
@@ -714,6 +717,7 @@ proc LoadBuffer*(buffer: cstring): cstring {.cdecl, importc: "IupLoadBuffer", dy
 proc Version*(): cstring {.cdecl, importc: "IupVersion", dynlib: libiupSONAME.}
 proc VersionDate*(): cstring {.cdecl, importc: "IupVersionDate", dynlib: libiupSONAME.}
 proc VersionNumber*(): cint {.cdecl, importc: "IupVersionNumber", dynlib: libiupSONAME, discardable.}
+proc VersionShow*() {.cdecl, importc: "IupVersionShow", dynlib: libiupSONAME.}
 proc SetLanguage*(lng: cstring) {.cdecl, importc: "IupSetLanguage", dynlib: libiupSONAME.}
 proc GetLanguage*(): cstring {.cdecl, importc: "IupGetLanguage", dynlib: libiupSONAME.}
 proc SetLanguageString*(name: cstring; str: cstring) {.cdecl, importc: "IupSetLanguageString", dynlib: libiupSONAME.}
@@ -844,9 +848,9 @@ proc DetachBox*(child: PIhandle): PIhandle {.cdecl, importc: "IupDetachBox", dyn
 proc BackgroundBox*(child: PIhandle): PIhandle {.cdecl, importc: "IupBackgroundBox", dynlib: libiupSONAME.}
 proc Frame*(child: PIhandle): PIhandle {.cdecl, importc: "IupFrame", dynlib: libiupSONAME.}
 proc FlatFrame*(child: PIhandle): PIhandle {.cdecl, importc: "IupFlatFrame", dynlib: libiupSONAME.}
-proc Image*(width: cint; height: cint; pixmap: ptr cuchar): PIhandle {.cdecl, importc: "IupImage", dynlib: libiupSONAME.}
-proc ImageRGB*(width: cint; height: cint; pixmap: ptr cuchar): PIhandle {.cdecl, importc: "IupImageRGB", dynlib: libiupSONAME.}
-proc ImageRGBA*(width: cint; height: cint; pixmap: ptr cuchar): PIhandle {.cdecl, importc: "IupImageRGBA", dynlib: libiupSONAME.}
+proc Image*(width: cint; height: cint; pixels: ptr cuchar): PIhandle {.cdecl, importc: "IupImage", dynlib: libiupSONAME.}
+proc ImageRGB*(width: cint; height: cint; pixels: ptr cuchar): PIhandle {.cdecl, importc: "IupImageRGB", dynlib: libiupSONAME.}
+proc ImageRGBA*(width: cint; height: cint; pixels: ptr cuchar): PIhandle {.cdecl, importc: "IupImageRGBA", dynlib: libiupSONAME.}
 proc Item*(title: cstring; action: cstring): PIhandle {.cdecl, importc: "IupItem", dynlib: libiupSONAME.}
 proc Submenu*(title: cstring; child: PIhandle): PIhandle {.cdecl, importc: "IupSubmenu", dynlib: libiupSONAME.}
 proc Separator*(): PIhandle {.cdecl, importc: "IupSeparator", dynlib: libiupSONAME.}
@@ -861,6 +865,7 @@ proc FlatSeparator*(): PIhandle {.cdecl, importc: "IupFlatSeparator", dynlib: li
 proc Canvas*(action: cstring): PIhandle {.cdecl, importc: "IupCanvas", dynlib: libiupSONAME.}
 proc Dialog*(child: PIhandle): PIhandle {.cdecl, importc: "IupDialog", dynlib: libiupSONAME.}
 proc User*(): PIhandle {.cdecl, importc: "IupUser", dynlib: libiupSONAME.}
+proc Thread*(): PIhandle {.cdecl, importc: "IupThread", dynlib: libiupSONAME.}
 proc Label*(title: cstring): PIhandle {.cdecl, importc: "IupLabel", dynlib: libiupSONAME.}
 proc List*(action: cstring): PIhandle {.cdecl, importc: "IupList", dynlib: libiupSONAME.}
 proc FlatList*(): PIhandle {.cdecl, importc: "IupFlatList", dynlib: libiupSONAME.}
@@ -871,6 +876,7 @@ proc Timer*(): PIhandle {.cdecl, importc: "IupTimer", dynlib: libiupSONAME.}
 proc Clipboard*(): PIhandle {.cdecl, importc: "IupClipboard", dynlib: libiupSONAME.}
 proc ProgressBar*(): PIhandle {.cdecl, importc: "IupProgressBar", dynlib: libiupSONAME.}
 proc Val*(`type`: cstring): PIhandle {.cdecl, importc: "IupVal", dynlib: libiupSONAME.}
+proc FlatVal*(`type`: cstring): PIhandle {.cdecl, importc: "IupFlatVal", dynlib: libiupSONAME.}
 proc Tabs*(child: PIhandle): PIhandle {.varargs, cdecl, importc: "IupTabs", dynlib: libiupSONAME.}
 proc Tabsv*(children: ptr PIhandle): PIhandle {.cdecl, importc: "IupTabsv", dynlib: libiupSONAME.}
 proc FlatTabs*(first: PIhandle): PIhandle {.varargs, cdecl, importc: "IupFlatTabs", dynlib: libiupSONAME.}
@@ -887,7 +893,8 @@ proc ColorBrowser*(): PIhandle {.cdecl, importc: "IupColorBrowser", dynlib: libi
 proc Spin*(): PIhandle {.cdecl, importc: "IupSpin", dynlib: libiupSONAME.}
 proc Spinbox*(child: PIhandle): PIhandle {.cdecl, importc: "IupSpinbox", dynlib: libiupSONAME.}
 proc StringCompare*(str1: cstring; str2: cstring; casesensitive: cint; lexicographic: cint): cint {.cdecl, importc: "IupStringCompare", dynlib: libiupSONAME, discardable.}
-proc SaveImageAsText*(ih: PIhandle; file_name: cstring; format: cstring; name: cstring): cint {.cdecl, importc: "IupSaveImageAsText", dynlib: libiupimSONAME, discardable.}
+proc SaveImageAsText*(ih: PIhandle; filename: cstring; format: cstring; name: cstring): cint {. cdecl, importc: "IupSaveImageAsText", dynlib: libiupimSONAME, discardable.}
+proc ImageGetHandle*(name: cstring): PIhandle {.cdecl, importc: "IupImageGetHandle", dynlib: libiupSONAME.}
 proc TextConvertLinColToPos*(ih: PIhandle; lin: cint; col: cint; pos: var cint) {.cdecl, importc: "IupTextConvertLinColToPos", dynlib: libiupSONAME.}
 proc TextConvertPosToLinCol*(ih: PIhandle; pos: cint; lin: var cint; col: var cint) {. cdecl, importc: "IupTextConvertPosToLinCol", dynlib: libiupSONAME.}
 proc ConvertXYToPos*(ih: PIhandle; x: cint; y: cint): cint {.cdecl, importc: "IupConvertXYToPos", dynlib: libiupSONAME, discardable.}
@@ -927,8 +934,9 @@ proc Param*(format: cstring): PIhandle {.cdecl, importc: "IupParam", dynlib: lib
 proc ParamBox*(param: PIhandle): PIhandle {.varargs, cdecl, importc: "IupParamBox", dynlib: libiupSONAME.}
 proc ParamBoxv*(param_array: ptr PIhandle): PIhandle {.cdecl, importc: "IupParamBoxv", dynlib: libiupSONAME.}
 proc LayoutDialog*(dialog: PIhandle): PIhandle {.cdecl, importc: "IupLayoutDialog", dynlib: libiupSONAME.}
-proc ElementPropertiesDialog*(elem: PIhandle): PIhandle {.cdecl, importc: "IupElementPropertiesDialog", dynlib: libiupSONAME.}
+proc ElementPropertiesDialog*(parent: PIhandle; elem: PIhandle): PIhandle {. cdecl, importc: "IupElementPropertiesDialog", dynlib: libiupSONAME.}
 proc GlobalsDialog*(): PIhandle {.cdecl, importc: "IupGlobalsDialog", dynlib: libiupSONAME.}
+proc ClassInfoDialog*(parent: PIhandle): PIhandle {.cdecl, importc: "IupClassInfoDialog", dynlib: libiupSONAME.}
 const
   IUP_ERROR* = 1
   IUP_NOERROR* = 0
@@ -1145,10 +1153,11 @@ proc GLSwapBuffers*(ih: PIhandle) {.cdecl, importc: "IupGLSwapBuffers", dynlib: 
 proc GLPalette*(ih: PIhandle; index: cint; r: cfloat; g: cfloat; b: cfloat) {.cdecl, importc: "IupGLPalette", dynlib: libiupglSONAME.}
 proc GLUseFont*(ih: PIhandle; first: cint; count: cint; list_base: cint) {.cdecl, importc: "IupGLUseFont", dynlib: libiupglSONAME.}
 proc GLWait*(gl: cint) {.cdecl, importc: "IupGLWait", dynlib: libiupglSONAME.}
-proc LoadImage*(file_name: cstring): PIhandle {.cdecl, importc: "IupLoadImage", dynlib: libiupimSONAME.}
-proc SaveImage*(ih: PIhandle; file_name: cstring; format: cstring): cint {.cdecl, importc: "IupSaveImage", dynlib: libiupimSONAME, discardable.}
-proc LoadAnimation*(file_name: cstring): PIhandle {.cdecl, importc: "IupLoadAnimation", dynlib: libiupimSONAME.}
-proc LoadAnimationFrames*(file_name_list: cstringArray; file_count: cint): PIhandle {. cdecl, importc: "IupLoadAnimationFrames", dynlib: libiupimSONAME.}
+proc ImOpen*() {.cdecl, importc: "IupImOpen", dynlib: libiupimSONAME.}
+proc LoadImage*(filename: cstring): PIhandle {.cdecl, importc: "IupLoadImage", dynlib: libiupimSONAME.}
+proc SaveImage*(ih: PIhandle; filename: cstring; format: cstring): cint {.cdecl, importc: "IupSaveImage", dynlib: libiupimSONAME, discardable.}
+proc LoadAnimation*(filename: cstring): PIhandle {.cdecl, importc: "IupLoadAnimation", dynlib: libiupimSONAME.}
+proc LoadAnimationFrames*(filename_list: cstringArray; file_count: cint): PIhandle {. cdecl, importc: "IupLoadAnimationFrames", dynlib: libiupimSONAME.}
 proc GetNativeHandleImage*(handle: pointer): ptr imImage {.cdecl, importc: "IupGetNativeHandleImage", dynlib: libiupimSONAME.}
 proc GetImageNativeHandle*(image: ptr imImage): pointer {.cdecl, importc: "IupGetImageNativeHandle", dynlib: libiupimSONAME.}
 proc ImageFromImImage*(image: ptr imImage): PIhandle {.cdecl, importc: "IupImageFromImImage", dynlib: libiupimSONAME.}
@@ -1292,6 +1301,14 @@ const
   K_F10* = cint(0x0000FFC7)
   K_F11* = cint(0x0000FFC8)
   K_F12* = cint(0x0000FFC9)
+  K_F13* = cint(0x0000FFCA)
+  K_F14* = cint(0x0000FFCB)
+  K_F15* = cint(0x0000FFCC)
+  K_F16* = cint(0x0000FFCD)
+  K_F17* = cint(0x0000FFCE)
+  K_F18* = cint(0x0000FFCF)
+  K_F19* = cint(0x0000FFD0)
+  K_F20* = cint(0x0000FFD1)
   K_LSHIFT* = cint(0x0000FFE1)
   K_RSHIFT* = cint(0x0000FFE2)
   K_LCTRL* = cint(0x0000FFE3)
@@ -1301,6 +1318,8 @@ const
   K_NUM* = cint(0x0000FF7F)
   K_SCROLL* = cint(0x0000FF14)
   K_CAPS* = cint(0x0000FFE5)
+  K_CLEAR* = cint(0x0000FFD2)
+  K_HELP* = cint(0x0000FFD3)
   K_lowerccedilla* = cint(0x000000E7)
   K_Ccedilla* = cint(0x000000C7)
   K_acute* = cint(0x000000B4)
@@ -1351,6 +1370,7 @@ const
   K_sBS* = iup_XkeyShift(K_BS)
   K_sPAUSE* = iup_XkeyShift(K_PAUSE)
   K_sESC* = iup_XkeyShift(K_ESC)
+  K_sCLEAR* = iup_XkeyShift(K_CLEAR)
   K_sF1* = iup_XkeyShift(K_F1)
   K_sF2* = iup_XkeyShift(K_F2)
   K_sF3* = iup_XkeyShift(K_F3)
@@ -1363,6 +1383,14 @@ const
   K_sF10* = iup_XkeyShift(K_F10)
   K_sF11* = iup_XkeyShift(K_F11)
   K_sF12* = iup_XkeyShift(K_F12)
+  K_sF13* = iup_XkeyShift(K_F13)
+  K_sF14* = iup_XkeyShift(K_F14)
+  K_sF15* = iup_XkeyShift(K_F15)
+  K_sF16* = iup_XkeyShift(K_F16)
+  K_sF17* = iup_XkeyShift(K_F17)
+  K_sF18* = iup_XkeyShift(K_F18)
+  K_sF19* = iup_XkeyShift(K_F19)
+  K_sF20* = iup_XkeyShift(K_F20)
   K_sPrint* = iup_XkeyShift(K_Print)
   K_sMenu* = iup_XkeyShift(K_Menu)
   K_cHOME* = iup_XkeyCtrl(K_HOME)
@@ -1382,6 +1410,7 @@ const
   K_cBS* = iup_XkeyCtrl(K_BS)
   K_cPAUSE* = iup_XkeyCtrl(K_PAUSE)
   K_cESC* = iup_XkeyCtrl(K_ESC)
+  K_cCLEAR* = iup_XkeyCtrl(K_CLEAR)
   K_cCcedilla* = iup_XkeyCtrl(K_Ccedilla)
   K_cF1* = iup_XkeyCtrl(K_F1)
   K_cF2* = iup_XkeyCtrl(K_F2)
@@ -1395,6 +1424,14 @@ const
   K_cF10* = iup_XkeyCtrl(K_F10)
   K_cF11* = iup_XkeyCtrl(K_F11)
   K_cF12* = iup_XkeyCtrl(K_F12)
+  K_cF13* = iup_XkeyCtrl(K_F13)
+  K_cF14* = iup_XkeyCtrl(K_F14)
+  K_cF15* = iup_XkeyCtrl(K_F15)
+  K_cF16* = iup_XkeyCtrl(K_F16)
+  K_cF17* = iup_XkeyCtrl(K_F17)
+  K_cF18* = iup_XkeyCtrl(K_F18)
+  K_cF19* = iup_XkeyCtrl(K_F19)
+  K_cF20* = iup_XkeyCtrl(K_F20)
   K_cPrint* = iup_XkeyCtrl(K_Print)
   K_cMenu* = iup_XkeyCtrl(K_Menu)
   K_mHOME* = iup_XkeyAlt(K_HOME)
@@ -1414,6 +1451,7 @@ const
   K_mBS* = iup_XkeyAlt(K_BS)
   K_mPAUSE* = iup_XkeyAlt(K_PAUSE)
   K_mESC* = iup_XkeyAlt(K_ESC)
+  K_mCLEAR* = iup_XkeyAlt(K_CLEAR)
   K_mCcedilla* = iup_XkeyAlt(K_Ccedilla)
   K_mF1* = iup_XkeyAlt(K_F1)
   K_mF2* = iup_XkeyAlt(K_F2)
@@ -1427,6 +1465,14 @@ const
   K_mF10* = iup_XkeyAlt(K_F10)
   K_mF11* = iup_XkeyAlt(K_F11)
   K_mF12* = iup_XkeyAlt(K_F12)
+  K_mF13* = iup_XkeyAlt(K_F13)
+  K_mF14* = iup_XkeyAlt(K_F14)
+  K_mF15* = iup_XkeyAlt(K_F15)
+  K_mF16* = iup_XkeyAlt(K_F16)
+  K_mF17* = iup_XkeyAlt(K_F17)
+  K_mF18* = iup_XkeyAlt(K_F18)
+  K_mF19* = iup_XkeyAlt(K_F19)
+  K_mF20* = iup_XkeyAlt(K_F20)
   K_mPrint* = iup_XkeyAlt(K_Print)
   K_mMenu* = iup_XkeyAlt(K_Menu)
   K_yHOME* = iup_XkeySys(K_HOME)
@@ -1446,6 +1492,7 @@ const
   K_yBS* = iup_XkeySys(K_BS)
   K_yPAUSE* = iup_XkeySys(K_PAUSE)
   K_yESC* = iup_XkeySys(K_ESC)
+  K_yCLEAR* = iup_XkeySys(K_CLEAR)
   K_yCcedilla* = iup_XkeySys(K_Ccedilla)
   K_yF1* = iup_XkeySys(K_F1)
   K_yF2* = iup_XkeySys(K_F2)
@@ -1459,6 +1506,14 @@ const
   K_yF10* = iup_XkeySys(K_F10)
   K_yF11* = iup_XkeySys(K_F11)
   K_yF12* = iup_XkeySys(K_F12)
+  K_yF13* = iup_XkeySys(K_F13)
+  K_yF14* = iup_XkeySys(K_F14)
+  K_yF15* = iup_XkeySys(K_F15)
+  K_yF16* = iup_XkeySys(K_F16)
+  K_yF17* = iup_XkeySys(K_F17)
+  K_yF18* = iup_XkeySys(K_F18)
+  K_yF19* = iup_XkeySys(K_F19)
+  K_yF20* = iup_XkeySys(K_F20)
   K_yPrint* = iup_XkeySys(K_Print)
   K_yMenu* = iup_XkeySys(K_Menu)
   K_sPlus* = iup_XkeyShift(K_plus)
@@ -1669,6 +1724,9 @@ proc ScintillaDlg*(): PIhandle {.cdecl, importc: "IupScintillaDlg", dynlib: libi
 proc ScintillaSendMessage*(ih: PIhandle; iMessage: cuint; wParam: uptr_t; lParam: sptr_t): sptr_t {.cdecl, importc: "IupScintillaSendMessage", dynlib: libiup_scintillaSONAME.}
 proc TuioOpen*(): cint {.cdecl, importc: "IupTuioOpen", dynlib: libiuptuioSONAME, discardable.}
 proc TuioClient*(port: cint): PIhandle {.cdecl, importc: "IupTuioClient", dynlib: libiuptuioSONAME.}
+const
+  IUPWEB_API* = true
+
 proc WebBrowserOpen*(): cint {.cdecl, importc: "IupWebBrowserOpen", dynlib: libiupwebSONAME, discardable.}
 proc WebBrowser*(): PIhandle {.cdecl, importc: "IupWebBrowser", dynlib: libiupwebSONAME.}
 const

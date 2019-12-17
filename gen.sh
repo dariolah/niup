@@ -28,12 +28,11 @@ done
 #iupdef.h multiple re-defines
 ./prepare.sh /usr/include/iup/iupdef.h |sort | uniq >> iup_concat.h
 
-grep _NO iup_concat.h
-
 sed -i -E '/ CD_IUPDRAW /d;
 	/struct _cdCanvas;/d;
 	0,/IUP_YES/{/IUP_YES/d};
 	0,/IUP_NO /{/IUP_NO /d};
+	s/^(IUP_API|IUPIMGLIB_API|IUPWEB_API) //;
 	' iup_concat.h
 
 c2nim --dynlib:libiupSONAME --cdecl --prefix:Iup iup_concat.h
@@ -115,6 +114,9 @@ sed -i -E '
     s/if x_image.has_alpha:/if x_image.has_alpha > 0:/;
     s/cast\[ptr cuchar\]\(x_image.data\[([0-9])\]\)/cast[ptr cuchar](cast[ByteAddress](x_image.data[]) +% \1 * x_image.plane_size)/;
     s/data\*: ptr pointer/data*: ptr cstring/;
+    /(imImageGetOpenGLData)/{
+        s/\.\}/, discardable.\}/
+    }
     ' im_concat.nim
 #~Lib IM
 
@@ -142,7 +144,7 @@ sed -i -E '
     /^(proc| Iparamcb).*[^}]$/b a; 
     /^proc/{ s/\s+/ /g; }
     s/(_cdContext|_cdCanvas|_cdCanvas|_cdImage)/object/;
-    /^proc cd/{s/.\}/, dynlib: libcdSONAME.\}/};
+    /^proc cd/{s/dynlib: libiupcdSONAME.\}/dynlib: libcdSONAME, dynlib: libiupcdSONAME.\}/};
     /(cdCanvasBackground|cdCanvasForeground)/{
         s/\.\}/, discardable.\}/
     }
