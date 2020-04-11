@@ -984,47 +984,37 @@ const
   IUP_BUTTON4* = '4'
   IUP_BUTTON5* = '5'
 
-template iup_isshift*(Xs: untyped): untyped =
+template isshift*(Xs: untyped): untyped =
   (Xs[0] == 'S')
 
-template iup_iscontrol*(Xs: untyped): untyped =
+template iscontrol*(Xs: untyped): untyped =
   (Xs[1] == 'C')
 
-template iup_isbutton1*(Xs: untyped): untyped =
+template isbutton1*(Xs: untyped): untyped =
   (Xs[2] == '1')
 
-template iup_isbutton2*(Xs: untyped): untyped =
+template isbutton2*(Xs: untyped): untyped =
   (Xs[3] == '2')
 
-template iup_isbutton3*(Xs: untyped): untyped =
+template isbutton3*(Xs: untyped): untyped =
   (Xs[4] == '3')
 
-template iup_isdouble*(Xs: untyped): untyped =
+template isdouble*(Xs: untyped): untyped =
   (Xs[5] == 'D')
 
-template iup_isalt*(Xs: untyped): untyped =
+template isalt*(Xs: untyped): untyped =
   (Xs[6] == 'A')
 
-template iup_issys*(Xs: untyped): untyped =
+template issys*(Xs: untyped): untyped =
   (Xs[7] == 'Y')
 
-template iup_isbutton4*(Xs: untyped): untyped =
+template isbutton4*(Xs: untyped): untyped =
   (Xs[8] == '4')
 
-template iup_isbutton5*(Xs: untyped): untyped =
+template isbutton5*(Xs: untyped): untyped =
   (Xs[9] == '5')
 
 const
-  isshift* = iup_isshift
-  iscontrol* = iup_iscontrol
-  isbutton1* = iup_isbutton1
-  isbutton2* = iup_isbutton2
-  isbutton3* = iup_isbutton3
-  isdouble* = iup_isdouble
-  isalt* = iup_isalt
-  issys* = iup_issys
-  isbutton4* = iup_isbutton4
-  isbutton5* = iup_isbutton5
   IUP_MASK_FLOAT* = "[+/-]?(/d+/.?/d*|/./d+)"
   IUP_MASK_UFLOAT* = "(/d+/.?/d*|/./d+)"
   IUP_MASK_EFLOAT* = "[+/-]?(/d+/.?/d*|/./d+)([eE][+/-]?/d+)?"

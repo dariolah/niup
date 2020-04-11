@@ -66,6 +66,8 @@ do
                  s/K_c([A-Z]\*)/K_cupper\1/;
                  /isxkey\*/d;
                  s/_cdCanvas/cdCanvas/g;
+		 /^  (isshift|iscontrol|isbutton|isdouble|isalt|issys)/d;
+		 /^template iup_(isshift|iscontrol|isbutton|isdouble|isalt|issys)/{s/ iup_/ /};
                  /'"$fnregex"'/{s/libiupSONAME/'"$SONAME"'/}' iup_concat.nim
 done
 

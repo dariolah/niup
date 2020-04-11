@@ -1,8 +1,8 @@
-Open	/home/dlah/finte/priv/niup/htmldocs/niupext.html#Open.t	niupext: Open()	
-InitConfig	/home/dlah/finte/priv/niup/htmldocs/niupext.html#InitConfig.t,PIhandle,string	niupext: InitConfig(config: PIhandle; appName: string)	
-SetCallback	/home/dlah/finte/priv/niup/htmldocs/niupext.html#SetCallback.t,PIhandle,string,proc	niupext: SetCallback(pih: PIhandle; name: string; cb_func: proc)	
-GetAttributeAsPIhandle	/home/dlah/finte/priv/niup/htmldocs/niupext.html#GetAttributeAsPIhandle.t,PIhandle,string	niupext: GetAttributeAsPIhandle(pih: PIhandle; attr: string): PIhandle	
-SetAttribute	/home/dlah/finte/priv/niup/htmldocs/niupext.html#SetAttribute.t,PIhandle,string,PIhandle	niupext: SetAttribute(pih: PIhandle; attr: string; val: PIhandle)	
-ImageRGBA	/home/dlah/finte/priv/niup/htmldocs/niupext.html#ImageRGBA.t,int,int,openArray[uint8]	niupext: ImageRGBA(width, height: int; pixmap: openArray[uint8]): PIhandle	
-GetBool	/home/dlah/finte/priv/niup/htmldocs/niupext.html#GetBool,PIhandle,string	niupext: GetBool(pih: PIhandle; attr: string): bool	
-withPIhandle	/home/dlah/finte/priv/niup/htmldocs/niupext.html#withPIhandle.m,PIhandle,untyped	niupext: withPIhandle(pih: PIhandle; body: untyped): untyped	
+Open	niupext.html#Open.t	niupext: Open()	
+InitConfig	niupext.html#InitConfig.t,PIhandle,string	niupext: InitConfig(config: PIhandle; appName: string)	
+SetCallback	niupext.html#SetCallback.t,PIhandle,string,proc	niupext: SetCallback(pih: PIhandle; name: string; cb_func: proc)	
+GetAttributeAsPIhandle	niupext.html#GetAttributeAsPIhandle.t,PIhandle,string	niupext: GetAttributeAsPIhandle(pih: PIhandle; attr: string): PIhandle	
+SetAttribute	niupext.html#SetAttribute.t,PIhandle,string,PIhandle	niupext: SetAttribute(pih: PIhandle; attr: string; val: PIhandle)	
+ImageRGBA	niupext.html#ImageRGBA.t,int,int,openArray[uint8]	niupext: ImageRGBA(width, height: int; pixmap: openArray[uint8]): PIhandle	
+GetBool	niupext.html#GetBool,PIhandle,string	niupext: GetBool(pih: PIhandle; attr: string): bool	
+withPIhandle	niupext.html#withPIhandle.m,PIhandle,untyped	niupext: withPIhandle(pih: PIhandle; body: untyped): untyped	
