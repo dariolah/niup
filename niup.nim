@@ -130,7 +130,7 @@ type
     data*: ptr cstring
     palette*: ptr clong
     palette_count*: cint
-    attrib_table*: pointer
+    attributes_table*: pointer
 
 
 proc imImageCreate*(width: cint; height: cint; color_space: imColorSpace; data_type: imDataType): ptr imImage {. cdecl, importc: "imImageCreate", dynlib: libiupimSONAME.}
@@ -229,10 +229,10 @@ proc imConvertRGB2MapCounter*(width: cint; height: cint; red: ptr cuchar; green:
 const
   CD_NAME* = "CD - A 2D Graphics Library"
   CD_DESCRIPTION* = "Vector Graphics Toolkit with Device Independent Output"
-  CD_COPYRIGHT* = "Copyright (C) 1994-2019 Tecgraf/PUC-Rio"
-  CD_VERSION* = "5.12"
-  CD_VERSION_NUMBER* = 512000
-  CD_VERSION_DATE* = "2019/01/07"
+  CD_COPYRIGHT* = "Copyright (C) 1994-2020 Tecgraf/PUC-Rio"
+  CD_VERSION* = "5.13"
+  CD_VERSION_NUMBER* = 513000
+  CD_VERSION_DATE* = "2020/05/18"
 
 type
   cdContext* = object
@@ -680,7 +680,7 @@ proc cdAlphaImage*(cnv: ptr cdCanvas): ptr cuchar {.cdecl, importc: "cdAlphaImag
 const
   IUP_NAME* = "IUP - Portable User Interface"
   IUP_DESCRIPTION* = "Multi-platform Toolkit for Building Graphical User Interfaces"
-  IUP_COPYRIGHT* = "Copyright (C) 1994-2019 Tecgraf/PUC-Rio"
+  IUP_COPYRIGHT* = "Copyright (C) 1994-2020 Tecgraf/PUC-Rio"
 
 type
   Ihandle = object
@@ -756,6 +756,7 @@ proc SetInt*(ih: PIhandle; name: cstring; value: cint) {.cdecl, importc: "IupSet
 proc SetFloat*(ih: PIhandle; name: cstring; value: cfloat) {.cdecl, importc: "IupSetFloat", dynlib: libiupSONAME.}
 proc SetDouble*(ih: PIhandle; name: cstring; value: cdouble) {.cdecl, importc: "IupSetDouble", dynlib: libiupSONAME.}
 proc SetRGB*(ih: PIhandle; name: cstring; r: cuchar; g: cuchar; b: cuchar) {.cdecl, importc: "IupSetRGB", dynlib: libiupSONAME.}
+proc SetRGBA*(ih: PIhandle; name: cstring; r: cuchar; g: cuchar; b: cuchar; a: cuchar) {. cdecl, importc: "IupSetRGBA", dynlib: libiupSONAME.}
 proc GetAttribute*(ih: PIhandle; name: cstring): cstring {.cdecl, importc: "IupGetAttribute", dynlib: libiupSONAME.}
 proc GetInt*(ih: PIhandle; name: cstring): cint {.cdecl, importc: "IupGetInt", dynlib: libiupSONAME, discardable.}
 proc GetInt2*(ih: PIhandle; name: cstring): cint {.cdecl, importc: "IupGetInt2", dynlib: libiupSONAME, discardable.}
@@ -763,6 +764,7 @@ proc GetIntInt*(ih: PIhandle; name: cstring; i1: var cint; i2: var cint): cint {
 proc GetFloat*(ih: PIhandle; name: cstring): cfloat {.cdecl, importc: "IupGetFloat", dynlib: libiupSONAME.}
 proc GetDouble*(ih: PIhandle; name: cstring): cdouble {.cdecl, importc: "IupGetDouble", dynlib: libiupSONAME.}
 proc GetRGB*(ih: PIhandle; name: cstring; r: ptr cuchar; g: ptr cuchar; b: ptr cuchar) {. cdecl, importc: "IupGetRGB", dynlib: libiupSONAME.}
+proc GetRGBA*(ih: PIhandle; name: cstring; r: ptr cuchar; g: ptr cuchar; b: ptr cuchar; a: ptr cuchar) {.cdecl, importc: "IupGetRGBA", dynlib: libiupSONAME.}
 proc SetAttributeId*(ih: PIhandle; name: cstring; id: cint; value: cstring) {.cdecl, importc: "IupSetAttributeId", dynlib: libiupSONAME.}
 proc SetStrAttributeId*(ih: PIhandle; name: cstring; id: cint; value: cstring) {.cdecl, importc: "IupSetStrAttributeId", dynlib: libiupSONAME.}
 proc SetStrfId*(ih: PIhandle; name: cstring; id: cint; format: cstring) {.varargs, cdecl, importc: "IupSetStrfId", dynlib: libiupSONAME.}
@@ -877,6 +879,7 @@ proc Clipboard*(): PIhandle {.cdecl, importc: "IupClipboard", dynlib: libiupSONA
 proc ProgressBar*(): PIhandle {.cdecl, importc: "IupProgressBar", dynlib: libiupSONAME.}
 proc Val*(`type`: cstring): PIhandle {.cdecl, importc: "IupVal", dynlib: libiupSONAME.}
 proc FlatVal*(`type`: cstring): PIhandle {.cdecl, importc: "IupFlatVal", dynlib: libiupSONAME.}
+proc FlatTree*(): PIhandle {.cdecl, importc: "IupFlatTree", dynlib: libiupSONAME.}
 proc Tabs*(child: PIhandle): PIhandle {.varargs, cdecl, importc: "IupTabs", dynlib: libiupSONAME.}
 proc Tabsv*(children: ptr PIhandle): PIhandle {.cdecl, importc: "IupTabsv", dynlib: libiupSONAME.}
 proc FlatTabs*(first: PIhandle): PIhandle {.varargs, cdecl, importc: "IupFlatTabs", dynlib: libiupSONAME.}
@@ -953,8 +956,12 @@ const
   IUP_MOUSEPOS* = cint(0x0000FFFC)
   IUP_CURRENT* = cint(0x0000FFFB)
   IUP_CENTERPARENT* = cint(0x0000FFFA)
+  IUP_LEFTPARENT* = cint(0x0000FFF9)
+  IUP_RIGHTPARENT* = cint(0x0000FFF8)
   IUP_TOP* = IUP_LEFT
   IUP_BOTTOM* = IUP_RIGHT
+  IUP_TOPPARENT* = IUP_LEFTPARENT
+  IUP_BOTTOMPARENT* = IUP_RIGHTPARENT
 
 const
   IUP_SHOW* = 0
@@ -1316,16 +1323,16 @@ const
   K_diaeresis* = cint(0x000000A8)
 
 template iup_isShiftXkey*(Xc: untyped): untyped =
-  ((Xc) and 0x10000000)
+  (((Xc) and 0x10000000) != 0)
 
 template iup_isCtrlXkey*(Xc: untyped): untyped =
-  ((Xc) and 0x20000000)
+  (((Xc) and 0x20000000) != 0)
 
 template iup_isAltXkey*(Xc: untyped): untyped =
-  ((Xc) and 0x40000000)
+  (((Xc) and 0x40000000) != 0)
 
 template iup_isSysXkey*(Xc: untyped): untyped =
-  ((Xc) and 0x80000000)
+  (((Xc) and 0x80000000) != 0)
 
 template iup_XkeyBase*(Xc: untyped): untyped =
   ((Xc) and 0x0FFFFFFF)

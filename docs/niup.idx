@@ -534,6 +534,7 @@ SetInt	niup.html#SetInt,PIhandle,cstring,cint	niup: SetInt(ih: PIhandle; name: c
 SetFloat	niup.html#SetFloat,PIhandle,cstring,cfloat	niup: SetFloat(ih: PIhandle; name: cstring; value: cfloat)	
 SetDouble	niup.html#SetDouble,PIhandle,cstring,cdouble	niup: SetDouble(ih: PIhandle; name: cstring; value: cdouble)	
 SetRGB	niup.html#SetRGB,PIhandle,cstring,cuchar,cuchar,cuchar	niup: SetRGB(ih: PIhandle; name: cstring; r: cuchar; g: cuchar; b: cuchar)	
+SetRGBA	niup.html#SetRGBA,PIhandle,cstring,cuchar,cuchar,cuchar,cuchar	niup: SetRGBA(ih: PIhandle; name: cstring; r: cuchar; g: cuchar; b: cuchar; a: cuchar)	
 GetAttribute	niup.html#GetAttribute,PIhandle,cstring	niup: GetAttribute(ih: PIhandle; name: cstring): cstring	
 GetInt	niup.html#GetInt,PIhandle,cstring	niup: GetInt(ih: PIhandle; name: cstring): cint	
 GetInt2	niup.html#GetInt2,PIhandle,cstring	niup: GetInt2(ih: PIhandle; name: cstring): cint	
@@ -541,6 +542,7 @@ GetIntInt	niup.html#GetIntInt,PIhandle,cstring,cint,cint	niup: GetIntInt(ih: PIh
 GetFloat	niup.html#GetFloat,PIhandle,cstring	niup: GetFloat(ih: PIhandle; name: cstring): cfloat	
 GetDouble	niup.html#GetDouble,PIhandle,cstring	niup: GetDouble(ih: PIhandle; name: cstring): cdouble	
 GetRGB	niup.html#GetRGB,PIhandle,cstring,ptr.cuchar,ptr.cuchar,ptr.cuchar	niup: GetRGB(ih: PIhandle; name: cstring; r: ptr cuchar; g: ptr cuchar; b: ptr cuchar)	
+GetRGBA	niup.html#GetRGBA,PIhandle,cstring,ptr.cuchar,ptr.cuchar,ptr.cuchar,ptr.cuchar	niup: GetRGBA(ih: PIhandle; name: cstring; r: ptr cuchar; g: ptr cuchar; b: ptr cuchar;\n        a: ptr cuchar)	
 SetAttributeId	niup.html#SetAttributeId,PIhandle,cstring,cint,cstring	niup: SetAttributeId(ih: PIhandle; name: cstring; id: cint; value: cstring)	
 SetStrAttributeId	niup.html#SetStrAttributeId,PIhandle,cstring,cint,cstring	niup: SetStrAttributeId(ih: PIhandle; name: cstring; id: cint; value: cstring)	
 SetStrfId	niup.html#SetStrfId,PIhandle,cstring,cint,cstring	niup: SetStrfId(ih: PIhandle; name: cstring; id: cint; format: cstring)	
@@ -655,6 +657,7 @@ Clipboard	niup.html#Clipboard	niup: Clipboard(): PIhandle
 ProgressBar	niup.html#ProgressBar	niup: ProgressBar(): PIhandle	
 Val	niup.html#Val,cstring	niup: Val(`type`: cstring): PIhandle	
 FlatVal	niup.html#FlatVal,cstring	niup: FlatVal(`type`: cstring): PIhandle	
+FlatTree	niup.html#FlatTree	niup: FlatTree(): PIhandle	
 Tabs	niup.html#Tabs,PIhandle	niup: Tabs(child: PIhandle): PIhandle	
 Tabsv	niup.html#Tabsv,ptr.PIhandle	niup: Tabsv(children: ptr PIhandle): PIhandle	
 FlatTabs	niup.html#FlatTabs,PIhandle	niup: FlatTabs(first: PIhandle): PIhandle	
@@ -727,8 +730,12 @@ IUP_RIGHT	niup.html#IUP_RIGHT	niup: IUP_RIGHT
 IUP_MOUSEPOS	niup.html#IUP_MOUSEPOS	niup: IUP_MOUSEPOS	
 IUP_CURRENT	niup.html#IUP_CURRENT	niup: IUP_CURRENT	
 IUP_CENTERPARENT	niup.html#IUP_CENTERPARENT	niup: IUP_CENTERPARENT	
+IUP_LEFTPARENT	niup.html#IUP_LEFTPARENT	niup: IUP_LEFTPARENT	
+IUP_RIGHTPARENT	niup.html#IUP_RIGHTPARENT	niup: IUP_RIGHTPARENT	
 IUP_TOP	niup.html#IUP_TOP	niup: IUP_TOP	
 IUP_BOTTOM	niup.html#IUP_BOTTOM	niup: IUP_BOTTOM	
+IUP_TOPPARENT	niup.html#IUP_TOPPARENT	niup: IUP_TOPPARENT	
+IUP_BOTTOMPARENT	niup.html#IUP_BOTTOMPARENT	niup: IUP_BOTTOMPARENT	
 IUP_SHOW	niup.html#IUP_SHOW	niup: IUP_SHOW	
 IUP_RESTORE	niup.html#IUP_RESTORE	niup: IUP_RESTORE	
 IUP_MINIMIZE	niup.html#IUP_MINIMIZE	niup: IUP_MINIMIZE	
