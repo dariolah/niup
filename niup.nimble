@@ -1,6 +1,6 @@
 # Package
 
-version       = "3.29.0"
+version       = "3.29.1"
 author        = "Dario Lah"
 description   = "IUP FFI bindings"
 license       = "MIT"
