@@ -173,49 +173,49 @@ when defined(Linux):
 
 when defined(Windows):
   const 
-        libiupSONAME = "iup.dll"
-        libiupcdSONAME = "iupcd.dll"
-        libcdSONAME = "cd.dll"
-        libiupcontrolsSONAME = "iupcontrols.dll"
-        libiupglcontrolsSONAME = "iupglcontrols.dll"
-        libiupglSONAME = "iupgl.dll"
-        libiupimglibSONAME = "iupimglib.dll"
-        libiupimSONAME = "iupim.dll"
-        libiup_mglplotSONAME = "iup_mglplot.dll"
-        libiup_plotSONAME = "iup_plot.dll"
-        libiup_scintillaSONAME = "iup_scintilla.dll"
-        libiuptuioSONAME = "iuptuio.dll"
-        libiupwebSONAME = "iupweb.dll"
+        libiupSONAME* = "iup.dll"
+        libiupcdSONAME* = "iupcd.dll"
+        libcdSONAME* = "cd.dll"
+        libiupcontrolsSONAME* = "iupcontrols.dll"
+        libiupglcontrolsSONAME* = "iupglcontrols.dll"
+        libiupglSONAME* = "iupgl.dll"
+        libiupimglibSONAME* = "iupimglib.dll"
+        libiupimSONAME* = "iupim.dll"
+        libiup_mglplotSONAME* = "iup_mglplot.dll"
+        libiup_plotSONAME* = "iup_plot.dll"
+        libiup_scintillaSONAME* = "iup_scintilla.dll"
+        libiuptuioSONAME* = "iuptuio.dll"
+        libiupwebSONAME* = "iupweb.dll"
 elif defined(MacOSX):
   const 
-        libiupSONAME = "libiup.dylib"
-        libiupcdSONAME = "libiupcd.dylib"
-        libcdSONAME = "libcd.dylib"
-        libiupcontrolsSONAME = "libiupcontrols.dylib"
-        libiupglcontrolsSONAME = "libiupglcontrols.dylib"
-        libiupglSONAME = "libiupgl.dylib"
-        libiupimglibSONAME = "libiupimglib.dylib"
-        libiupimSONAME = "libiupim.dylib"
-        libiup_mglplotSONAME = "libiup_mglplot.dylib"
-        libiup_plotSONAME = "libiup_plot.dylib"
-        libiup_scintillaSONAME = "libiup_scintilla.dylib"
-        libiuptuioSONAME = "libiuptuio.dylib"
-        libiupwebSONAME = "libiupweb.dylib"
+        libiupSONAME* = "libiup.dylib"
+        libiupcdSONAME* = "libiupcd.dylib"
+        libcdSONAME* = "libcd.dylib"
+        libiupcontrolsSONAME* = "libiupcontrols.dylib"
+        libiupglcontrolsSONAME* = "libiupglcontrols.dylib"
+        libiupglSONAME* = "libiupgl.dylib"
+        libiupimglibSONAME* = "libiupimglib.dylib"
+        libiupimSONAME* = "libiupim.dylib"
+        libiup_mglplotSONAME* = "libiup_mglplot.dylib"
+        libiup_plotSONAME* = "libiup_plot.dylib"
+        libiup_scintillaSONAME* = "libiup_scintilla.dylib"
+        libiuptuioSONAME* = "libiuptuio.dylib"
+        libiupwebSONAME* = "libiupweb.dylib"
 else:
   const 
-        libiupSONAME = "libiup.so"
-        libiupcdSONAME = "libiupcd.so"
-        libcdSONAME = "libcd.so"
-        libiupcontrolsSONAME = "libiupcontrols.so"
-        libiupglcontrolsSONAME = "libiupglcontrols.so"
-        libiupglSONAME = "libiupgl.so"
-        libiupimglibSONAME = "libiupimglib.so"
-        libiupimSONAME = "libiupim.so"
-        libiup_mglplotSONAME = "libiup_mglplot.so"
-        libiup_plotSONAME = "libiup_plot.so"
-        libiup_scintillaSONAME = "libiup_scintilla.so"
-        libiuptuioSONAME = "libiuptuio.so"
-        libiupwebSONAME = "libiupweb.so"
+        libiupSONAME* = "libiup.so"
+        libiupcdSONAME* = "libiupcd.so"
+        libcdSONAME* = "libcd.so"
+        libiupcontrolsSONAME* = "libiupcontrols.so"
+        libiupglcontrolsSONAME* = "libiupglcontrols.so"
+        libiupglSONAME* = "libiupgl.so"
+        libiupimglibSONAME* = "libiupimglib.so"
+        libiupimSONAME* = "libiupim.so"
+        libiup_mglplotSONAME* = "libiup_mglplot.so"
+        libiup_plotSONAME* = "libiup_plot.so"
+        libiup_scintillaSONAME* = "libiup_scintilla.so"
+        libiuptuioSONAME* = "libiuptuio.so"
+        libiupwebSONAME* = "libiupweb.so"
 
 EOF
 
@@ -232,5 +232,9 @@ rm cd_concat.*
 sed -i -E '
     /^proc .*\): cint \{/{
         s/\.\}/, discardable.\}/
+    };
+    /^proc SetFunction\*/ {
+        s/\.\}/, discardable.\}/
     }
     ' niup.nim
+
