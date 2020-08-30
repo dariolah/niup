@@ -4,7 +4,7 @@ IUP is a multi-platform toolkit for building graphical user interfaces.
 
 Easy to use API for building desktop applications. Same code runs on Linux and Windows.
 
-Tested with Nim 1.2 and IUP 3.28
+Tested with Nim 1.2.6 and IUP 3.30
 - Linux, GTK
 - Windows on Linux (cross-compiling, mingw, wine)
 - Windows (reported working)

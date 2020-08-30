@@ -230,9 +230,9 @@ const
   CD_NAME* = "CD - A 2D Graphics Library"
   CD_DESCRIPTION* = "Vector Graphics Toolkit with Device Independent Output"
   CD_COPYRIGHT* = "Copyright (C) 1994-2020 Tecgraf/PUC-Rio"
-  CD_VERSION* = "5.13"
-  CD_VERSION_NUMBER* = 513000
-  CD_VERSION_DATE* = "2020/05/18"
+  CD_VERSION* = "5.14"
+  CD_VERSION_NUMBER* = 514000
+  CD_VERSION_DATE* = "2020/07/30"
 
 type
   cdContext* = object
