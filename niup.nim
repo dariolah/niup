@@ -74,7 +74,7 @@ type
 
 type
   imColorModeConfig* {.size: sizeof(cint).} = enum
-    IM_ALPHA = 0x00000100, IM_PACKED = 0x00000200, IM_TOPDOWN = 0x00000400
+    IM_ALPHA = 0x100, IM_PACKED = 0x200, IM_TOPDOWN = 0x400
 
 
 type
@@ -408,19 +408,19 @@ proc cdDecodeColor*(color: clong; red: ptr cuchar; green: ptr cuchar; blue: ptr 
 proc cdDecodeColorAlpha*(color: clong; red: ptr cuchar; green: ptr cuchar; blue: ptr cuchar; alpha: ptr cuchar) {.cdecl, importc: "cdDecodeColorAlpha", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
 proc cdDecodeAlpha*(color: clong): cuchar {.cdecl, importc: "cdDecodeAlpha", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
 template cdAlpha*(_: untyped): untyped =
-  cast[cuchar]((not (((_) shr 24) and 0x000000FF)))
+  cast[cuchar]((not (((_) shr 24) and 0xFF)))
 
 template cdReserved*(_: untyped): untyped =
-  cast[cuchar]((((_) shr 24) and 0x000000FF))
+  cast[cuchar]((((_) shr 24) and 0xFF))
 
 template cdRed*(_: untyped): untyped =
-  cast[cuchar]((((_) shr 16) and 0x000000FF))
+  cast[cuchar]((((_) shr 16) and 0xFF))
 
 template cdGreen*(_: untyped): untyped =
-  cast[cuchar]((((_) shr 8) and 0x000000FF))
+  cast[cuchar]((((_) shr 8) and 0xFF))
 
 template cdBlue*(_: untyped): untyped =
-  cast[cuchar]((((_) shr 0) and 0x000000FF))
+  cast[cuchar]((((_) shr 0) and 0xFF))
 
 proc cdRGB2Map*(width: cint; height: cint; red: ptr cuchar; green: ptr cuchar; blue: ptr cuchar; index: ptr cuchar; pal_size: cint; color: ptr clong) {. cdecl, importc: "cdRGB2Map", dynlib: libcdSONAME, dynlib: libiupcdSONAME.}
 const
@@ -429,7 +429,7 @@ const
 const
   CD_RGB* = 0
   CD_MAP* = 1
-  CD_RGBA* = 0x00000100
+  CD_RGBA* = 0x100
 
 const
   CD_IRED* = 0
@@ -623,35 +623,35 @@ type
 const
   CD_ABORT* = 1
   CD_CONTINUE* = 0
-  CD_SIM_NONE* = 0x00000000
-  CD_SIM_LINE* = 0x00000001
-  CD_SIM_RECT* = 0x00000002
-  CD_SIM_BOX* = 0x00000004
-  CD_SIM_ARC* = 0x00000008
-  CD_SIM_SECTOR* = 0x00000010
-  CD_SIM_CHORD* = 0x00000020
-  CD_SIM_POLYLINE* = 0x00000040
-  CD_SIM_POLYGON* = 0x00000080
-  CD_SIM_TEXT* = 0x00000100
-  CD_SIM_ALL* = 0x0000FFFF
+  CD_SIM_NONE* = 0x0000
+  CD_SIM_LINE* = 0x0001
+  CD_SIM_RECT* = 0x0002
+  CD_SIM_BOX* = 0x0004
+  CD_SIM_ARC* = 0x0008
+  CD_SIM_SECTOR* = 0x0010
+  CD_SIM_CHORD* = 0x0020
+  CD_SIM_POLYLINE* = 0x0040
+  CD_SIM_POLYGON* = 0x0080
+  CD_SIM_TEXT* = 0x0100
+  CD_SIM_ALL* = 0xFFFF
   CD_SIM_LINES* = (CD_SIM_LINE or CD_SIM_RECT or CD_SIM_ARC or CD_SIM_POLYLINE)
   CD_SIM_FILLS* = (CD_SIM_BOX or CD_SIM_SECTOR or CD_SIM_CHORD or CD_SIM_POLYGON)
-  CD_RED* = 0x00FF0000
-  CD_DARK_RED* = 0x00800000
-  CD_GREEN* = 0x0000FF00
-  CD_DARK_GREEN* = 0x00008000
-  CD_BLUE* = 0x000000FF
-  CD_DARK_BLUE* = 0x00000080
-  CD_YELLOW* = 0x00FFFF00
-  CD_DARK_YELLOW* = 0x00808000
-  CD_MAGENTA* = 0x00FF00FF
-  CD_DARK_MAGENTA* = 0x00800080
-  CD_CYAN* = 0x0000FFFF
-  CD_DARK_CYAN* = 0x00008080
-  CD_WHITE* = 0x00FFFFFF
-  CD_BLACK* = 0x00000000
-  CD_DARK_GRAY* = 0x00808080
-  CD_GRAY* = 0x00C0C0C0
+  CD_RED* = 0xFF0000
+  CD_DARK_RED* = 0x800000
+  CD_GREEN* = 0x00FF00
+  CD_DARK_GREEN* = 0x008000
+  CD_BLUE* = 0x0000FF
+  CD_DARK_BLUE* = 0x000080
+  CD_YELLOW* = 0xFFFF00
+  CD_DARK_YELLOW* = 0x808000
+  CD_MAGENTA* = 0xFF00FF
+  CD_DARK_MAGENTA* = 0x800080
+  CD_CYAN* = 0x00FFFF
+  CD_DARK_CYAN* = 0x008080
+  CD_WHITE* = 0xFFFFFF
+  CD_BLACK* = 0x000000
+  CD_DARK_GRAY* = 0x808080
+  CD_GRAY* = 0xC0C0C0
   CD_MM2PT* = 2.834645669
   CD_RAD2DEG* = 57.295779513
   CD_DEG2RAD* = 0.01745329252
@@ -950,14 +950,14 @@ const
   IUP_DEFAULT* = -2
   IUP_CLOSE* = -3
   IUP_CONTINUE* = -4
-  IUP_CENTER* = cint(0x0000FFFF)
-  IUP_LEFT* = cint(0x0000FFFE)
-  IUP_RIGHT* = cint(0x0000FFFD)
-  IUP_MOUSEPOS* = cint(0x0000FFFC)
-  IUP_CURRENT* = cint(0x0000FFFB)
-  IUP_CENTERPARENT* = cint(0x0000FFFA)
-  IUP_LEFTPARENT* = cint(0x0000FFF9)
-  IUP_RIGHTPARENT* = cint(0x0000FFF8)
+  IUP_CENTER* = cint(0xFFFF)
+  IUP_LEFT* = cint(0xFFFE)
+  IUP_RIGHT* = cint(0xFFFD)
+  IUP_MOUSEPOS* = cint(0xFFFC)
+  IUP_CURRENT* = cint(0xFFFB)
+  IUP_CENTERPARENT* = cint(0xFFFA)
+  IUP_LEFTPARENT* = cint(0xFFF9)
+  IUP_RIGHTPARENT* = cint(0xFFF8)
   IUP_TOP* = IUP_LEFT
   IUP_BOTTOM* = IUP_RIGHT
   IUP_TOPPARENT* = IUP_LEFTPARENT
@@ -1045,9 +1045,6 @@ const
 const
   IUP_RECBINARY* = 0
   IUP_RECTEXT* = 1
-
-const
-  IUP_CONFIG_H* = true
 
 proc Config*(): PIhandle {.cdecl, importc: "IupConfig", dynlib: libiupSONAME.}
 proc ConfigLoad*(ih: PIhandle): cint {.cdecl, importc: "IupConfigLoad", dynlib: libiupSONAME, discardable.}
@@ -1220,7 +1217,7 @@ const
   K_upperY* = cint(ord('Y'))
   K_upperZ* = cint(ord('Z'))
   K_bracketleft* = cint(ord('['))
-  K_backslash* = cint(ord('\b'))
+  K_backslash* = cint(ord('\\'))
   K_bracketright* = cint(ord(']'))
   K_circum* = cint(ord('^'))
   K_underscore* = cint(ord('_'))
@@ -1263,7 +1260,7 @@ const
   K_BS* = cint(ord('\b'))
   K_TAB* = cint(ord('\t'))
   K_LF* = cint(ord('\n'))
-  K_CR* = cint(ord('\c'))
+  K_CR* = cint(ord('\r'))
   K_quoteleft* = K_grave
   K_quoteright* = K_apostrophe
 
@@ -1271,56 +1268,56 @@ template iup_isXkey*(Xc: untyped): untyped =
   ((Xc) >= 128)
 
 const
-  K_PAUSE* = cint(0x0000FF13)
-  K_ESC* = cint(0x0000FF1B)
-  K_HOME* = cint(0x0000FF50)
-  K_LEFT* = cint(0x0000FF51)
-  K_UP* = cint(0x0000FF52)
-  K_RIGHT* = cint(0x0000FF53)
-  K_DOWN* = cint(0x0000FF54)
-  K_PGUP* = cint(0x0000FF55)
-  K_PGDN* = cint(0x0000FF56)
-  K_END* = cint(0x0000FF57)
-  K_MIDDLE* = cint(0x0000FF0B)
-  K_Print* = cint(0x0000FF61)
-  K_INS* = cint(0x0000FF63)
-  K_Menu* = cint(0x0000FF67)
-  K_DEL* = cint(0x0000FFFF)
-  K_F1* = cint(0x0000FFBE)
-  K_F2* = cint(0x0000FFBF)
-  K_F3* = cint(0x0000FFC0)
-  K_F4* = cint(0x0000FFC1)
-  K_F5* = cint(0x0000FFC2)
-  K_F6* = cint(0x0000FFC3)
-  K_F7* = cint(0x0000FFC4)
-  K_F8* = cint(0x0000FFC5)
-  K_F9* = cint(0x0000FFC6)
-  K_F10* = cint(0x0000FFC7)
-  K_F11* = cint(0x0000FFC8)
-  K_F12* = cint(0x0000FFC9)
-  K_F13* = cint(0x0000FFCA)
-  K_F14* = cint(0x0000FFCB)
-  K_F15* = cint(0x0000FFCC)
-  K_F16* = cint(0x0000FFCD)
-  K_F17* = cint(0x0000FFCE)
-  K_F18* = cint(0x0000FFCF)
-  K_F19* = cint(0x0000FFD0)
-  K_F20* = cint(0x0000FFD1)
-  K_LSHIFT* = cint(0x0000FFE1)
-  K_RSHIFT* = cint(0x0000FFE2)
-  K_LCTRL* = cint(0x0000FFE3)
-  K_RCTRL* = cint(0x0000FFE4)
-  K_LALT* = cint(0x0000FFE9)
-  K_RALT* = cint(0x0000FFEA)
-  K_NUM* = cint(0x0000FF7F)
-  K_SCROLL* = cint(0x0000FF14)
-  K_CAPS* = cint(0x0000FFE5)
-  K_CLEAR* = cint(0x0000FFD2)
-  K_HELP* = cint(0x0000FFD3)
-  K_lowerccedilla* = cint(0x000000E7)
-  K_Ccedilla* = cint(0x000000C7)
-  K_acute* = cint(0x000000B4)
-  K_diaeresis* = cint(0x000000A8)
+  K_PAUSE* = cint(0xFF13)
+  K_ESC* = cint(0xFF1B)
+  K_HOME* = cint(0xFF50)
+  K_LEFT* = cint(0xFF51)
+  K_UP* = cint(0xFF52)
+  K_RIGHT* = cint(0xFF53)
+  K_DOWN* = cint(0xFF54)
+  K_PGUP* = cint(0xFF55)
+  K_PGDN* = cint(0xFF56)
+  K_END* = cint(0xFF57)
+  K_MIDDLE* = cint(0xFF0B)
+  K_Print* = cint(0xFF61)
+  K_INS* = cint(0xFF63)
+  K_Menu* = cint(0xFF67)
+  K_DEL* = cint(0xFFFF)
+  K_F1* = cint(0xFFBE)
+  K_F2* = cint(0xFFBF)
+  K_F3* = cint(0xFFC0)
+  K_F4* = cint(0xFFC1)
+  K_F5* = cint(0xFFC2)
+  K_F6* = cint(0xFFC3)
+  K_F7* = cint(0xFFC4)
+  K_F8* = cint(0xFFC5)
+  K_F9* = cint(0xFFC6)
+  K_F10* = cint(0xFFC7)
+  K_F11* = cint(0xFFC8)
+  K_F12* = cint(0xFFC9)
+  K_F13* = cint(0xFFCA)
+  K_F14* = cint(0xFFCB)
+  K_F15* = cint(0xFFCC)
+  K_F16* = cint(0xFFCD)
+  K_F17* = cint(0xFFCE)
+  K_F18* = cint(0xFFCF)
+  K_F19* = cint(0xFFD0)
+  K_F20* = cint(0xFFD1)
+  K_LSHIFT* = cint(0xFFE1)
+  K_RSHIFT* = cint(0xFFE2)
+  K_LCTRL* = cint(0xFFE3)
+  K_RCTRL* = cint(0xFFE4)
+  K_LALT* = cint(0xFFE9)
+  K_RALT* = cint(0xFFEA)
+  K_NUM* = cint(0xFF7F)
+  K_SCROLL* = cint(0xFF14)
+  K_CAPS* = cint(0xFFE5)
+  K_CLEAR* = cint(0xFFD2)
+  K_HELP* = cint(0xFFD3)
+  K_lowerccedilla* = cint(0x00E7)
+  K_Ccedilla* = cint(0x00C7)
+  K_acute* = cint(0x00B4)
+  K_diaeresis* = cint(0x00A8)
 
 template iup_isShiftXkey*(Xc: untyped): untyped =
   (((Xc) and 0x10000000) != 0)
@@ -1721,9 +1718,6 @@ proc ScintillaDlg*(): PIhandle {.cdecl, importc: "IupScintillaDlg", dynlib: libi
 proc ScintillaSendMessage*(ih: PIhandle; iMessage: cuint; wParam: uptr_t; lParam: sptr_t): sptr_t {.cdecl, importc: "IupScintillaSendMessage", dynlib: libiup_scintillaSONAME.}
 proc TuioOpen*(): cint {.cdecl, importc: "IupTuioOpen", dynlib: libiuptuioSONAME, discardable.}
 proc TuioClient*(port: cint): PIhandle {.cdecl, importc: "IupTuioClient", dynlib: libiuptuioSONAME.}
-const
-  IUPWEB_API* = true
-
 proc WebBrowserOpen*(): cint {.cdecl, importc: "IupWebBrowserOpen", dynlib: libiupwebSONAME, discardable.}
 proc WebBrowser*(): PIhandle {.cdecl, importc: "IupWebBrowser", dynlib: libiupwebSONAME.}
 const
