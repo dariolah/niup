@@ -235,6 +235,6 @@ sed -i -E '
     };
     /^proc SetFunction\*/ {
         s/\.\}/, discardable.\}/
-    }
+    };
+    s/cuchar/uint8/g
     ' niup.nim
-
