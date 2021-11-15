@@ -23,13 +23,13 @@ type
   Label_t* = PIhandle
 
 # CTORs
-proc Button*(title:string, action:string):Button_t {.inline.} =
+proc Button*(title:string, action:string):Button_t =
   return Button_t(niup.Button(title, action))
 
-proc Button*(title:string):Button_t {.inline.} =
+proc Button*(title:string):Button_t =
   return Button_t(niup.Button(title, nil))
 
-proc Label*(title:string):Label_t {.inline.} =
+proc Label*(title:string):Label_t =
   return Label_t(niup.Label(title))
 
 
@@ -48,20 +48,36 @@ type
   Dialog_t* = PIhandle
 
 # CTORs
-proc Dialog*(child: PIhandle):Dialog_t {.inline.} =
+proc Dialog*(child: PIhandle):Dialog_t =
   return Dialog_t(niup.Dialog(child))
 
 
 # ATTRIBUTES
+type AlignmentTypes = Button_t | Vbox_t
+proc `alignment=`*(control: AlignmentTypes, value: string) =
+  ## (non inheritable): Horizontally aligns the elements. Possible values: "ALEFT", "ACENTER", "ARIGHT". Default: "ALEFT".
+  SetAttribute(control, "ALIGNMENT", value)
+proc `alignment`*(control: AlignmentTypes): string =
+  return $GetAttribute(control, "ALIGNMENT")
+
 type GapTypes = Vbox_t
-proc `gap=`*(control: GapTypes, value: string) {.inline.} =
+proc `gap=`*(control: GapTypes, value: string) =
   ## Defines a vertical space in pixels between the children, CGAP is in the same units of the SIZE attribute for the height. Default: "0". (CGAP since 3.0)
   SetAttribute(control, "GAP", value)
-proc `gap`*(control: GapTypes): string {.inline.} =
+proc `gap`*(control: GapTypes): string =
   return $GetAttribute(control, "GAP")
 
+type MarginTypes = Vbox_t
+proc `margin=`*(control: MarginTypes, value: string) =
+  ## Defines a margin in pixels, CMARGIN is in the same units of the SIZE attribute. Its value has the format "widthxheight", where width and height are integer values corresponding to the horizontal and vertical margins, respectively. Default: "0x0"(no margin). (CMARGIN since 3.0)
+  SetAttribute(control, "MARGIN", value)
+proc `margin`*(control: MarginTypes): string =
+  return $GetAttribute(control, "MARGIN")
+proc `margin=`*(control: MarginTypes, width:int; height:int) =
+  SetAttribute(control, "MARGIN", &"{width}x{height}")
+
 type TitleTypes = Dialog_t
-proc `title=`*(control: TitleTypes, value: string) {.inline.} =
+proc `title=`*(control: TitleTypes, value: string) =
   ## Element’s title. It is often used to modify some static text of the element (which cannot be changed by the user).
   ## Notes
   ## 
@@ -71,58 +87,42 @@ proc `title=`*(control: TitleTypes, value: string) {.inline.} =
   ## In GTk, if you define a mnemonic using "&"and the string has an underscore, then make sure that the mnemonic comes before the underscore.
   ## In GTK, if the MARKUP attribute is defined then the title string can contains pango markup commands. Works only if a mnemonic is NOT defined in the title. Not valid for menus.
   SetAttribute(control, "TITLE", value)
-proc `title`*(control: TitleTypes): string {.inline.} =
+proc `title`*(control: TitleTypes): string =
   return $GetAttribute(control, "TITLE")
 
-type AlignmentTypes = Vbox_t
-proc `alignment=`*(control: AlignmentTypes, value: string) {.inline.} =
-  ## (non inheritable): Horizontally aligns the elements. Possible values: "ALEFT", "ACENTER", "ARIGHT". Default: "ALEFT".
-  SetAttribute(control, "ALIGNMENT", value)
-proc `alignment`*(control: AlignmentTypes): string {.inline.} =
-  return $GetAttribute(control, "ALIGNMENT")
-
-type NgapTypes = Vbox_t
-proc `ngap=`*(control: NgapTypes, value: string) {.inline.} =
-  ## Same as GAP but are non inheritable. (since 3.0)
-  SetAttribute(control, "NGAP", value)
-proc `ngap`*(control: NgapTypes): string {.inline.} =
-  return $GetAttribute(control, "NGAP")
-
-type MarginTypes = Vbox_t
-proc `margin=`*(control: MarginTypes, value: string) {.inline.} =
-  ## Defines a margin in pixels, CMARGIN is in the same units of the SIZE attribute. Its value has the format "widthxheight", where width and height are integer values corresponding to the horizontal and vertical margins, respectively. Default: "0x0"(no margin). (CMARGIN since 3.0)
-  SetAttribute(control, "MARGIN", value)
-proc `margin`*(control: MarginTypes): string {.inline.} =
-  return $GetAttribute(control, "MARGIN")
-proc `margin=`*(control: MarginTypes, width:int; height:int) {.inline.} =
-  SetAttribute(control, "MARGIN", &"{width}x{height}")
-
 type CgapTypes = Vbox_t
-proc `cgap=`*(control: CgapTypes, value: string) {.inline.} =
+proc `cgap=`*(control: CgapTypes, value: string) =
   ## Defines a vertical space in pixels between the children, CGAP is in the same units of the SIZE attribute for the height. Default: "0". (CGAP since 3.0)
   SetAttribute(control, "CGAP", value)
-proc `cgap`*(control: CgapTypes): string {.inline.} =
+proc `cgap`*(control: CgapTypes): string =
   return $GetAttribute(control, "CGAP")
 
+type NgapTypes = Vbox_t
+proc `ngap=`*(control: NgapTypes, value: string) =
+  ## Same as GAP but are non inheritable. (since 3.0)
+  SetAttribute(control, "NGAP", value)
+proc `ngap`*(control: NgapTypes): string =
+  return $GetAttribute(control, "NGAP")
+
 type NcgapTypes = Vbox_t
-proc `ncgap=`*(control: NcgapTypes, value: string) {.inline.} =
+proc `ncgap=`*(control: NcgapTypes, value: string) =
   ## Same as GAP but are non inheritable. (since 3.0)
   SetAttribute(control, "NCGAP", value)
-proc `ncgap`*(control: NcgapTypes): string {.inline.} =
+proc `ncgap`*(control: NcgapTypes): string =
   return $GetAttribute(control, "NCGAP")
 
 # CALLBACKS
-type Button_cbTypes = Button_t
-proc `button_cb=`*(control: Button_cbTypes, cb: proc (a1: PIhandle; button: cint; pressed: cint; x: cint; y: cint; status: cstring): cint {.cdecl.}) {.inline.} =
-  ## Action generated when any mouse button is pressed and when it is released. Both calls occur before the ACTION callback when button 1 is being used.
-  SetCallback(control, "BUTTON_CB", cast[Icallback](cb))
-proc `button_cb`*(control: Button_cbTypes): proc (a1: PIhandle; button: cint; pressed: cint; x: cint; y: cint; status: cstring): cint {.cdecl.} {.inline.} =
-  return cast[proc (a1: PIhandle; button: cint; pressed: cint; x: cint; y: cint; status: cstring): cint {.cdecl.}](GetCallback(control, "BUTTON_CB"))
-
 type ActionTypes = Button_t
-proc `action=`*(control: ActionTypes, cb: proc (a1: PIhandle): cint {.cdecl.}) {.inline.} =
+proc `action=`*(control: ActionTypes, cb: proc (a1: PIhandle): cint {.cdecl.}) =
   ## Action generated when the button 1 (usually left) is selected. This callback is called only after the mouse is released and when it is released inside the button area.
   SetCallback(control, "ACTION", cast[Icallback](cb))
-proc `action`*(control: ActionTypes): proc (a1: PIhandle): cint {.cdecl.} {.inline.} =
+proc `action`*(control: ActionTypes): proc (a1: PIhandle): cint {.cdecl.} =
   return cast[proc (a1: PIhandle): cint {.cdecl.}](GetCallback(control, "ACTION"))
+
+type Button_cbTypes = Button_t
+proc `button_cb=`*(control: Button_cbTypes, cb: proc (a1: PIhandle; button: cint; pressed: cint; x: cint; y: cint; status: cstring): cint {.cdecl.}) =
+  ## Action generated when any mouse button is pressed and when it is released. Both calls occur before the ACTION callback when button 1 is being used.
+  SetCallback(control, "BUTTON_CB", cast[Icallback](cb))
+proc `button_cb`*(control: Button_cbTypes): proc (a1: PIhandle; button: cint; pressed: cint; x: cint; y: cint; status: cstring): cint {.cdecl.} =
+  return cast[proc (a1: PIhandle; button: cint; pressed: cint; x: cint; y: cint; status: cstring): cint {.cdecl.}](GetCallback(control, "BUTTON_CB"))
 

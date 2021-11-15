@@ -4,7 +4,6 @@ import os
 import strformat
 import std/sets
 import strutils
-import sequtils
 
 proc genTypes(controlsSheet: Sheet) =
   var processedControls = OrderedSet[string]()
@@ -17,9 +16,9 @@ proc genTypes(controlsSheet: Sheet) =
     echo &"  {row[\"IUP\"]}_t* = PIhandle"
   echo ""
 
-proc initAttributesMap(attrMapSheet: Sheet, firstColumnName:string): TableRef[string, OrderedSet[string]] =
+proc initAttributesMap(attrMapSheet: Sheet, firstColumnName:string): OrderedTableRef[string, OrderedSet[string]] =
   ## -> {"attribute": {"IUP control", ...}
-  var attributesMap = TableRef[string, OrderedSet[string]]()
+  var attributesMap = OrderedTableRef[string, OrderedSet[string]]()
   let columns = attrMapSheet.getColumnNames()
 
   for row in attrMapSheet:
@@ -31,10 +30,13 @@ proc initAttributesMap(attrMapSheet: Sheet, firstColumnName:string): TableRef[st
   return attributesMap
 
 proc getAttrProcType(attribute: string; controls: OrderedSet[string]): (string, string) =
+  var controls_t: seq[string]
+  for ctrl in controls:
+    controls_t.add(&"{ctrl}_t")
   let
-    controls_string = join(toSeq(controls), " | ")
+    controls_string = join(controls_t, " | ")
     attrType = &"{attribute.toLowerAscii.capitalizeAscii}Types"
-  return (attrType, &"type {attrType} = {controls_string}_t")
+  return (attrType, &"type {attrType} = {controls_string}")
 
 proc getSheetRow(sheet:Sheet; column: string; value:string): Row =
   for row in sheet:
@@ -47,7 +49,7 @@ proc echoDocString(doc: string) =
   for line in lines:
     echo &"  ## {line.strip()}"
 
-proc genAttributeProcs(attributesMap: TableRef[string, OrderedSet[string]], attrSheet: Sheet) =
+proc genAttributeProcs(attributesMap: OrderedTableRef[string, OrderedSet[string]], attrSheet: Sheet) =
   echo "# ATTRIBUTES"
   for attribute, controls in attributesMap:
     let
@@ -55,19 +57,19 @@ proc genAttributeProcs(attributesMap: TableRef[string, OrderedSet[string]], attr
       lc_attribute = attribute.toLower
       attrRow = getSheetRow(attrSheet, "ATTRIBUTE", attribute)
     echo attrProcTypeDecl
-    echo &"proc `{lc_attribute}=`*(control: {attrProcType}, value: string) {{.inline.}} ="
+    echo &"proc `{lc_attribute}=`*(control: {attrProcType}, value: string) ="
     echoDocString(attrRow["DOC"])
     echo &"  SetAttribute(control, \"{attribute}\", value)"
-    echo &"proc `{lc_attribute}`*(control: {attrProcType}): string {{.inline.}} ="
+    echo &"proc `{lc_attribute}`*(control: {attrProcType}): string ="
     echo &"  return $GetAttribute(control, \"{attribute}\")"
     if attrRow["ALT_CTOR"] != "":
       let altCall = attrRow["ALT_CALL"].replace("”", "\"")
-      echo &"proc `{lc_attribute}=`*(control: {attrProcType}, {attrRow[\"ALT_CTOR\"]}) {{.inline.}} ="
+      echo &"proc `{lc_attribute}=`*(control: {attrProcType}, {attrRow[\"ALT_CTOR\"]}) ="
       echo &"  SetAttribute(control, \"{attribute}\", {altCall})"
       # TODO get attribute - parse string and return tuple?
     echo ""
 
-proc genCallbackProcs(attributesMap: TableRef[string, OrderedSet[string]], cbSheet: Sheet) =
+proc genCallbackProcs(attributesMap: OrderedTableRef[string, OrderedSet[string]], cbSheet: Sheet) =
   echo "# CALLBACKS"
   for callback, controls in attributesMap:
     let
@@ -77,10 +79,10 @@ proc genCallbackProcs(attributesMap: TableRef[string, OrderedSet[string]], cbShe
       cbProto = cbRow["CB_PROTO"]
       cbRet = cbRow["CB_RET"]
     echo cbProcTypeDecl
-    echo &"proc `{lc_callback}=`*(control: {cbProcType}, cb: proc ({cbProto}): {cbRet} {{.cdecl.}}) {{.inline.}} ="
+    echo &"proc `{lc_callback}=`*(control: {cbProcType}, cb: proc ({cbProto}): {cbRet} {{.cdecl.}}) ="
     echoDocString(cbRow["DOC"])
     echo &"  SetCallback(control, \"{callback}\", cast[Icallback](cb))"
-    echo &"proc `{lc_callback}`*(control: {cbProcType}): proc ({cbProto}): {cbRet} {{.cdecl.}} {{.inline.}} ="
+    echo &"proc `{lc_callback}`*(control: {cbProcType}): proc ({cbProto}): {cbRet} {{.cdecl.}} ="
     echo &"  return cast[proc ({cbProto}): {cbRet} {{.cdecl.}}](GetCallback(control, \"{callback}\"))"
     echo ""
 
@@ -98,7 +100,7 @@ proc genCtors(controlsSheet: Sheet) =
       echo &"    {control}_t(unpackVarargs(niup.{control}, {callArgs}))"
       echo &"  else: {control}_t(niup.{control}(nil))"
     else:
-      echo &"proc {control}*({constructor}):{control}_t {{.inline.}} ="
+      echo &"proc {control}*({constructor}):{control}_t ="
       echo &"  return {control}_t(niup.{control}({callArgs}))"
       echo ""
   echo ""
