@@ -57,13 +57,22 @@ proc genAttributeProcs(attributesMap: OrderedTableRef[string, OrderedSet[string]
       lc_attribute = attribute.toLower
       attrRow = getSheetRow(attrSheet, "ATTRIBUTE", attribute)
     echo attrProcTypeDecl
-    echo &"proc `{lc_attribute}=`*(control: {attrProcType}, value: string) ="
-    echoDocString(attrRow["DOC"])
-    echo &"  SetAttribute(control, \"{attribute}\", value)"
-    echo &"proc `{lc_attribute}`*(control: {attrProcType}): string ="
-    echo &"  return $GetAttribute(control, \"{attribute}\")"
+
+    if attrRow["READ_WRITE"] != "RO":
+      echo &"proc `{lc_attribute}=`*(control: {attrProcType}, value: string) ="
+      echoDocString(attrRow["DOC"])
+      echo &"  SetAttribute(control, \"{attribute}\", value)"
+      echo ""
+
+    if attrRow["READ_WRITE"] != "WO":
+      echo &"proc `{lc_attribute}`*(control: {attrProcType}): string ="
+      if attrRow["READ_WRITE"] == "RO":
+        echoDocString(attrRow["DOC"])
+      echo &"  return $GetAttribute(control, \"{attribute}\")"
+      echo ""
+
     if attrRow["ALT_CTOR"] != "":
-      let altCall = attrRow["ALT_CALL"].replace("”", "\"")
+      let altCall = attrRow["ALT_CALL"].multiReplace(("”", "\""), ("“", "\""))
       echo &"proc `{lc_attribute}=`*(control: {attrProcType}, {attrRow[\"ALT_CTOR\"]}) ="
       echo &"  SetAttribute(control, \"{attribute}\", {altCall})"
       # TODO get attribute - parse string and return tuple?
