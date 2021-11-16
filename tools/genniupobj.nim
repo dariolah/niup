@@ -102,14 +102,19 @@ proc genCtors(controlsSheet: Sheet) =
       control = row["IUP"]
       constructor = row["CONSTRUCTOR"]
       callArgs = row["CALL_ARGS"]
+      notes = row["NOTES"]
 
     if constructor.contains("varargs"):
       echo &"template {control}*({constructor}): {control}_t ="
+      if notes != "":
+        echoDocString(notes)
       echo &"  when varargsLen(callArgs) > 0:"
       echo &"    {control}_t(unpackVarargs(niup.{control}, {callArgs}))"
       echo &"  else: {control}_t(niup.{control}(nil))"
     else:
       echo &"proc {control}*({constructor}):{control}_t ="
+      if notes != "":
+        echoDocString(notes)
       echo &"  return {control}_t(niup.{control}({callArgs}))"
       echo ""
   echo ""
