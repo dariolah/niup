@@ -2,7 +2,7 @@ import niup
 import std/macros
 import strformat
 
-export PIhandle, Close, MainLoop, ShowXY, SetCallback
+export PIhandle, Close, Hide, MainLoop, Show, ShowXY, SetCallback
 
 export
   IUP_ERROR, IUP_NOERROR, IUP_OPENED, IUP_INVALID, IUP_INVALID_ID, IUP_IGNORE,
