@@ -109,13 +109,13 @@ proc genCtors(controlsSheet: Sheet) =
       if notes != "":
         echoDocString(notes)
       echo &"  when varargsLen(callArgs) > 0:"
-      echo &"    {control}_t(unpackVarargs(niup.{control}, {callArgs}))"
-      echo &"  else: {control}_t(niup.{control}(nil))"
+      echo &"    {control}_t(unpackVarargs(niupc.{control}, {callArgs}))"
+      echo &"  else: {control}_t(niupc.{control}(nil))"
     else:
       echo &"proc {control}*({constructor}):{control}_t ="
       if notes != "":
         echoDocString(notes)
-      echo &"  return {control}_t(niup.{control}({callArgs}))"
+      echo &"  return {control}_t(niupc.{control}({callArgs}))"
       echo ""
   echo ""
 

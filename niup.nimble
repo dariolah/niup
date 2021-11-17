@@ -1,16 +1,15 @@
 # Package
 
-version       = "3.30.1"
+backend       = "c"
+version       = "3.30.3"
 author        = "Dario Lah"
 description   = "IUP FFI bindings"
 license       = "MIT"
-
+srcDir        = "src"
 
 # Dependencies
 
-requires "nim >= 1.0.4"
-
-installExt = @["nim"]
+requires "nim >= 1.6.0"
 
 when defined(nimdistros):
   import distros

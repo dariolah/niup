@@ -154,7 +154,7 @@ sed -i -E '
 #~Lib CD
 
 
-cat << 'EOF' > niup.nim
+cat << 'EOF' > niupc.nim
 {.deadCodeElim: on.}
 
 when defined(Linux):
@@ -219,12 +219,12 @@ else:
 
 EOF
 
-echo -e "\n#Lib IM" >> niup.nim
-cat im_concat.nim >> niup.nim
-echo -e "\n#Lib CD" >> niup.nim
-cat cd_concat.nim >> niup.nim
-echo -e "\n#Lib IUP" >> niup.nim
-cat iup_concat.nim >> niup.nim
+echo -e "\n#Lib IM" >> niupc.nim
+cat im_concat.nim >> niupc.nim
+echo -e "\n#Lib CD" >> niupc.nim
+cat cd_concat.nim >> niupc.nim
+echo -e "\n#Lib IUP" >> niupc.nim
+cat iup_concat.nim >> niupc.nim
 rm iup_concat.*
 rm im_concat.*
 rm cd_concat.*
@@ -237,4 +237,6 @@ sed -i -E '
         s/\.\}/, discardable.\}/
     };
     s/cuchar/uint8/g
-    ' niup.nim
+    ' niupc.nim
+
+mv niupc.nim ../src/
