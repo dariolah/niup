@@ -47,7 +47,7 @@ proc getSheetRow(sheet:Sheet; column: string; value:string): Row =
 proc echoDocString(doc: string) =
   let lines = doc.split('\n')
   for line in lines:
-    echo &"  ## {line.strip()}"
+    echo &"  ## {line.strip(leading = false)}"
 
 proc genAttributeProcs(attributesMap: OrderedTableRef[string, OrderedSet[string]], attrSheet: Sheet) =
   echo "# ATTRIBUTES"
@@ -59,23 +59,47 @@ proc genAttributeProcs(attributesMap: OrderedTableRef[string, OrderedSet[string]
     echo attrProcTypeDecl
 
     if attrRow["READ_WRITE"] != "RO":
-      echo &"proc `{lc_attribute}=`*(control: {attrProcType}, value: string) ="
+      echo &"proc `{lc_attribute}=`*(ih: {attrProcType}, value: string) ="
       echoDocString(attrRow["DOC"])
-      echo &"  SetAttribute(control, \"{attribute}\", value)"
+      echo &"  SetAttribute(ih, \"{attribute}\", value)"
       echo ""
 
+      echo &"proc `{lc_attribute}`*(ih: {attrProcType}, value: string) ="
+      echo &"  SetAttribute(ih, \"{attribute}\", value)"
+      echo ""
+
+      if attrRow["SETHANDLE_TYPE"] != "":
+        echo &"proc `{lc_attribute}=`*(ih: {attrProcType}, value: {attrRow[\"SETHANDLE_TYPE\"]}) ="
+        echo &"  SetAttributeHandle(ih, \"{attribute}\", value)"
+        echo ""
+
+    let getterExpression = attrRow["GETTER_EXPRESSION"].multiReplace(("”", "\""), ("“", "\""))
     if attrRow["READ_WRITE"] != "WO":
-      echo &"proc `{lc_attribute}`*(control: {attrProcType}): string ="
-      if attrRow["READ_WRITE"] == "RO":
-        echoDocString(attrRow["DOC"])
-      echo &"  return $GetAttribute(control, \"{attribute}\")"
-      echo ""
+      if getterExpression == "":
+        echo &"proc `{lc_attribute}`*(ih: {attrProcType}): string ="
+        if attrRow["READ_WRITE"] == "RO":
+          echoDocString(attrRow["DOC"])
+        echo &"  return $GetAttribute(ih, \"{attribute}\")"
+        echo ""
+      else:
+        echo &"proc `{lc_attribute}`*(ih: {attrProcType}): {attrRow[\"GETTER_TYPE\"]} ="
+        echo &"  return {getterExpression}"
+        echo ""
 
-    if attrRow["ALT_CTOR"] != "":
-      let altCall = attrRow["ALT_CALL"].multiReplace(("”", "\""), ("“", "\""))
-      echo &"proc `{lc_attribute}=`*(control: {attrProcType}, {attrRow[\"ALT_CTOR\"]}) ="
-      echo &"  SetAttribute(control, \"{attribute}\", {altCall})"
-      # TODO get attribute - parse string and return tuple?
+
+    let
+      altCall = attrRow["ALT_CALL"].multiReplace(("”", "\""), ("“", "\""))
+      altCtor = attrRow["ALT_CTOR"]
+
+    if altCtor != "":
+      if not (altCtor.contains(",") or altCtor.contains(";")):
+        # single arg, we can use =
+        echo &"proc `{lc_attribute}=`*(ih: {attrProcType}, {altCtor}) ="
+        echo &"  SetAttribute(ih, \"{attribute}\", cstring({altCall}))"
+        echo ""
+      # default, calssic f() call
+      echo &"proc `{lc_attribute}`*(ih: {attrProcType}, {altCtor}) ="
+      echo &"  SetAttribute(ih, \"{attribute}\", cstring({altCall}))"
     echo ""
 
 proc genCallbackProcs(attributesMap: OrderedTableRef[string, OrderedSet[string]], cbSheet: Sheet) =

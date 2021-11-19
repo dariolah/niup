@@ -9,3 +9,8 @@ proc Open*() =
   var argv:cstringArray=nil
   Open(argc, addr argv)
 
+proc `[]`*(ih: PIhandle, attribute: string): string =
+  return $GetAttribute(ih, attribute)
+
+proc `[]=`*(ih: PIhandle, attribute: string, value: string) =
+  SetAttribute(ih, attribute, value)
