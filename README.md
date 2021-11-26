@@ -39,53 +39,69 @@ https://webserver2.tecgraf.puc-rio.br/iup/en/guide.html#buildlib
 nimble install niup
 ```
 
-Versioning scheme: &lt;IUP version&gt;.&lt;niup version&gt;
-
-Eg. 3.27.7 means API is generated with IUP 3.27 headers, NIUP revision 7
-
 ## QuickStart
+hello.nim
 
-helloworld.nim
 ```Nim
 import niup
-import niupext
+
+proc btn_exit_cb(ih:PIhandle):cint {.cdecl.} =
+  # Exits the main loop
+  return IUP_CLOSE
 
 proc mainProc =
   Open()
-  Message("Hello World", "Hello World from IUP.")
+
+  var
+    label = Label("Hello world from IUP.")
+    button = Button("OK")
+    vbox = Vbox(label, button)
+
+  vbox.alignment = IUP_ACENTER
+  vbox.gap(10)
+  vbox.margin(10, 10)
+
+  var dlg = Dialog(vbox)
+  dlg.title = "Hello World"
+
+  # callbacks
+  button.action = btn_exit_cb
+
+  ShowXY(dlg, IUP_CENTER, IUP_CENTER)
+
+  MainLoop()
   Close()
 
 if isMainModule:
   mainProc()
 ```
 
-Program **helloworld.nim** displays popup message. Function ``Open`` (``IupOpen`` in C) initializes IUP library. ``Message`` (``IupMessage`` in C) displays a dialog centralized on the screen, showing message and the **OK** button. ``Close`` (``IupClose`` in C) ends the IUP toolkit and releases internal memory. It will also automatically destroy all dialogs and all elements that have names.
+## C-like API using 'niupc' module
 
 helloworldcb.nim
 
 ```Nim
-import niup
-import niupext
+import niup/niupc
+import niup/niupext
 
 proc btn_exit_cb(ih:PIhandle):cint {.cdecl.}=
   # Exits the main loop
   return IUP_CLOSE
 
 proc mainProc =
-  var dlg, button, label, vbox: PIhandle
-
   Open()
 
-  label =  Label("Hello world from IUP.")
-  button = Button("OK", nil)
+  var
+    label =  Label("Hello world from IUP.")
+    button = Button("OK", nil)
 
-  vbox = Vbox(label, button, nil)
+  var vbox = Vbox(label, button, nil)
   withPIhandle vbox:
     "ALIGNMENT" "ACENTER"
     "GAP"       "10"
     "MARGIN"    "10x10"
 
-  dlg = Dialog(vbox)
+  var dlg = Dialog(vbox)
   SetAttribute(dlg, "TITLE", "Hello World with callback")
 
   # Registers callbacks
@@ -94,7 +110,6 @@ proc mainProc =
   ShowXY(dlg, IUP_CENTER, IUP_CENTER)
 
   MainLoop()
-
   Close()
 
 if isMainModule:
