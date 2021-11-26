@@ -46,7 +46,7 @@ proc getAttrProcType(attribute: string; pk2:string, controls: OrderedSet[string]
   let
     controls_string = join(controls_t, " | ")
     attrType = &"{attribute.toLowerAscii.capitalizeAscii}{pk2}Types"
-  return (attrType, &"type {attrType} = {controls_string}")
+  return (attrType, &"type {attrType}* = {controls_string}")
 
 proc getSheetRow(sheet:Sheet; column: string; value:string, pk2: string): Row =
   for row in sheet:
