@@ -4,10 +4,13 @@ import strformat
 
 export niupc except Dialog
 
-proc Open*() =
+proc Open*(utf8Mode: bool = false) =
   var argc:cint=0
   var argv:cstringArray=nil
   Open(argc, addr argv)
+
+  if utf8Mode:
+    SetGlobal("UTF8MODE", "Yes")
 
 proc `[]`*(ih: PIhandle, attribute: string): string =
   return $GetAttribute(ih, attribute)
