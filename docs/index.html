@@ -34,7 +34,6 @@ function main() {
     }
   }
 
-  const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
   function switchTheme(e) {
       if (e.target.checked) {
           document.documentElement.setAttribute('data-theme', 'dark');
@@ -45,40 +44,39 @@ function main() {
       }
   }
 
-  toggleSwitch.addEventListener('change', switchTheme, false);
+  const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
+  if (toggleSwitch !== null) {
+    toggleSwitch.addEventListener('change', switchTheme, false);
+  }
 
+  var currentTheme = localStorage.getItem('theme');
+  if (!currentTheme && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    currentTheme = 'dark';
+  }
+  if (currentTheme) {
+    document.documentElement.setAttribute('data-theme', currentTheme);
 
-  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    document.documentElement.setAttribute('data-theme', "dark");
-    toggleSwitch.checked = true;
-  } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-    document.documentElement.setAttribute('data-theme', "light");
-    toggleSwitch.checked = false;
-  } else {
-    const currentTheme = localStorage.getItem('theme') ? localStorage.getItem('theme') : null;
-    if (currentTheme) {
-      document.documentElement.setAttribute('data-theme', currentTheme);
-
-      if (currentTheme === 'dark') {
-        toggleSwitch.checked = true;
-      }
+    if (currentTheme === 'dark' && toggleSwitch !== null) {
+      toggleSwitch.checked = true;
     }
   }
 }
+
+window.addEventListener('DOMContentLoaded', main);
 </script>
 
 </head>
-<body onload="main()">
+<body>
 <div class="document" id="documentId">
   <div class="container">
     <h1 class="title">index</h1>
     IUP is a multi-platform toolkit for building graphical user interfaces.
 <h1 id="niup-api">NIUP API</h1>
-<h2 id="documentation">Documentation</h2><p>API documentation for <a class="reference external" href="https://dariolah.github.io/niup/niupext.html">NIUPEXT</a> module. Helper macros, templates and procs.</p>
-<p>API documentation for <a class="reference external" href="https://dariolah.github.io/niup/niup.html">NIUP</a> module. FFI bindings generated from IUP C headers.</p>
+<h2 id="documentation">Documentation</h2><p>API documentation for <a class="reference external" href="https://dariolah.github.io/niup.html">NIUP</a> module. Strong typed wrapper over NIUPC.</p>
+<p>API documentation for <a class="reference external" href="https://dariolah.github.io/niup/niupc.html">NIUPC</a> module. FFI bindings generated from IUP C headers.</p>
 <p>Main guide to IUP and detailed documentation is at <a class="reference external" href="https://www.tecgraf.puc-rio.br/iup/">IUP</a> home site.</p>
 
-<h2 id="examples">Examples</h2><p>Examples and tutorial are at <a class="reference external" href="#httpscolonslashslashgithubdotcomslashdariolahslashnimminusiupminusexamples">https://github.com/dariolah/nim-iup-examples</a></p>
+<h2 id="examples">Examples</h2><p>Examples and tutorial are at <a class="reference external" href="https://github.com/dariolah/nim-iup-examples">https://github.com/dariolah/nim-iup-examples</a></p>
 
 
 
@@ -86,7 +84,7 @@ function main() {
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2020-08-30 13:06:08 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2021-11-26 18:07:13 UTC</small>
       </div>
     </div>
   </div>
