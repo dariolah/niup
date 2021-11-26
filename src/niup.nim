@@ -950,6 +950,11 @@ proc `gap`*(ih: GapTypes, value: string) =
 proc `gap`*(ih: GapTypes): string =
   return $GetAttribute(ih, "GAP")
 
+proc `gap=`*(ih: GapTypes, size: int) =
+  SetAttribute(ih, "GAP", cstring(&"{size}"))
+
+proc `gap`*(ih: GapTypes, size: int) =
+  SetAttribute(ih, "GAP", cstring(&"{size}"))
 
 type HeightTypes = Image_t | ImageRGB_t | ImageRGBA_t
 proc `height`*(ih: HeightTypes): string =
