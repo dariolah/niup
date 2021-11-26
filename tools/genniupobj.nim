@@ -5,6 +5,12 @@ import strformat
 import std/sets
 import strutils
 
+type
+  AttributeMapping = ref object
+    attribute: string
+    pk2: string
+    controls: OrderedSet[string]
+
 proc genTypes(controlsSheet: Sheet) =
   var processedControls = OrderedSet[string]()
 
@@ -16,31 +22,35 @@ proc genTypes(controlsSheet: Sheet) =
     echo &"  {row[\"IUP\"]}_t* = PIhandle"
   echo ""
 
-proc initAttributesMap(attrMapSheet: Sheet, firstColumnName:string): OrderedTableRef[string, OrderedSet[string]] =
-  ## -> {"attribute": {"IUP control", ...}
-  var attributesMap = OrderedTableRef[string, OrderedSet[string]]()
+proc initAttributesMap(attrMapSheet: Sheet, firstColumnName:string): seq[AttributeMapping] =
+  ## -> [("attribute", {"IUP control", ...}), ... ]
+  var attributesMap = newSeq[AttributeMapping]()
   let columns = attrMapSheet.getColumnNames()
 
   for row in attrMapSheet:
     var controls = OrderedSet[string]()
+
     for columnName in columns.keys():
-      if columnName != firstColumnName and row[columnName] != "":
+      if columnName != firstColumnName and columnName != "PK2" and row[columnName] != "":
         controls.incl(columnName)
-    attributesMap[row[firstColumnName]] = controls
+
+    var mapping = AttributeMapping(attribute: row[firstColumnName], pk2: row["PK2"], controls: controls)
+    attributesMap.add(mapping)
+
   return attributesMap
 
-proc getAttrProcType(attribute: string; controls: OrderedSet[string]): (string, string) =
+proc getAttrProcType(attribute: string; pk2:string, controls: OrderedSet[string]): (string, string) =
   var controls_t: seq[string]
   for ctrl in controls:
     controls_t.add(&"{ctrl}_t")
   let
     controls_string = join(controls_t, " | ")
-    attrType = &"{attribute.toLowerAscii.capitalizeAscii}Types"
+    attrType = &"{attribute.toLowerAscii.capitalizeAscii}{pk2}Types"
   return (attrType, &"type {attrType} = {controls_string}")
 
-proc getSheetRow(sheet:Sheet; column: string; value:string): Row =
+proc getSheetRow(sheet:Sheet; column: string; value:string, pk2: string): Row =
   for row in sheet:
-    if row[column] == value:
+    if row[column] == value and row["PK2"] == pk2:
       return row
   raise newException(Exception, &"Row not found: {column} == {value}")
 
@@ -49,13 +59,16 @@ proc echoDocString(doc: string) =
   for line in lines:
     echo &"  ## {line.strip(leading = false)}"
 
-proc genAttributeProcs(attributesMap: OrderedTableRef[string, OrderedSet[string]], attrSheet: Sheet) =
+proc genAttributeProcs(attributesMap: seq[AttributeMapping], attrSheet: Sheet) =
   echo "# ATTRIBUTES"
-  for attribute, controls in attributesMap:
+  for mapping in attributesMap:
     let
-      (attrProcType, attrProcTypeDecl) = getAttrProcType(attribute, controls)
+      attribute = mapping.attribute
+      controls = mapping.controls
+      pk2 = mapping.pk2
+      (attrProcType, attrProcTypeDecl) = getAttrProcType(attribute, pk2, controls)
       lc_attribute = attribute.toLower
-      attrRow = getSheetRow(attrSheet, "ATTRIBUTE", attribute)
+      attrRow = getSheetRow(attrSheet, "ATTRIBUTE", attribute, pk2)
     echo attrProcTypeDecl
 
     if attrRow["READ_WRITE"] != "RO":
@@ -102,13 +115,16 @@ proc genAttributeProcs(attributesMap: OrderedTableRef[string, OrderedSet[string]
       echo &"  SetAttribute(ih, \"{attribute}\", cstring({altCall}))"
     echo ""
 
-proc genCallbackProcs(attributesMap: OrderedTableRef[string, OrderedSet[string]], cbSheet: Sheet) =
+proc genCallbackProcs(attributesMap: seq[AttributeMapping], cbSheet: Sheet) =
   echo "# CALLBACKS"
-  for callback, controls in attributesMap:
+  for mapping in attributesMap:
     let
-      (cbProcType, cbProcTypeDecl) = getAttrProcType(callback, controls)
+      callback = mapping.attribute
+      controls = mapping.controls
+      pk2 = mapping.pk2
+      (cbProcType, cbProcTypeDecl) = getAttrProcType(callback, pk2, controls)
       lc_callback = callback.toLower
-      cbRow = getSheetRow(cbSheet, "CALLBACK", callback)
+      cbRow = getSheetRow(cbSheet, "CALLBACK", callback, pk2)
       cbProto = cbRow["CB_PROTO"]
       cbRet = cbRow["CB_RET"]
     echo cbProcTypeDecl
