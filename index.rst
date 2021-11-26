@@ -11,8 +11,8 @@ headers.
 
 Main guide to IUP and detailed documentation is at IUP_ home site. 
 
-.. _NIUP: https://dariolah.github.io/niup.html
-.. _NIUPC: https://dariolah.github.io/niup/niupc.html
+.. _NIUP: https://dariolah.github.io/niup/niup.html
+.. _NIUPC: https://dariolah.github.io/niup/niup/niupc.html
 .. _IUP: https://www.tecgraf.puc-rio.br/iup/
 
 
