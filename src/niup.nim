@@ -1780,14 +1780,25 @@ proc `resize=`*(ih: ResizeTypes, value: string) =
 proc `resize`*(ih: ResizeTypes, value: string) =
   SetAttribute(ih, "RESIZE", value)
 
-proc `resize`*(ih: ResizeTypes): bool =
-  return $GetAttribute(ih, "ACTIVE") == "YES"
+proc `resize`*(ih: ResizeTypes): string =
+  return $GetAttribute(ih, "RESIZE")
 
 proc `resize=`*(ih: ResizeTypes, active:bool) =
   SetAttribute(ih, "RESIZE", cstring((if active: "YES" else: "NO")))
 
 proc `resize`*(ih: ResizeTypes, active:bool) =
   SetAttribute(ih, "RESIZE", cstring((if active: "YES" else: "NO")))
+
+type Resize2Types* = Image_t | ImageRGB_t | ImageRGBA_t
+proc `resize=`*(ih: Resize2Types, value: string) =
+  ## (write-only): given a new size if format "widthxheight", changes WIDTH and HEIGHT attributes, and resizes the image contents using bilinear interpolation for RGB and RGBA images and nearest neighborhood for 8 bits. (since 3.24)
+  SetAttribute(ih, "RESIZE", value)
+
+proc `resize`*(ih: Resize2Types, value: string) =
+  SetAttribute(ih, "RESIZE", value)
+
+proc `resize`*(ih: Resize2Types, width, height:int) =
+  SetAttribute(ih, "RESIZE", cstring(&"{width}x{height}"))
 
 type SavertfTypes* = Text_t | MultiLine_t
 proc `savertf=`*(ih: SavertfTypes, value: string) =
