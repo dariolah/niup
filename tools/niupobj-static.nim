@@ -12,11 +12,11 @@ proc Open*(utf8Mode: bool = false) =
   if utf8Mode:
     SetGlobal("UTF8MODE", "Yes")
 
-proc `[]`*(ih: PIhandle, attribute: string): string =
-  return $GetAttribute(ih, attribute)
 
-proc `[]=`*(ih: PIhandle, attribute: string, value: string) =
-  SetAttribute(ih, attribute, value)
+macro unpackVarargs_pihandle*(callee: untyped; args: varargs[untyped]): untyped =
+  result = newCall(callee)
+  for i in 0 ..< args.len:
+    result.add nnkCast.newTree(newIdentNode("PIhandle"), args[i])
 
 # Text, MultiLine aux
 proc TextConvertLinColToPos(ih: PIhandle, lin, col: int, pos: var int) =
