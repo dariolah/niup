@@ -81,30 +81,30 @@ proc genAttributeProcs(attributesMap: seq[AttributeMapping], attrSheet: Sheet) =
     echo attrProcTypeDecl
 
     if attrRow["READ_WRITE"] != "RO":
-      echo &"proc `{lc_attribute}=`*(ih: {attrProcType}, value: string) ="
+      echo &"proc `{lc_attribute}=`*(ih: {attrProcType}, value: string) {{.cdecl.}} ="
       echoDocString(attrRow["DOC"])
       echo &"  SetAttribute(cast[PIhandle](ih), \"{attribute}\", value)"
       echo ""
 
-      echo &"proc `{lc_attribute}`*(ih: {attrProcType}, value: string) ="
+      echo &"proc `{lc_attribute}`*(ih: {attrProcType}, value: string) {{.cdecl.}} ="
       echo &"  SetAttribute(cast[PIhandle](ih), \"{attribute}\", value)"
       echo ""
 
       if attrRow["SETHANDLE_TYPE"] != "":
-        echo &"proc `{lc_attribute}=`*(ih: {attrProcType}, value: {attrRow[\"SETHANDLE_TYPE\"]}) ="
+        echo &"proc `{lc_attribute}=`*(ih: {attrProcType}, value: {attrRow[\"SETHANDLE_TYPE\"]}) {{.cdecl.}} ="
         echo &"  SetAttributeHandle(cast[PIhandle](ih), \"{attribute}\", cast[PIhandle](value))"
         echo ""
 
     let getterExpression = attrRow["GETTER_EXPRESSION"].multiReplace(("”", "\""), ("“", "\""))
     if attrRow["READ_WRITE"] != "WO":
       if getterExpression == "":
-        echo &"proc `{lc_attribute}`*(ih: {attrProcType}): string ="
+        echo &"proc `{lc_attribute}`*(ih: {attrProcType}): string {{.cdecl.}} ="
         if attrRow["READ_WRITE"] == "RO":
           echoDocString(attrRow["DOC"])
         echo &"  return $GetAttribute(cast[PIhandle](ih), \"{attribute}\")"
         echo ""
       else:
-        echo &"proc `{lc_attribute}`*(ih: {attrProcType}): {attrRow[\"GETTER_TYPE\"]} ="
+        echo &"proc `{lc_attribute}`*(ih: {attrProcType}): {attrRow[\"GETTER_TYPE\"]} {{.cdecl.}} ="
         echo &"  return {getterExpression}"
         echo ""
 
@@ -116,11 +116,11 @@ proc genAttributeProcs(attributesMap: seq[AttributeMapping], attrSheet: Sheet) =
     if altCtor != "":
       if not (altCtor.contains(",") or altCtor.contains(";")):
         # single arg, we can use =
-        echo &"proc `{lc_attribute}=`*(ih: {attrProcType}, {altCtor}) ="
+        echo &"proc `{lc_attribute}=`*(ih: {attrProcType}, {altCtor}) {{.cdecl.}} ="
         echo &"  SetAttribute(cast[PIhandle](ih), \"{attribute}\", cstring({altCall}))"
         echo ""
       # default, calssic f() call
-      echo &"proc `{lc_attribute}`*(ih: {attrProcType}, {altCtor}) ="
+      echo &"proc `{lc_attribute}`*(ih: {attrProcType}, {altCtor}) {{.cdecl.}} ="
       echo &"  SetAttribute(cast[PIhandle](ih), \"{attribute}\", cstring({altCall}))"
     echo ""
 
@@ -154,13 +154,27 @@ proc genCtors(controlsSheet: Sheet) =
       notes = row["NOTES"]
 
     if constructor.contains("varargs"):
-      echo &"template {control}*({constructor}): {control}_t ="
+      echo &"macro {control}*(args: varargs[untyped]): {control}_t ="
       if notes != "":
         echoDocString(notes)
-      echo &"  when varargsLen(callArgs) > 0:"
-      echo &"    {control}_t(unpackVarargs_pihandle(niupc.{control}, {callArgs}))"
-      echo &"  else: {control}_t(niupc.{control}(nil))"
+      echo "  result = nnkCall.newTree("
+      echo "            nnkDotExpr.newTree("
+      echo "                newIdentNode(\"niup\"),"
+      echo &"                newIdentNode(\"{control}_t\")"
+      echo "              ),"
+      echo "           )"
+      echo "  let inner = nnkCall.newTree("
+      echo "                nnkDotExpr.newTree("
+      echo "                  newIdentNode(\"niupc\"),"
+      echo &"                  newIdentNode(\"{control}\")"
+      echo "                )"
+      echo "              )"
       echo ""
+      echo "  if args.len > 0:"
+      echo "    for i in 0 ..< args.len:"
+      echo "      inner.add nnkCast.newTree(newIdentNode(\"PIhandle\"), args[i])"
+      echo "  inner.add newNilLit()"
+      echo "  result.add inner"
     else:
       echo &"proc {control}*({constructor}):{control}_t ="
       if notes != "":
