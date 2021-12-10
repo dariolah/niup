@@ -2,7 +2,7 @@ import niup/niupc
 import std/macros
 import strformat
 
-export niupc except Dialog
+export niupc except Dialog, User
 
 proc Open*(utf8Mode: bool = false) =
   var argc:cint=0
@@ -12,11 +12,6 @@ proc Open*(utf8Mode: bool = false) =
   if utf8Mode:
     SetGlobal("UTF8MODE", "Yes")
 
-proc `[]`*(ih: PIhandle, attribute: string): string =
-  return $GetAttribute(ih, attribute)
-
-proc `[]=`*(ih: PIhandle, attribute: string, value: string) =
-  SetAttribute(ih, attribute, value)
 
 # Text, MultiLine aux
 proc TextConvertLinColToPos(ih: PIhandle, lin, col: int, pos: var int) =

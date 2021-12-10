@@ -239,4 +239,4 @@ sed -i -E '
     s/cuchar/uint8/g
     ' niupc.nim
 
-mv niupc.nim ../src/
+mv niupc.nim ../src/niup/

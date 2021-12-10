@@ -11,7 +11,7 @@ type
     pk2: string
     controls: OrderedSet[string]
 
-proc genTypes(controlsSheet: Sheet) =
+proc genTypes(controlsSheet: Sheet, iupType: string) =
   var processedControls = OrderedSet[string]()
 
   echo "type"
@@ -19,7 +19,16 @@ proc genTypes(controlsSheet: Sheet) =
     if processedControls.contains(row["IUP"]):
       continue
     processedControls.incl(row["IUP"])
-    echo &"  {row[\"IUP\"]}_t* = PIhandle"
+    echo &"  {row[\"IUP\"]}_t* = distinct PIhandle"
+  echo ""
+
+  var controls = newSeq[string]()
+  for control in processedControls.items:
+    controls.add &"{control}_t"
+
+  stdout.write &"type {iupType}* = "
+  stdout.write join(controls, " | ")
+  echo ""
   echo ""
 
 proc initAttributesMap(attrMapSheet: Sheet, firstColumnName:string): seq[AttributeMapping] =
@@ -72,30 +81,30 @@ proc genAttributeProcs(attributesMap: seq[AttributeMapping], attrSheet: Sheet) =
     echo attrProcTypeDecl
 
     if attrRow["READ_WRITE"] != "RO":
-      echo &"proc `{lc_attribute}=`*(ih: {attrProcType}, value: string) ="
+      echo &"proc `{lc_attribute}=`*(ih: {attrProcType}, value: string) {{.cdecl.}} ="
       echoDocString(attrRow["DOC"])
-      echo &"  SetAttribute(ih, \"{attribute}\", value)"
+      echo &"  SetAttribute(cast[PIhandle](ih), \"{attribute}\", value)"
       echo ""
 
-      echo &"proc `{lc_attribute}`*(ih: {attrProcType}, value: string) ="
-      echo &"  SetAttribute(ih, \"{attribute}\", value)"
+      echo &"proc `{lc_attribute}`*(ih: {attrProcType}, value: string) {{.cdecl.}} ="
+      echo &"  SetAttribute(cast[PIhandle](ih), \"{attribute}\", value)"
       echo ""
 
       if attrRow["SETHANDLE_TYPE"] != "":
-        echo &"proc `{lc_attribute}=`*(ih: {attrProcType}, value: {attrRow[\"SETHANDLE_TYPE\"]}) ="
-        echo &"  SetAttributeHandle(ih, \"{attribute}\", value)"
+        echo &"proc `{lc_attribute}=`*(ih: {attrProcType}, value: {attrRow[\"SETHANDLE_TYPE\"]}) {{.cdecl.}} ="
+        echo &"  SetAttributeHandle(cast[PIhandle](ih), \"{attribute}\", cast[PIhandle](value))"
         echo ""
 
     let getterExpression = attrRow["GETTER_EXPRESSION"].multiReplace(("”", "\""), ("“", "\""))
     if attrRow["READ_WRITE"] != "WO":
       if getterExpression == "":
-        echo &"proc `{lc_attribute}`*(ih: {attrProcType}): string ="
+        echo &"proc `{lc_attribute}`*(ih: {attrProcType}): string {{.cdecl.}} ="
         if attrRow["READ_WRITE"] == "RO":
           echoDocString(attrRow["DOC"])
-        echo &"  return $GetAttribute(ih, \"{attribute}\")"
+        echo &"  return $GetAttribute(cast[PIhandle](ih), \"{attribute}\")"
         echo ""
       else:
-        echo &"proc `{lc_attribute}`*(ih: {attrProcType}): {attrRow[\"GETTER_TYPE\"]} ="
+        echo &"proc `{lc_attribute}`*(ih: {attrProcType}): {attrRow[\"GETTER_TYPE\"]} {{.cdecl.}} ="
         echo &"  return {getterExpression}"
         echo ""
 
@@ -107,12 +116,12 @@ proc genAttributeProcs(attributesMap: seq[AttributeMapping], attrSheet: Sheet) =
     if altCtor != "":
       if not (altCtor.contains(",") or altCtor.contains(";")):
         # single arg, we can use =
-        echo &"proc `{lc_attribute}=`*(ih: {attrProcType}, {altCtor}) ="
-        echo &"  SetAttribute(ih, \"{attribute}\", cstring({altCall}))"
+        echo &"proc `{lc_attribute}=`*(ih: {attrProcType}, {altCtor}) {{.cdecl.}} ="
+        echo &"  SetAttribute(cast[PIhandle](ih), \"{attribute}\", cstring({altCall}))"
         echo ""
       # default, calssic f() call
-      echo &"proc `{lc_attribute}`*(ih: {attrProcType}, {altCtor}) ="
-      echo &"  SetAttribute(ih, \"{attribute}\", cstring({altCall}))"
+      echo &"proc `{lc_attribute}`*(ih: {attrProcType}, {altCtor}) {{.cdecl.}} ="
+      echo &"  SetAttribute(cast[PIhandle](ih), \"{attribute}\", cstring({altCall}))"
     echo ""
 
 proc genCallbackProcs(attributesMap: seq[AttributeMapping], cbSheet: Sheet) =
@@ -130,9 +139,9 @@ proc genCallbackProcs(attributesMap: seq[AttributeMapping], cbSheet: Sheet) =
     echo cbProcTypeDecl
     echo &"proc `{lc_callback}=`*(control: {cbProcType}, cb: proc ({cbProto}): {cbRet} {{.cdecl.}}) ="
     echoDocString(cbRow["DOC"])
-    echo &"  SetCallback(control, \"{callback}\", cast[Icallback](cb))"
+    echo &"  SetCallback(cast[PIhandle](control), \"{callback}\", cast[Icallback](cb))"
     echo &"proc `{lc_callback}`*(control: {cbProcType}): proc ({cbProto}): {cbRet} {{.cdecl.}} ="
-    echo &"  return cast[proc ({cbProto}): {cbRet} {{.cdecl.}}](GetCallback(control, \"{callback}\"))"
+    echo &"  return cast[proc ({cbProto}): {cbRet} {{.cdecl.}}](GetCallback(cast[PIhandle](control), \"{callback}\"))"
     echo ""
 
 proc genCtors(controlsSheet: Sheet) =
@@ -145,14 +154,29 @@ proc genCtors(controlsSheet: Sheet) =
       notes = row["NOTES"]
 
     if constructor.contains("varargs"):
-      echo &"template {control}*({constructor}): {control}_t ="
+      echo &"macro {control}*(args: varargs[untyped]): {control}_t ="
       if notes != "":
         echoDocString(notes)
-      echo &"  when varargsLen(callArgs) > 0:"
-      echo &"    {control}_t(unpackVarargs(niupc.{control}, {callArgs}))"
-      echo &"  else: {control}_t(niupc.{control}(nil))"
+      echo "  result = nnkCall.newTree("
+      echo "            nnkDotExpr.newTree("
+      echo "                newIdentNode(\"niup\"),"
+      echo &"                newIdentNode(\"{control}_t\")"
+      echo "              ),"
+      echo "           )"
+      echo "  let inner = nnkCall.newTree("
+      echo "                nnkDotExpr.newTree("
+      echo "                  newIdentNode(\"niupc\"),"
+      echo &"                  newIdentNode(\"{control}\")"
+      echo "                )"
+      echo "              )"
+      echo ""
+      echo "  if args.len > 0:"
+      echo "    for i in 0 ..< args.len:"
+      echo "      inner.add nnkCast.newTree(newIdentNode(\"PIhandle\"), args[i])"
+      echo "  inner.add newNilLit()"
+      echo "  result.add inner"
     else:
-      echo &"proc {control}*({constructor}):{control}_t ="
+      echo &"proc {control}*({constructor}):{control}_t {{.cdecl.}} ="
       if notes != "":
         echoDocString(notes)
       echo &"  return {control}_t(niupc.{control}({callArgs}))"
@@ -164,13 +188,16 @@ proc main(filename: string) =
   let doc = loadOds(filename)
 
   echo "# CONTROLS"
-  genTypes(doc["CONTROLS"])
-  genCtors(doc["CONTROLS"])
+  genTypes(doc["CONTROLS"], "IUPControls_t")
   echo "# CONTAINERS"
-  genTypes(doc["CONTAINERS"])
-  genCtors(doc["CONTAINERS"])
+  genTypes(doc["CONTAINERS"], "IUPContainers_t")
   echo "# DIALOGS"
-  genTypes(doc["DIALOGS"])
+  genTypes(doc["DIALOGS"], "IUPDialogs_t")
+
+  echo "type IUPhandle_t* = IUPControls_t | IUPContainers_t | IUPDialogs_t"
+  echo ""
+  genCtors(doc["CONTROLS"])
+  genCtors(doc["CONTAINERS"])
   genCtors(doc["DIALOGS"])
 
   let attributesMap = initAttributesMap(doc["ATTR_MAP"], "ATTRIBUTE")
