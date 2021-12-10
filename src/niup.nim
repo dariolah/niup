@@ -27,11 +27,12 @@ type
   ImageRGB_t* = distinct PIhandle
   ImageRGBA_t* = distinct PIhandle
   Label_t* = distinct PIhandle
+  List_t* = distinct PIhandle
   MultiLine_t* = distinct PIhandle
   Text_t* = distinct PIhandle
   Toggle_t* = distinct PIhandle
 
-type IUPControls_t* = Button_t | Image_t | ImageRGB_t | ImageRGBA_t | Label_t | MultiLine_t | Text_t | Toggle_t
+type IUPControls_t* = Button_t | Image_t | ImageRGB_t | ImageRGBA_t | Label_t | List_t | MultiLine_t | Text_t | Toggle_t
 
 # CONTAINERS
 type
@@ -50,7 +51,7 @@ type IUPDialogs_t* = Dialog_t
 type IUPhandle_t* = IUPControls_t | IUPContainers_t | IUPDialogs_t
 
 # CTORs
-proc Button*(title:string, action:string):Button_t =
+proc Button*(title:string, action:string):Button_t {.cdecl.} =
   ## Buttons with images and/or texts can not change its behavior after mapped. This is a creation dependency. But after creation the image can be changed for another image, and the text for another text.
   ## Buttons are activated using Enter or Space keys.
   ## Buttons are not activated if the user clicks inside the button but moves the cursor and releases outside the button area. Also in Windows the highlight feedback when that happens is different if the button has CANFOCUS enabled or not.
@@ -59,10 +60,10 @@ proc Button*(title:string, action:string):Button_t =
   ## In GTK uses GtkButton/GtkImage, in Windows uses WC_BUTTON, and in Motif uses xmPushButton.
   return Button_t(niupc.Button(title, action))
 
-proc Button*(title:string):Button_t =
+proc Button*(title:string):Button_t {.cdecl.} =
   return Button_t(niupc.Button(title, nil))
 
-proc Image*(width, height: cint, pixels: openArray[uint8]):Image_t =
+proc Image*(width, height: cint, pixels: openArray[uint8]):Image_t {.cdecl.} =
   ## Creates an image to be shown on a label, button, toggle, or as a cursor.
   ## width: Image width in pixels.
   ## height: Image height in pixels.
@@ -74,27 +75,49 @@ proc Image*(width, height: cint, pixels: openArray[uint8]):Image_t =
   ## Returns: the identifier of the created element, or NULL if an error occurs.
   return Image_t(niupc.Image(width, height, cast[ptr uint8](pixels)))
 
-proc ImageRGB*(width, height: cint, pixels: openArray[uint8]):ImageRGB_t =
+proc ImageRGB*(width, height: cint, pixels: openArray[uint8]):ImageRGB_t {.cdecl.} =
   return ImageRGB_t(niupc.ImageRGB(width, height, cast[ptr uint8](pixels)))
 
-proc ImageRGBA*(width, height: cint, pixels: openArray[uint8]):ImageRGBA_t =
+proc ImageRGBA*(width, height: cint, pixels: openArray[uint8]):ImageRGBA_t {.cdecl.} =
   return ImageRGBA_t(niupc.ImageRGBA(width, height, cast[ptr uint8](pixels)))
 
-proc Label*(title:string):Label_t =
+proc Label*(title:string):Label_t {.cdecl.} =
   ## Labels with images, texts or line separator can not change its behavior after mapped. But after map the image can be changed for another image, and the text for another text.
   ## In GTK uses GtkSeparator(GtkHSeparator/GtkVSeparator in GTK 2)/GtkImage/GtkLabel, in Windows uses WC_STATIC, and in Motif uses xmSeparator/xmLabel.
   return Label_t(niupc.Label(title))
 
-proc MultiLine*():MultiLine_t =
+proc List*():List_t {.cdecl.} =
+  ## Creates an interface element that displays a list of items. The list can be visible or can be dropped down. It also can have an edit box for text input. So it is a 4 in 1 element. In native systems the dropped down case is called Combo Box.
+  ## 
+  ## Notes
+  ## Text is always left aligned.
+  ## 
+  ## When the list has focus use the arrow keys to move focus from one item to another. When DROPDOWN=Yes use the Alt+Down key combination to show the dropdown list. While the dropdown is shown the arrow key may change the current value depending on the system, on Windows will directly change the current value, on GTK will change the current value only if Enter is pressed. In all systems the dropdown list is closed by using the Alt+Up key combination, or by pressing Enter or Esc keys (while the dropdown list is shown the DEFAULTENTER and DEFAULTESC buttons will not be called (fixed in 3.14)).
+  ## 
+  ## The GETFOCUS_CB and KILLFOCUS_CB callbacks behave differently depending on the list configuration and on the native system:
+  ## If DROPDOWN=NO and EDITBOX=YES, then the list never gets the focus, the callbacks are called only when the edit box is clicked.
+  ## In Motif if DROPDOWN=YES then when the dropdown button is clicked the list looses its focus and when the dropped list is closed the list regain the focus, also when that happen if the list looses its focus to another control the kill focus callback is not called.
+  ## In GTK, if DROPDOWN=YES and EDITBOX=NO, both callbacks are called only when navigating with the keyboard (tip: if you need those callbacks with mouse navigation set EDITBOX=YES and READONLY=YES). Also in GTK, if DROPDOWN=YES and EDITBOX=YES then when the dropdown button is clicked the list looses its focus and it gets it back only if the edit box is clicked.
+  ## 
+  ## In Windows, if EDITBOX=YES then the tooltips are shown only when the cursor is near the control border or at the dropdown arrow. Also the selection and caret attributes are not preserved if the list loses its focus, or in other words these attributes are only useful in Windows if the list has the focus.
+  ## 
+  ## IMPORTANT: In Windows when DROPDOWN=Yes the vertical size is controlled by the system, and has the height just right to include the borders and the text. So the User height from RASTERSIZE or SIZE will be always ignored.
+  ## In Windows, list items are limited to 255 pixels height.
+  ## In GTK older than 2.12, the editbox of a dropdown will not follow the list attributes: FONT, BGCOLOR, FGCOLOR and SPACING.
+  ## Clicking and dragging a item: if SHOWDRAGDROP=Yes starts a drag. When mouse is released, the DRAGDROP_CB callback is called. If the callback does not exist or if it returns IUP_CONTINUE then the item is moved to the new position. If Ctrl is pressed then the node is copied instead of moved. In Windows and GTK, drag is performed with the left mouse button. In Motif, the middle mouse button is used to drag. (since 3.7)
+  ## In GTK uses GtkComboBox/GtkTreeView, in Windows uses COMBOBOX/LISTBOX, and in Motif uses xmComboBox/xmList.
+  return List_t(niupc.List(nil))
+
+proc MultiLine*():MultiLine_t {.cdecl.} =
   ## Creates an editable field with one or more lines.
   ## Since IUP 3.0, IupText has support for multiple lines when the MULTILINE attribute is set to YES. Now when a IupMultiline element is created in fact a IupText element with MULTILINE=YES is created.
   return MultiLine_t(niupc.MultiLine(nil))
 
-proc Text*():Text_t =
+proc Text*():Text_t {.cdecl.} =
   ## Creates an editable text field.
   return Text_t(niupc.Text(nil))
 
-proc Toggle*(title:string):Toggle_t =
+proc Toggle*(title:string):Toggle_t {.cdecl.} =
   ## Creates the toggle interface element. It is a two-state (on/off) button that, when selected, generates an action that activates a function in the associated application. Its visual representation can contain a text or an image.
   ## Notes
   ## Toggle with image or text can not change its behavior after mapped. This is a creation attribute. But after creation the image can be changed for another image, and the text for another text.
@@ -128,7 +151,7 @@ macro Hbox*(args: varargs[untyped]): Hbox_t =
       inner.add nnkCast.newTree(newIdentNode("PIhandle"), args[i])
   inner.add newNilLit()
   result.add inner
-proc User*():User_t =
+proc User*():User_t {.cdecl.} =
   ## Creates a user element in IUP, which is not associated to any interface element. It is used to map an external element to a IUP element. Its use is usually for additional elements, but you can use it to create an Ihandle* to store private attributes.
   ## It is also a void container. Its children can be dynamically added using IupAppend or IupInsert.
   return User_t(niupc.User())
@@ -157,7 +180,7 @@ macro Vbox*(args: varargs[untyped]): Vbox_t =
   result.add inner
 
 # CTORs
-proc Dialog*(child: IUPhandle_t):Dialog_t =
+proc Dialog*(child: IUPhandle_t):Dialog_t {.cdecl.} =
   ## Do not associate an IupDialog with the native "dialog"nomenclature in Windows, GTK or Motif. IupDialog use native standard windows in all drivers.
   ## Except for the menu, all other elements must be inside a dialog to interact with the user. Therefore, an interface element will only be visible if its dialog is also visible.
   ## The order of callback calling is system dependent. For instance, the RESIZE_CB and the SHOW_CB are called in a different order in Win32 and in X-Windows when the dialog is shown for the first time.
@@ -167,7 +190,7 @@ proc Dialog*(child: IUPhandle_t):Dialog_t =
 
 
 # ATTRIBUTES
-type ActiveTypes* = Button_t | Label_t | Dialog_t | Text_t | MultiLine_t
+type ActiveTypes* = Button_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
 proc `active=`*(ih: ActiveTypes, value: string) {.cdecl.} =
   ## Activates or inhibits user interaction.
   SetAttribute(cast[PIhandle](ih), "ACTIVE", value)
@@ -251,13 +274,49 @@ proc `alignment`*(ih: AlignmenttogTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "ALIGNMENT")
 
 
-type AppendTypes* = Text_t | MultiLine_t
+type AppendTypes* = List_t | Text_t | MultiLine_t
 proc `append=`*(ih: AppendTypes, value: string) {.cdecl.} =
   ## (write-only): Inserts a text at the end of the current text. In the Multiline, if APPENDNEWLINE=YES, a "\n"character will be automatically inserted before the appended text if the current text is not empty(APPENDNEWLINE default is YES). Ignored if set before map.
   SetAttribute(cast[PIhandle](ih), "APPEND", value)
 
 proc `append`*(ih: AppendTypes, value: string) {.cdecl.} =
   SetAttribute(cast[PIhandle](ih), "APPEND", value)
+
+
+type AppenditemTypes* = List_t
+proc `appenditem=`*(ih: AppenditemTypes, value: string) {.cdecl.} =
+  ## (write-only): inserts an item after the last item. Ignored if set before map. (since 3.0)
+  SetAttribute(cast[PIhandle](ih), "APPENDITEM", value)
+
+proc `appenditem`*(ih: AppenditemTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "APPENDITEM", value)
+
+proc `appenditem`*(ih: AppenditemTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "APPENDITEM")
+
+
+type AutohideTypes* = List_t
+proc `autohide=`*(ih: AutohideTypes, value: string) {.cdecl.} =
+  ## scrollbars are shown only if they are necessary. Default: "YES".
+  SetAttribute(cast[PIhandle](ih), "AUTOHIDE", value)
+
+proc `autohide`*(ih: AutohideTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "AUTOHIDE", value)
+
+proc `autohide`*(ih: AutohideTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "AUTOHIDE")
+
+
+type AutoredrawTypes* = List_t
+proc `autoredraw=`*(ih: AutoredrawTypes, value: string) {.cdecl.} =
+  ## [Windows] (non inheritable): automatically redraws the list when something has change. Set to NO to add many items to the list without updating the display. Default: "YES". (since 3.3)
+  SetAttribute(cast[PIhandle](ih), "AUTOREDRAW", value)
+
+proc `autoredraw`*(ih: AutoredrawTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "AUTOREDRAW", value)
+
+proc `autoredraw`*(ih: AutoredrawTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "AUTOREDRAW")
 
 
 type AutoscaleTypes* = Image_t | ImageRGB_t | ImageRGBA_t
@@ -284,7 +343,7 @@ proc `background`*(ih: BackgroundTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "BACKGROUND")
 
 
-type BgcolorTypes* = Button_t | Label_t | Dialog_t | Image_t | ImageRGB_t | ImageRGBA_t | Text_t | MultiLine_t | Toggle_t
+type BgcolorTypes* = Button_t | Label_t | List_t | Dialog_t | Image_t | ImageRGB_t | ImageRGBA_t | Text_t | MultiLine_t | Toggle_t
 proc `bgcolor=`*(ih: BgcolorTypes, value: string) {.cdecl.} =
   ## Background color. If text and image are not defined, the button is configured to simply show a color, in this case set the button size because the natural size will be very small. In Windows and in GTK 3, the BGCOLOR attribute is ignored if text or image is defined. Default: the global attribute DLGBGCOLOR. BGCOLOR is ignored when FLAT=YES because it will be used the background from the native parent.
   SetAttribute(cast[PIhandle](ih), "BGCOLOR", value)
@@ -357,7 +416,7 @@ proc `bulk`*(ih: BulktxtfmtTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "BULK")
 
 
-type CanfocusTypes* = Button_t | Text_t | MultiLine_t | Toggle_t
+type CanfocusTypes* = Button_t | List_t | Text_t | MultiLine_t | Toggle_t
 proc `canfocus=`*(ih: CanfocusTypes, value: string) {.cdecl.} =
   ## (creation only) (non inheritable): enables the focus traversal of the control. In Windows the button will respect CANFOCUS differently to some other controls. Default: YES. (since 3.0)
   SetAttribute(cast[PIhandle](ih), "CANFOCUS", value)
@@ -369,7 +428,7 @@ proc `canfocus`*(ih: CanfocusTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "CANFOCUS")
 
 
-type CaretTypes* = Text_t | MultiLine_t
+type CaretTypes* = List_t | Text_t | MultiLine_t
 proc `caret=`*(ih: CaretTypes, value: string) {.cdecl.} =
   ## (non inheritable): Character position of the insertion point. Its format depends in MULTILINE=YES. The first position, lin or col, is "1".
   ## 
@@ -393,7 +452,7 @@ proc `caret`*(ih: CaretTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "CARET")
 
 
-type CaretposTypes* = Text_t | MultiLine_t
+type CaretposTypes* = List_t | Text_t | MultiLine_t
 proc `caretpos=`*(ih: CaretposTypes, value: string) {.cdecl.} =
   ## (non inheritable): Also the character position of the insertion point, but using a zero based character unique index "pos". Useful for indexing the VALUE string. See the Notes below if using UTF-8 strings in GTK. (since 3.0)
   SetAttribute(cast[PIhandle](ih), "CARETPOS", value)
@@ -519,7 +578,7 @@ proc `clientsize`*(ih: ClientsizeTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "CLIENTSIZE")
 
 
-type ClipboardTypes* = Text_t | MultiLine_t
+type ClipboardTypes* = List_t | Text_t | MultiLine_t
 proc `clipboard=`*(ih: ClipboardTypes, value: string) {.cdecl.} =
   ## (write-only): clear, cut, copy or paste the selection to or from the clipboard. Values: "CLEAR", "CUT", "COPY"or "PASTE". In Windows UNDO is also available, and REDO is available when FORMATTING=YES. (since 3.0)
   SetAttribute(cast[PIhandle](ih), "CLIPBOARD", value)
@@ -578,6 +637,12 @@ proc `count`*(ih: CountTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "COUNT")
 
 
+type CountlstTypes* = List_t
+proc `count`*(ih: CountlstTypes): string {.cdecl.} =
+  ## (read-only) (non inheritable): returns the number of items. Before mapping it counts the number of non NULL items before the first NULL item. (since 3.0)
+  return $GetAttribute(cast[PIhandle](ih), "COUNT")
+
+
 type CpaddingTypes* = Button_t | Label_t | Text_t | MultiLine_t
 proc `cpadding=`*(ih: CpaddingTypes, value: string) {.cdecl.} =
   ## same as PADDING but using the units of the SIZE attribute. It will actually set the PADDING attribute. (since 3.29)
@@ -590,7 +655,7 @@ proc `cpadding`*(ih: CpaddingTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "CPADDING")
 
 
-type CspacingTypes* = Button_t
+type CspacingTypes* = Button_t | List_t
 proc `cspacing=`*(ih: CspacingTypes, value: string) {.cdecl.} =
   ## same as SPACING but using the units of the vertical part of the SIZE attribute. It will actually set the SPACING attribute. (since 3.29)
   SetAttribute(cast[PIhandle](ih), "CSPACING", value)
@@ -602,7 +667,7 @@ proc `cspacing`*(ih: CspacingTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "CSPACING")
 
 
-type CuebannerTypes* = Text_t | MultiLine_t
+type CuebannerTypes* = List_t | Text_t | MultiLine_t
 proc `cuebanner=`*(ih: CuebannerTypes, value: string) {.cdecl.} =
   ## [Windows and GTK Only] (non inheritable): a text that is displayed when there is no text at the control. It works as a textual cue, or tip to prompt the user for input. Valid only for MULTILINE=NO, and works only when Visual Styles are enabled. (since 3.0) [GTK 3.2] (GTK support added in IUP 3.20)
   SetAttribute(cast[PIhandle](ih), "CUEBANNER", value)
@@ -776,7 +841,7 @@ proc `dpi`*(ih: DpiTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "DPI")
 
 
-type DragcursorTypes* = Label_t | Dialog_t
+type DragcursorTypes* = Label_t | List_t | Dialog_t
 proc `dragcursor=`*(ih: DragcursorTypes, value: string) {.cdecl.} =
   ## (non inheritable): name of an image to be used as cursor during drag. Use IupSetHandle or IupSetAttributeHandle to associate an image to a name. See also IupImage. (since 3.11)
   SetAttribute(cast[PIhandle](ih), "DRAGCURSOR", value)
@@ -788,7 +853,19 @@ proc `dragcursor`*(ih: DragcursorTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "DRAGCURSOR")
 
 
-type DragsourceTypes* = Label_t | Dialog_t
+type DragdroplistTypes* = List_t
+proc `dragdroplist=`*(ih: DragdroplistTypes, value: string) {.cdecl.} =
+  ## (non inheritable): prepare the Drag &Drop callbacks to support drag and drop of items between lists (IupList or IupFlatList), in the same IUP application. Drag &Drop attributes still need to be set in order to activate the drag &drop support, so the application can control if this list will be source and/or target. Default: NO. (since 3.10)
+  SetAttribute(cast[PIhandle](ih), "DRAGDROPLIST", value)
+
+proc `dragdroplist`*(ih: DragdroplistTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "DRAGDROPLIST", value)
+
+proc `dragdroplist`*(ih: DragdroplistTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "DRAGDROPLIST")
+
+
+type DragsourceTypes* = Label_t | List_t | Dialog_t
 proc `dragsource=`*(ih: DragsourceTypes, value: string) {.cdecl.} =
   ## (non inheritable): Set up a control as a source for drag operations. Default: NO.
   SetAttribute(cast[PIhandle](ih), "DRAGSOURCE", value)
@@ -800,7 +877,7 @@ proc `dragsource`*(ih: DragsourceTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "DRAGSOURCE")
 
 
-type DragsourcemoveTypes* = Label_t | Dialog_t
+type DragsourcemoveTypes* = Label_t | List_t | Dialog_t
 proc `dragsourcemove=`*(ih: DragsourcemoveTypes, value: string) {.cdecl.} =
   ## (non inheritable): Enables the move action. Default: NO (only copy is enabled).
   SetAttribute(cast[PIhandle](ih), "DRAGSOURCEMOVE", value)
@@ -812,7 +889,7 @@ proc `dragsourcemove`*(ih: DragsourcemoveTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "DRAGSOURCEMOVE")
 
 
-type DragtypesTypes* = Label_t | Dialog_t
+type DragtypesTypes* = Label_t | List_t | Dialog_t
 proc `dragtypes=`*(ih: DragtypesTypes, value: string) {.cdecl.} =
   ## (non inheritable): A list of data types that are supported by the source. Accepts a string with one or more names separated by commas. See Notes bellow for a list of known names. Must be set.
   ## 
@@ -834,7 +911,31 @@ proc `dragtypes`*(ih: DragtypesTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "DRAGTYPES")
 
 
-type DropfilestargetTypes* = Label_t | Dialog_t | Text_t | MultiLine_t
+type DropdownTypes* = List_t
+proc `dropdown=`*(ih: DropdownTypes, value: string) {.cdecl.} =
+  ## (creation only): Changes the appearance of the list for the user: only the selected item is shown beside a button with the image of an arrow pointing down. To select another option, the user must press this button, which displays all items in the list. Can be "YES"or "NO". Default "NO".
+  SetAttribute(cast[PIhandle](ih), "DROPDOWN", value)
+
+proc `dropdown`*(ih: DropdownTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "DROPDOWN", value)
+
+proc `dropdown`*(ih: DropdownTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "DROPDOWN")
+
+
+type DropexpandTypes* = List_t
+proc `dropexpand=`*(ih: DropexpandTypes, value: string) {.cdecl.} =
+  ## [Windows Only]: When DROPDOWN=Yes the size of the dropped list will expand to include the largest text. Can be "YES"or "NO". Default: "YES".
+  SetAttribute(cast[PIhandle](ih), "DROPEXPAND", value)
+
+proc `dropexpand`*(ih: DropexpandTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "DROPEXPAND", value)
+
+proc `dropexpand`*(ih: DropexpandTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "DROPEXPAND")
+
+
+type DropfilestargetTypes* = Label_t | List_t | Dialog_t | Text_t | MultiLine_t
 proc `dropfilestarget=`*(ih: DropfilestargetTypes, value: string) {.cdecl.} =
   ## [Windows and GTK Only] (non inheritable): Enable or disable the drop of files. Default: NO, but if DROPFILES_CB is defined when the element is mapped then it will be automatically enabled. (since 3.0)
   SetAttribute(cast[PIhandle](ih), "DROPFILESTARGET", value)
@@ -846,7 +947,7 @@ proc `dropfilestarget`*(ih: DropfilestargetTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "DROPFILESTARGET")
 
 
-type DroptargetTypes* = Label_t | Dialog_t
+type DroptargetTypes* = Label_t | List_t | Dialog_t
 proc `droptarget=`*(ih: DroptargetTypes, value: string) {.cdecl.} =
   ## (non inheritable): Set up a control as a destination for drop operations. Default: NO.
   SetAttribute(cast[PIhandle](ih), "DROPTARGET", value)
@@ -858,7 +959,7 @@ proc `droptarget`*(ih: DroptargetTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "DROPTARGET")
 
 
-type DroptypesTypes* = Label_t | Dialog_t
+type DroptypesTypes* = Label_t | List_t | Dialog_t
 proc `droptypes=`*(ih: DroptypesTypes, value: string) {.cdecl.} =
   ## (non inheritable): A list of data types that are supported by the target. Accepts a string with one or more names separated by commas. See Notes bellow for a list of known names. Must be set.
   ## 
@@ -880,6 +981,18 @@ proc `droptypes`*(ih: DroptypesTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "DROPTYPES")
 
 
+type EditboxTypes* = List_t
+proc `editbox=`*(ih: EditboxTypes, value: string) {.cdecl.} =
+  ## (creation only): Adds an edit box to the list. Can be "YES"or "NO". Default "NO".
+  SetAttribute(cast[PIhandle](ih), "EDITBOX", value)
+
+proc `editbox`*(ih: EditboxTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "EDITBOX", value)
+
+proc `editbox`*(ih: EditboxTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "EDITBOX")
+
+
 type EllipsisTypes* = Label_t
 proc `ellipsis=`*(ih: EllipsisTypes, value: string) {.cdecl.} =
   ## [Windows and GTK only]: add an ellipsis: "..."to the text if there is not enough space to render the entire string. Can be "YES"or "NO". Default: "NO". (since 3.0) (GTK 2.6)
@@ -892,7 +1005,7 @@ proc `ellipsis`*(ih: EllipsisTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "ELLIPSIS")
 
 
-type ExpandTypes* = Button_t | Label_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
+type ExpandTypes* = Button_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
 proc `expand=`*(ih: ExpandTypes, value: string) {.cdecl.} =
   ## Allows the element to expand, fulfilling empty spaces inside its container.
   ## It is a non inheritable attribute, but a container inherit its parents EXPAND attribute. In other words, although EXPAND is non inheritable, it is inheritable for containers. So if you set it at a container it will not affect its children, except for those who are containers.
@@ -921,7 +1034,7 @@ proc `expandchildren`*(ih: ExpandchildrenTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "EXPANDCHILDREN")
 
 
-type FgcolorTypes* = Button_t | Label_t | Text_t | MultiLine_t | Toggle_t
+type FgcolorTypes* = Button_t | Label_t | List_t | Text_t | MultiLine_t | Toggle_t
 proc `fgcolor=`*(ih: FgcolorTypes, value: string) {.cdecl.} =
   ## Text color. Default: the global attribute DLGFGCOLOR.
   SetAttribute(cast[PIhandle](ih), "FGCOLOR", value)
@@ -949,7 +1062,7 @@ proc `fgcolor`*(ih: FgcolortxtfmtTypes): string {.cdecl.} =
 proc `fgcolor`*(ih: FgcolortxtfmtTypes, red, green, blue:int) {.cdecl.} =
   SetAttribute(cast[PIhandle](ih), "FGCOLOR", cstring(&"{red} {green} {blue}"))
 
-type FilterTypes* = Text_t | MultiLine_t
+type FilterTypes* = List_t | Text_t | MultiLine_t
 proc `filter=`*(ih: FilterTypes, value: string) {.cdecl.} =
   ## [Windows Only] (non inheritable): allows a custom filter to process the characters: Can be LOWERCASE, UPPERCASE or NUMBER (only numbers allowed). (since 3.0)
   SetAttribute(cast[PIhandle](ih), "FILTER", value)
@@ -973,7 +1086,7 @@ proc `flat`*(ih: FlatTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "FLAT")
 
 
-type FontTypes* = Button_t | Label_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
+type FontTypes* = Button_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
 proc `font=`*(ih: FontTypes, value: string) {.cdecl.} =
   ## Value
   ## 
@@ -1023,7 +1136,7 @@ proc `font`*(ih: FontTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "FONT")
 
 
-type FontfaceTypes* = Button_t | Label_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
+type FontfaceTypes* = Button_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
 proc `fontface=`*(ih: FontfaceTypes, value: string) {.cdecl.} =
   ## (non inheritable) Replaces or returns the face name of the current FONT attribute.
   SetAttribute(cast[PIhandle](ih), "FONTFACE", value)
@@ -1035,7 +1148,7 @@ proc `fontface`*(ih: FontfaceTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "FONTFACE")
 
 
-type FontfacetxtfmtTypes* = User_t
+type FontfacetxtfmtTypes* = List_t | User_t
 proc `fontface=`*(ih: FontfacetxtfmtTypes, value: string) {.cdecl.} =
   ## the face name of the font.
   SetAttribute(cast[PIhandle](ih), "FONTFACE", value)
@@ -1047,7 +1160,7 @@ proc `fontface`*(ih: FontfacetxtfmtTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "FONTFACE")
 
 
-type FontscaletxtfmtTypes* = User_t
+type FontscaletxtfmtTypes* = List_t | User_t
 proc `fontscale=`*(ih: FontscaletxtfmtTypes, value: string) {.cdecl.} =
   ## a size scale relative to the selected or current size. Values greatter than 1 will increase the font. Values smaller than 1 will shirnk the font. Default: 1.0. The following values are also accpeted: "XX-SMALL"(0.58), "X-SMALL"(0.64), "SMALL"(0.83), "MEDIUM"(1.0), "LARGE"(1.2), "X-LARGE"(1.44), "XX-LARGE"(1.73).
   SetAttribute(cast[PIhandle](ih), "FONTSCALE", value)
@@ -1059,7 +1172,7 @@ proc `fontscale`*(ih: FontscaletxtfmtTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "FONTSCALE")
 
 
-type FontsizeTypes* = Button_t | Label_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
+type FontsizeTypes* = Button_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
 proc `fontsize=`*(ih: FontsizeTypes, value: string) {.cdecl.} =
   ## (non inheritable) Replaces or returns the size of the current FONT attribute.
   SetAttribute(cast[PIhandle](ih), "FONTSIZE", value)
@@ -1071,7 +1184,7 @@ proc `fontsize`*(ih: FontsizeTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "FONTSIZE")
 
 
-type FontsizetxtfmtTypes* = User_t
+type FontsizetxtfmtTypes* = List_t | User_t
 proc `fontsize=`*(ih: FontsizetxtfmtTypes, value: string) {.cdecl.} =
   ## the size of the font in pixels or points. Pixel size uses negative values.
   SetAttribute(cast[PIhandle](ih), "FONTSIZE", value)
@@ -1083,7 +1196,7 @@ proc `fontsize`*(ih: FontsizetxtfmtTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "FONTSIZE")
 
 
-type FontstyleTypes* = Button_t | Label_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
+type FontstyleTypes* = Button_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
 proc `fontstyle=`*(ih: FontstyleTypes, value: string) {.cdecl.} =
   ## (non inheritable) Replaces or returns the style of the current FONT attribute. Since font styles are case sensitive, this attribute is also case sensitive.
   SetAttribute(cast[PIhandle](ih), "FONTSTYLE", value)
@@ -1344,7 +1457,7 @@ proc `indent`*(ih: IndenttxtfmtTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "INDENT")
 
 
-type InsertTypes* = Text_t | MultiLine_t
+type InsertTypes* = List_t | Text_t | MultiLine_t
 proc `insert=`*(ih: InsertTypes, value: string) {.cdecl.} =
   ## (write-only): Inserts a text in the caret's position, also replaces the current selection if any. Ignored if set before map.
   SetAttribute(cast[PIhandle](ih), "INSERT", value)
@@ -1447,7 +1560,7 @@ proc `markup`*(ih: MarkupTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "MARKUP")
 
 
-type MaskTypes* = Text_t | MultiLine_t
+type MaskTypes* = List_t | Text_t | MultiLine_t
 proc `mask=`*(ih: MaskTypes, value: string) {.cdecl.} =
   ## (non inheritable): Defines a mask that will filter interactive text input.
   SetAttribute(cast[PIhandle](ih), "MASK", value)
@@ -1500,7 +1613,7 @@ proc `maximized`*(ih: MaximizedTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "MAXIMIZED")
 
 
-type MaxsizeTypes* = Button_t | Label_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
+type MaxsizeTypes* = Button_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
 proc `maxsize=`*(ih: MaxsizeTypes, value: string) {.cdecl.} =
   ## Specifies the element maximum size in pixels during the layout process.
   ## See the Layout Guide for more details on sizes.
@@ -1675,7 +1788,7 @@ proc `minimized`*(ih: MinimizedTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "MINIMIZED")
 
 
-type MinsizeTypes* = Button_t | Label_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
+type MinsizeTypes* = Button_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
 proc `minsize=`*(ih: MinsizeTypes, value: string) {.cdecl.} =
   ## Specifies the element minimum size in pixels during the layout process.
   ## See the Layout Guide for more details on sizes.
@@ -1722,6 +1835,18 @@ proc `multiline`*(ih: MultilineTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "MULTILINE")
 
 
+type MultipleTypes* = List_t
+proc `multiple=`*(ih: MultipleTypes, value: string) {.cdecl.} =
+  ## (creation only): Allows selecting several items simultaneously (multiple list). Default: "NO". Only valid when EDITBOX=NO and DROPDOWN=NO.
+  SetAttribute(cast[PIhandle](ih), "MULTIPLE", value)
+
+proc `multiple`*(ih: MultipleTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "MULTIPLE", value)
+
+proc `multiple`*(ih: MultipleTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "MULTIPLE")
+
+
 type NactiveTypes* = Dialog_t
 proc `nactive=`*(ih: NactiveTypes, value: string) {.cdecl.} =
   ## (non inheritable): same as ACTIVE but does not affects the controls inside the dialog. (since 3.13)
@@ -1760,7 +1885,7 @@ proc `nativeparent`*(ih: NativeparentTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "NATIVEPARENT")
 
 
-type NcTypes* = Text_t | MultiLine_t
+type NcTypes* = List_t | Text_t | MultiLine_t
 proc `nc=`*(ih: NcTypes, value: string) {.cdecl.} =
   ## Maximum number of characters allowed for keyboard input, larger text can still be set using attributes. The maximum value is the limit of the VALUE attribute. The "0"value is the same as maximum. Default: maximum.
   SetAttribute(cast[PIhandle](ih), "NC", value)
@@ -1928,7 +2053,7 @@ proc `overwrite`*(ih: OverwriteTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "OVERWRITE")
 
 
-type PaddingTypes* = Button_t | Label_t | Text_t | MultiLine_t | Toggle_t
+type PaddingTypes* = Button_t | Label_t | List_t | Text_t | MultiLine_t | Toggle_t
 proc `padding=`*(ih: PaddingTypes, value: string) {.cdecl.} =
   ## internal margin. Works just like the MARGIN attribute of the IupHbox and IupVbox containers, but uses a different name to avoid inheritance problems. Default value: "0x0". Value can be DEFAULTBUTTONPADDING, so the global attribute of this name will be used instead (since 3.29). (since 3.0)
   SetAttribute(cast[PIhandle](ih), "PADDING", value)
@@ -1987,7 +2112,7 @@ proc `placement`*(ih: PlacementTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "PLACEMENT")
 
 
-type PositionTypes* = Button_t | Label_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
+type PositionTypes* = Button_t | Label_t | List_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
 proc `position=`*(ih: PositionTypes, value: string) {.cdecl.} =
   ## The position of the element relative to the origin of the Client area of the native parent. If you add the CLIENTOFFSET attribute of the native parent, you can obtain the coordinates relative to the Window area of the native parent. See the Layout Guide.
   ## It will be changed during the layout computation, except when FLOATING=YES or when used inside a concrete layout container.
@@ -2008,7 +2133,7 @@ proc `position`*(ih: PositionTypes): string {.cdecl.} =
 proc `position`*(ih: PositionTypes, x, y:int) {.cdecl.} =
   SetAttribute(cast[PIhandle](ih), "POSITION", cstring(&"{x},{y}"))
 
-type PropagatefocusTypes* = Button_t | Text_t | MultiLine_t | Toggle_t
+type PropagatefocusTypes* = Button_t | List_t | Text_t | MultiLine_t | Toggle_t
 proc `propagatefocus=`*(ih: PropagatefocusTypes, value: string) {.cdecl.} =
   ## (non inheritable): enables the focus callback forwarding to the next native parent with FOCUS_CB defined. Default: NO. (since 3.23)
   SetAttribute(cast[PIhandle](ih), "PROPAGATEFOCUS", value)
@@ -2043,7 +2168,7 @@ proc `radio`*(ih: RadioTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "RADIO")
 
 
-type RastersizeTypes* = Button_t | Label_t | Dialog_t | Vbox_t | Hbox_t | Image_t | ImageRGB_t | ImageRGBA_t | Text_t | MultiLine_t
+type RastersizeTypes* = Button_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Image_t | ImageRGB_t | ImageRGBA_t | Text_t | MultiLine_t
 proc `rastersize=`*(ih: RastersizeTypes, value: string) {.cdecl.} =
   ## Specifies the element User size, and returns the Current size, in pixels.
   ## See the Layout Guide for more details on sizes.
@@ -2076,7 +2201,7 @@ proc `rastersize`*(ih: RastersizeTypes): string {.cdecl.} =
 proc `rastersize`*(ih: RastersizeTypes, width, height:int) {.cdecl.} =
   SetAttribute(cast[PIhandle](ih), "RASTERSIZE", cstring(&"{width}x{height}"))
 
-type ReadonlyTypes* = Text_t | MultiLine_t
+type ReadonlyTypes* = List_t | Text_t | MultiLine_t
 proc `readonly=`*(ih: ReadonlyTypes, value: string) {.cdecl.} =
   ## Allows the user only to read the contents, without changing it. Restricts keyboard input only, text value can still be changed using attributes. Navigation keys are still available. Possible values: "YES", "NO". Default: NO.
   SetAttribute(cast[PIhandle](ih), "READONLY", value)
@@ -2101,6 +2226,15 @@ proc `removeformatting=`*(ih: RemoveformattingTypes, value: string) {.cdecl.} =
 
 proc `removeformatting`*(ih: RemoveformattingTypes, value: string) {.cdecl.} =
   SetAttribute(cast[PIhandle](ih), "REMOVEFORMATTING", value)
+
+
+type RemoveitemTypes* = List_t
+proc `removeitem=`*(ih: RemoveitemTypes, value: string) {.cdecl.} =
+  ## (write-only): removes the given value. value starts at 1. If value is NULL or "ALL"removes all the items. Ignored if set before map. (since 3.0)
+  SetAttribute(cast[PIhandle](ih), "REMOVEITEM", value)
+
+proc `removeitem`*(ih: RemoveitemTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "REMOVEITEM", value)
 
 
 type ReshapeTypes* = Image_t | ImageRGB_t | ImageRGBA_t
@@ -2197,7 +2331,7 @@ proc `scaled`*(ih: ScaledTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "SCALED")
 
 
-type ScreenpositionTypes* = Button_t | Label_t | Dialog_t | Text_t | MultiLine_t
+type ScreenpositionTypes* = Button_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
 proc `screenposition=`*(ih: ScreenpositionTypes, value: string) {.cdecl.} =
   ## Returns the absolute horizontal and/or vertical position of the top-left corner of the client area relative to the origin of the main screen in pixels. It is similar to POSITION but relative to the origin of the main screen, instead of the origin of the client area. The origin of the main screen is at the top-left corner, in Windows it is affected by the position of the Start Menu when it is at the top or left side of the screen.
   ## IMPORTANT: For the dialog, it is the position of the top-left corner of the window, NOT the client area. It is the same position used in IupShowXY and IupPopup. In GTK, if the dialog is hidden the values can be outdated.
@@ -2227,7 +2361,21 @@ proc `scrollbar`*(ih: ScrollbarTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "SCROLLBAR")
 
 
-type ScrolltoTypes* = Text_t | MultiLine_t
+type ScrollbarlstTypes* = List_t
+proc `scrollbar=`*(ih: ScrollbarlstTypes, value: string) {.cdecl.} =
+  ## (creation only): Associates automatic scrollbars to the list when DROPDOWN=NO. Can be: "YES"or "NO"(none). Default: "YES". For all systems, when SCROLLBAR=YES the natural size will always include its size even if the native system hides the scrollbars. If AUTOHIDE=YES scrollbars are shown only if they are necessary, by default AUTOHIDE=YES. In Motif, SCROLLBAR=NO is not supported and if EDITBOX=YES the horizontal scrollbar is never shown.
+  ## 
+  ## When DROPDOWN=YES the scrollbars are system dependent, and do NOT depend on the SCROLLBAR or AUTOHIDE attributes. Usually the scrollbars are shown if necessary. In GTK, scrollbars are never shown and all items are always visible. In Motif, the horizontal scrollbar is never shown. In Windows, if DROPEXPAND=YES then the horizontal scrollbar is never shown.
+  SetAttribute(cast[PIhandle](ih), "SCROLLBAR", value)
+
+proc `scrollbar`*(ih: ScrollbarlstTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "SCROLLBAR", value)
+
+proc `scrollbar`*(ih: ScrollbarlstTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "SCROLLBAR")
+
+
+type ScrolltoTypes* = List_t | Text_t | MultiLine_t
 proc `scrollto=`*(ih: ScrolltoTypes, value: string) {.cdecl.} =
   ## (non inheritable, write only): Scroll the text to make the given character position visible. It uses the same format and reference of the CARET attribute ("lin:col"or "col"starting at 1). In Windows, when FORMATTING=Yes "col"is ignored. (since 3.0)
   SetAttribute(cast[PIhandle](ih), "SCROLLTO", value)
@@ -2239,7 +2387,7 @@ proc `scrollto`*(ih: ScrolltoTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "SCROLLTO")
 
 
-type ScrolltoposTypes* = Text_t | MultiLine_t
+type ScrolltoposTypes* = List_t | Text_t | MultiLine_t
 proc `scrolltopos=`*(ih: ScrolltoposTypes, value: string) {.cdecl.} =
   ## (non inheritable, write only): Scroll the text to make the given character position visible. It uses the same format and reference of the CARETPOS attribute ("pos"starting at 0). (since 3.0)
   SetAttribute(cast[PIhandle](ih), "SCROLLTOPOS", value)
@@ -2251,7 +2399,7 @@ proc `scrolltopos`*(ih: ScrolltoposTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "SCROLLTOPOS")
 
 
-type SelectedtextTypes* = Text_t | MultiLine_t
+type SelectedtextTypes* = List_t | Text_t | MultiLine_t
 proc `selectedtext=`*(ih: SelectedtextTypes, value: string) {.cdecl.} =
   ## (non inheritable): Selection text. Returns NULL if there is no selection. When changed replaces the current selection. Similar to INSERT, but does nothing if there is no selection.
   SetAttribute(cast[PIhandle](ih), "SELECTEDTEXT", value)
@@ -2263,7 +2411,7 @@ proc `selectedtext`*(ih: SelectedtextTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "SELECTEDTEXT")
 
 
-type SelectionTypes* = Text_t | MultiLine_t
+type SelectionTypes* = List_t | Text_t | MultiLine_t
 proc `selection=`*(ih: SelectionTypes, value: string) {.cdecl.} =
   ## non inheritable): Selection interval in characters. Returns NULL if there is no selection. Its format depends in MULTILINE=YES. The first position, lin or col, is "1".
   ## 
@@ -2297,7 +2445,7 @@ proc `selection`*(ih: SelectiontxtfmtTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "SELECTION")
 
 
-type SelectionposTypes* = Text_t | MultiLine_t
+type SelectionposTypes* = List_t | Text_t | MultiLine_t
 proc `selectionpos=`*(ih: SelectionposTypes, value: string) {.cdecl.} =
   ## (non inheritable): Same as SELECTION but using a zero based character index "pos1:pos2". Useful for indexing the VALUE string. The values ALL and NONE are also accepted. See the Notes below if using UTF-8 strings in GTK. (since 3.0)
   SetAttribute(cast[PIhandle](ih), "SELECTIONPOS", value)
@@ -2345,6 +2493,39 @@ proc `shapeimage`*(ih: ShapeimageTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "SHAPEIMAGE")
 
 
+type ShowdragdropTypes* = List_t
+proc `showdragdrop=`*(ih: ShowdragdropTypes, value: string) {.cdecl.} =
+  ## (creation only) (non inheritable): enables the internal drag and drop of items in the same list, and enables the DRAGDROP_CB callback. Default: "NO". Works only if DROPDOWN=NO and MULTIPLE=NO. Drag &Drop attributes are NOT used. (since 3.7)
+  SetAttribute(cast[PIhandle](ih), "SHOWDRAGDROP", value)
+
+proc `showdragdrop`*(ih: ShowdragdropTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "SHOWDRAGDROP", value)
+
+proc `showdragdrop`*(ih: ShowdragdropTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "SHOWDRAGDROP")
+
+
+type ShowdropdownTypes* = List_t
+proc `showdropdown=`*(ih: ShowdropdownTypes, value: string) {.cdecl.} =
+  ## (write-only): opens or closes the dropdown list. Can be "YES"or "NO". Valid only when DROPDOWN=YES. Ignored if set before map.
+  SetAttribute(cast[PIhandle](ih), "SHOWDROPDOWN", value)
+
+proc `showdropdown`*(ih: ShowdropdownTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "SHOWDROPDOWN", value)
+
+
+type ShowimageTypes* = List_t
+proc `showimage=`*(ih: ShowimageTypes, value: string) {.cdecl.} =
+  ## (creation only) [Windows and GTK Only]: enables the use of an image for each item. Can be "YES"or "NO". Ignored if set after map. (since 3.6)
+  SetAttribute(cast[PIhandle](ih), "SHOWIMAGE", value)
+
+proc `showimage`*(ih: ShowimageTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "SHOWIMAGE", value)
+
+proc `showimage`*(ih: ShowimageTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "SHOWIMAGE")
+
+
 type ShownofocusTypes* = Dialog_t
 proc `shownofocus=`*(ih: ShownofocusTypes, value: string) {.cdecl.} =
   ## do not set focus after show. (since 3.30)
@@ -2383,7 +2564,7 @@ proc `simulatemodal`*(ih: SimulatemodalTypes, value: string) {.cdecl.} =
   SetAttribute(cast[PIhandle](ih), "SIMULATEMODAL", value)
 
 
-type SizeTypes* = Button_t | Label_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
+type SizeTypes* = Button_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
 proc `size=`*(ih: SizeTypes, value: string) {.cdecl.} =
   ## Specifies the element User size, and returns the Current size, in units proportional to the size of a character.
   ## See the Layout Guide for more details on sizes.
@@ -2438,6 +2619,18 @@ proc `smallcaps`*(ih: SmallcapstxtfmtTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "SMALLCAPS")
 
 
+type SortTypes* = List_t
+proc `sort=`*(ih: SortTypes, value: string) {.cdecl.} =
+  ## (creation only): force the list to be alphabetically sorted. When using INSERTITEMn or APPENDITEM the position will be ignored. (since 3.0)
+  SetAttribute(cast[PIhandle](ih), "SORT", value)
+
+proc `sort`*(ih: SortTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "SORT", value)
+
+proc `sort`*(ih: SortTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "SORT")
+
+
 type SpaceaftertxtfmtTypes* = User_t
 proc `spaceafter=`*(ih: SpaceaftertxtfmtTypes, value: string) {.cdecl.} =
   ## distance left empty above the paragraph.
@@ -2471,6 +2664,18 @@ proc `spacing`*(ih: SpacingTypes, value: string) {.cdecl.} =
   SetAttribute(cast[PIhandle](ih), "SPACING", value)
 
 proc `spacing`*(ih: SpacingTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "SPACING")
+
+
+type SpacinglstTypes* = List_t
+proc `spacing=`*(ih: SpacinglstTypes, value: string) {.cdecl.} =
+  ## internal padding for each item. Notice that vertically the distance between each item will be actually 2x the spacing. It also affects the horizontal margin of the item. In Windows, the text is aligned at the top left of the item always. Valid only when DROPDOWN=NO. (since 3.0)
+  SetAttribute(cast[PIhandle](ih), "SPACING", value)
+
+proc `spacing`*(ih: SpacinglstTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "SPACING", value)
+
+proc `spacing`*(ih: SpacinglstTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "SPACING")
 
 
@@ -2674,7 +2879,7 @@ proc `taskbarprogressvalue`*(ih: TaskbarprogressvalueTypes, value: string) {.cde
   SetAttribute(cast[PIhandle](ih), "TASKBARPROGRESSVALUE", value)
 
 
-type ThemeTypes* = Button_t | Label_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
+type ThemeTypes* = Button_t | Label_t | List_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
 proc `theme=`*(ih: ThemeTypes, value: string) {.cdecl.} =
   ## Applies a set of attributes to a control. The THEME attribute in inheritable and the NTHEME attribute is NOT inheritable.
   SetAttribute(cast[PIhandle](ih), "THEME", value)
@@ -2686,7 +2891,7 @@ proc `theme`*(ih: ThemeTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "THEME")
 
 
-type TipTypes* = Button_t | Label_t | Dialog_t | Text_t | MultiLine_t
+type TipTypes* = Button_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
 proc `tip=`*(ih: TipTypes, value: string) {.cdecl.} =
   ## Text to be shown when the mouse lies over the element.
   SetAttribute(cast[PIhandle](ih), "TIP", value)
@@ -2698,7 +2903,7 @@ proc `tip`*(ih: TipTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "TIP")
 
 
-type TipballoonTypes* = Button_t | Label_t | Dialog_t | Text_t | MultiLine_t
+type TipballoonTypes* = Button_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
 proc `tipballoon=`*(ih: TipballoonTypes, value: string) {.cdecl.} =
   ## [Windows Only]: The tip window will have the appearance of a cartoon "balloon"with rounded corners and a stem pointing to the item. Default: NO.
   SetAttribute(cast[PIhandle](ih), "TIPBALLOON", value)
@@ -2710,7 +2915,7 @@ proc `tipballoon`*(ih: TipballoonTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "TIPBALLOON")
 
 
-type TipballoontitleTypes* = Button_t | Label_t | Dialog_t | Text_t | MultiLine_t
+type TipballoontitleTypes* = Button_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
 proc `tipballoontitle=`*(ih: TipballoontitleTypes, value: string) {.cdecl.} =
   ## [Windows Only]: When using the balloon format, the tip can also has a title in a separate area.
   SetAttribute(cast[PIhandle](ih), "TIPBALLOONTITLE", value)
@@ -2722,7 +2927,7 @@ proc `tipballoontitle`*(ih: TipballoontitleTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "TIPBALLOONTITLE")
 
 
-type TipballoontitleiconTypes* = Button_t | Label_t | Dialog_t | Text_t | MultiLine_t
+type TipballoontitleiconTypes* = Button_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
 proc `tipballoontitleicon=`*(ih: TipballoontitleiconTypes, value: string) {.cdecl.} =
   ## [Windows Only]: When using the balloon format, the tip can also has a pre-defined icon in the title area. Values can be:
   ## "0"- No icon (default)
@@ -2738,7 +2943,7 @@ proc `tipballoontitleicon`*(ih: TipballoontitleiconTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "TIPBALLOONTITLEICON")
 
 
-type TipbgcolorTypes* = Button_t | Label_t | Dialog_t | Text_t | MultiLine_t
+type TipbgcolorTypes* = Button_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
 proc `tipbgcolor=`*(ih: TipbgcolorTypes, value: string) {.cdecl.} =
   ## [Windows and Motif Only]: The tip background color. Default: "255 255 225"(Light Yellow)
   SetAttribute(cast[PIhandle](ih), "TIPBGCOLOR", value)
@@ -2750,7 +2955,7 @@ proc `tipbgcolor`*(ih: TipbgcolorTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "TIPBGCOLOR")
 
 
-type TipdelayTypes* = Button_t | Label_t | Dialog_t | Text_t | MultiLine_t
+type TipdelayTypes* = Button_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
 proc `tipdelay=`*(ih: TipdelayTypes, value: string) {.cdecl.} =
   ## [Windows and Motif Only]: Time the tip will remain visible. Default: "5000". In Windows the maximum value is 32767 milliseconds.
   SetAttribute(cast[PIhandle](ih), "TIPDELAY", value)
@@ -2762,7 +2967,7 @@ proc `tipdelay`*(ih: TipdelayTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "TIPDELAY")
 
 
-type TipfgcolorTypes* = Button_t | Label_t | Dialog_t | Text_t | MultiLine_t
+type TipfgcolorTypes* = Button_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
 proc `tipfgcolor=`*(ih: TipfgcolorTypes, value: string) {.cdecl.} =
   ## [Windows and Motif Only]: The tip text color. Default: "0 0 0"(Black)
   SetAttribute(cast[PIhandle](ih), "TIPFGCOLOR", value)
@@ -2774,7 +2979,7 @@ proc `tipfgcolor`*(ih: TipfgcolorTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "TIPFGCOLOR")
 
 
-type TipfontTypes* = Button_t | Label_t | Dialog_t | Text_t | MultiLine_t
+type TipfontTypes* = Button_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
 proc `tipfont=`*(ih: TipfontTypes, value: string) {.cdecl.} =
   ## [Windows and Motif Only]: The font for the tip text. If not defined the font used for the text is the same as the FONT attribute for the element. If the value is SYSTEM then, no font is selected and the default system font for the tip will be used.
   SetAttribute(cast[PIhandle](ih), "TIPFONT", value)
@@ -2786,7 +2991,7 @@ proc `tipfont`*(ih: TipfontTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "TIPFONT")
 
 
-type TipiconTypes* = Button_t | Label_t | Dialog_t | Text_t | MultiLine_t
+type TipiconTypes* = Button_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
 proc `tipicon=`*(ih: TipiconTypes, value: string) {.cdecl.} =
   ## [GTK only]: name of an image to be displayed in the TIP. See IupImage. (GTK 2.12)
   SetAttribute(cast[PIhandle](ih), "TIPICON", value)
@@ -2798,7 +3003,7 @@ proc `tipicon`*(ih: TipiconTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "TIPICON")
 
 
-type TipmarkupTypes* = Button_t | Label_t | Dialog_t | Text_t | MultiLine_t
+type TipmarkupTypes* = Button_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
 proc `tipmarkup=`*(ih: TipmarkupTypes, value: string) {.cdecl.} =
   ## [GTK only]: allows the tip string to contains Pango markup commands. Can be "YES"or "NO". Default: "NO". Must be set before setting the TIP attribute. (GTK 2.12)
   SetAttribute(cast[PIhandle](ih), "TIPMARKUP", value)
@@ -2810,7 +3015,7 @@ proc `tipmarkup`*(ih: TipmarkupTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "TIPMARKUP")
 
 
-type TiprectTypes* = Button_t | Label_t | Dialog_t | Text_t | MultiLine_t
+type TiprectTypes* = Button_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
 proc `tiprect=`*(ih: TiprectTypes, value: string) {.cdecl.} =
   ## (non inheritable): Specifies a rectangle inside the element where the tip will be activated. Format: "%d %d %d %d"="x1 y1 x2 y2". Default: all the element area. (GTK 2.12)
   SetAttribute(cast[PIhandle](ih), "TIPRECT", value)
@@ -2822,7 +3027,7 @@ proc `tiprect`*(ih: TiprectTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "TIPRECT")
 
 
-type TipvisibleTypes* = Button_t | Label_t | Dialog_t | Text_t | MultiLine_t
+type TipvisibleTypes* = Button_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
 proc `tipvisible=`*(ih: TipvisibleTypes, value: string) {.cdecl.} =
   ## Shows or hides the tip under the mouse cursor. Use values "YES"or "NO". Returns the current visible state. (GTK 2.12) (since 3.5)
   SetAttribute(cast[PIhandle](ih), "TIPVISIBLE", value)
@@ -2875,6 +3080,15 @@ proc `toolbox`*(ih: ToolboxTypes, value: string) {.cdecl.} =
 
 proc `toolbox`*(ih: ToolboxTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "TOOLBOX")
+
+
+type TopitemTypes* = List_t
+proc `topitem=`*(ih: TopitemTypes, value: string) {.cdecl.} =
+  ## (write-only): position the given item at the top of the list or near to make it visible. Valid only when DROPDOWN=NO. (since 3.0)
+  SetAttribute(cast[PIhandle](ih), "TOPITEM", value)
+
+proc `topitem`*(ih: TopitemTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "TOPITEM", value)
 
 
 type TopmostTypes* = Dialog_t
@@ -3038,6 +3252,22 @@ proc `value`*(ih: ValuetogTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "VALUE")
 
 
+type ValuelstTypes* = List_t
+proc `value=`*(ih: ValuelstTypes, value: string) {.cdecl.} =
+  ## (non inheritable): Depends on the DROPDOWN+EDITBOX combination:
+  ## EDITBOX=YES: Text entered by the user.
+  ## MULTIPLE=YES: Sequence of '+'and '-'symbols indicating the state of each item. When setting this value, the user must provide the same amount of '+'and '-'symbols as the amount of items in the list, otherwise the specified items will be deselected.
+  ## Others: Integer number representing the selected item in the list (begins at 1). It can be zero if there is no selected item. (In Motif when DROPDOWN=YES there is always an item selected, except when the list is empty).
+  ## Should return a non NULL value, even when the list is empty or the text box is empty. It can be NULL when no item selected (since 3.0).
+  SetAttribute(cast[PIhandle](ih), "VALUE", value)
+
+proc `value`*(ih: ValuelstTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "VALUE", value)
+
+proc `value`*(ih: ValuelstTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "VALUE")
+
+
 type ValuemaskedTypes* = Text_t | MultiLine_t
 proc `valuemasked=`*(ih: ValuemaskedTypes, value: string) {.cdecl.} =
   ## (non inheritable) (write-only): sets VALUE but first checks if it is validated by MASK. If not does nothing. (since 3.4)
@@ -3047,7 +3277,31 @@ proc `valuemasked`*(ih: ValuemaskedTypes, value: string) {.cdecl.} =
   SetAttribute(cast[PIhandle](ih), "VALUEMASKED", value)
 
 
-type VisibleTypes* = Button_t | Label_t | Dialog_t | Text_t | MultiLine_t
+type ValuemaskedlstTypes* = List_t
+proc `valuemasked=`*(ih: ValuemaskedlstTypes, value: string) {.cdecl.} =
+  ## (non inheritable) (write-only): sets VALUE but first checks if it is validated by MASK. If not does nothing. Works only when EDITBOX=YES. (since 3.13)
+  SetAttribute(cast[PIhandle](ih), "VALUEMASKED", value)
+
+proc `valuemasked`*(ih: ValuemaskedlstTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "VALUEMASKED", value)
+
+proc `valuemasked`*(ih: ValuemaskedlstTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "VALUEMASKED")
+
+
+type ValuestringlstTypes* = List_t
+proc `valuestring=`*(ih: ValuestringlstTypes, value: string) {.cdecl.} =
+  ## (non inheritable): changes or retrieves the value attribute using a string of an item. Works only when EDITBOX=NO and DROPDOWN=YES, or DROPDOWN=NO and MULTIPLE=NO. When set it will search for the first item with the same string. (since 3.12)
+  SetAttribute(cast[PIhandle](ih), "VALUESTRING", value)
+
+proc `valuestring`*(ih: ValuestringlstTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "VALUESTRING", value)
+
+proc `valuestring`*(ih: ValuestringlstTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "VALUESTRING")
+
+
+type VisibleTypes* = Button_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
 proc `visible=`*(ih: VisibleTypes, value: string) {.cdecl.} =
   ## Shows or hides the element.
   ## 
@@ -3069,6 +3323,18 @@ proc `visible`*(ih: VisibleTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "VISIBLE")
 
 
+type VisiblecollumnslstTypes* = List_t
+proc `visiblecollumns=`*(ih: VisiblecollumnslstTypes, value: string) {.cdecl.} =
+  ## Defines the number of visible columns for the Natural Size, this means that will act also as minimum number of visible columns. It uses a wider character size then the one used for the SIZE attribute so strings will fit better without the need of extra columns. Set this attribute to speed Natural Size computation for very large lists. (since 3.0)
+  SetAttribute(cast[PIhandle](ih), "VISIBLECOLLUMNS", value)
+
+proc `visiblecollumns`*(ih: VisiblecollumnslstTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "VISIBLECOLLUMNS", value)
+
+proc `visiblecollumns`*(ih: VisiblecollumnslstTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "VISIBLECOLLUMNS")
+
+
 type VisiblecolumnsTypes* = Text_t | MultiLine_t
 proc `visiblecolumns=`*(ih: VisiblecolumnsTypes, value: string) {.cdecl.} =
   ## Defines the number of visible columns for the Natural Size, this means that will act also as minimum number of visible columns. It uses a wider character size than the one used for the SIZE attribute so strings will fit better without the need of extra columns. As for SIZE you can set to NULL after map to use it as an initial value. Default: 5 (since 3.0)
@@ -3081,6 +3347,18 @@ proc `visiblecolumns`*(ih: VisiblecolumnsTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "VISIBLECOLUMNS")
 
 
+type VisibleitemslstTypes* = List_t
+proc `visibleitems=`*(ih: VisibleitemslstTypes, value: string) {.cdecl.} =
+  ## [Windows and Motif Only]: Number of items that are visible when DROPDOWN=YES is used for the dropdown list. Default: 5.
+  SetAttribute(cast[PIhandle](ih), "VISIBLEITEMS", value)
+
+proc `visibleitems`*(ih: VisibleitemslstTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "VISIBLEITEMS", value)
+
+proc `visibleitems`*(ih: VisibleitemslstTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "VISIBLEITEMS")
+
+
 type VisiblelinesTypes* = Text_t | MultiLine_t
 proc `visiblelines=`*(ih: VisiblelinesTypes, value: string) {.cdecl.} =
   ## When MULTILINE=YES defines the number of visible lines for the Natural Size, this means that will act also as minimum number of visible lines. As for SIZE you can set to NULL after map to use it as an initial value. Default: 1 (since 3.0)
@@ -3090,6 +3368,18 @@ proc `visiblelines`*(ih: VisiblelinesTypes, value: string) {.cdecl.} =
   SetAttribute(cast[PIhandle](ih), "VISIBLELINES", value)
 
 proc `visiblelines`*(ih: VisiblelinesTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "VISIBLELINES")
+
+
+type VisiblelineslstTypes* = List_t
+proc `visiblelines=`*(ih: VisiblelineslstTypes, value: string) {.cdecl.} =
+  ## When DROPDOWN=NO defines the number of visible lines for the Natural Size, this means that will act also as minimum number of visible lines. (since 3.0)
+  SetAttribute(cast[PIhandle](ih), "VISIBLELINES", value)
+
+proc `visiblelines`*(ih: VisiblelineslstTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "VISIBLELINES", value)
+
+proc `visiblelines`*(ih: VisiblelineslstTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "VISIBLELINES")
 
 
@@ -3105,7 +3395,7 @@ proc `weight`*(ih: WeighttxtfmtTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "WEIGHT")
 
 
-type WidTypes* = Button_t | Label_t | Dialog_t | Vbox_t | Hbox_t | Image_t | ImageRGB_t | ImageRGBA_t | Text_t | MultiLine_t
+type WidTypes* = Button_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Image_t | ImageRGB_t | ImageRGBA_t | Text_t | MultiLine_t
 proc `wid`*(ih: WidTypes): string {.cdecl.} =
   ## Element identifier in the native interface system.
   ## 
@@ -3144,7 +3434,7 @@ proc `xwindow`*(ih: XwindowTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "XWINDOW")
 
 
-type ZorderTypes* = Button_t | Label_t | Dialog_t | Text_t | MultiLine_t
+type ZorderTypes* = Button_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
 proc `zorder=`*(ih: ZorderTypes, value: string) {.cdecl.} =
   ## Change the ZORDER of a dialog or control. It is commonly used for dialogs, but it can be used to control the z-order of controls in a dialog.
   ## 
@@ -3493,36 +3783,96 @@ proc `valuechanged_cb=`*(control: Valuechanged_cbTypes, cb: proc (ih: PIhandle):
 proc `valuechanged_cb`*(control: Valuechanged_cbTypes): proc (ih: PIhandle): cint {.cdecl.} =
   return cast[proc (ih: PIhandle): cint {.cdecl.}](GetCallback(cast[PIhandle](control), "VALUECHANGED_CB"))
 
-proc `[]`*(ih: IUPhandle_t, attribute: string): string =
-  return $GetAttribute(ih, attribute)
+# Attributes
 
-proc `[]=`*(ih: IUPhandle_t, attribute, value: string) =
+proc `[]`*(ih: IUPhandle_t, attribute: string): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), attribute)
+
+proc `[]=`*(ih: IUPhandle_t, attribute, value: string) {.cdecl.} =
   SetAttribute(cast[PIhandle](ih), cstring(attribute), cstring(value))
 
+proc SetAttributes*(ih: IUPhandle_t, attrs: string) {.cdecl.} =
+  SetAttributes(cast[PIhandle](ih), cstring(attrs))
+
+proc GetInt*(ih: IUPhandle_t, name: string): int {.cdecl.} =
+  return GetInt(cast[PIhandle](ih), cstring(name))
+
 # Dialog/Reference
-proc Show*(ih: IUPhandle_t) =
+proc Show*(ih: IUPhandle_t) {.cdecl.} =
   Show(cast[PIhandle](ih))
 
-proc ShowXY*(ih: IUPhandle_t, x, y: cint | int) =
+proc ShowXY*(ih: IUPhandle_t, x, y: cint | int) {.cdecl.} =
   ShowXY(cast[PIhandle](ih), x, y)
 
-proc Hide*(ih: IUPhandle_t) =
+proc Hide*(ih: IUPhandle_t) {.cdecl.} =
   Hide(cast[PIhandle](ih))
 
+proc Message*(title, message: string) {.cdecl.} =
+  ## Shows a modal dialog containing a message. It simply creates and popup a IupMessageDlg.
+  ##  title: dialog title
+  ##  message: text message contents
+  ##  format: same format as the C sprintf function
+  ## The IupMessage function shows a dialog centralized on the screen, showing the message and the “OK” button. The ‘\n’ character can be added to the message to indicate line change.
+  ## The dialog uses a global attribute called "PARENTDIALOG" as the parent dialog if it is defined. It also uses a global attribute called "ICON" as the dialog icon if it is defined (used only in Motif, in Windows MessageBox does not have an icon in the title bar).
+  Message(cstring(title), cstring(message))
+
+proc MessageError*(ih: IUPhandle_t, message: string) {.cdecl.} =
+  ## Shows a modal dialog containing an error message. It simply creates and popup a IupMessageDlg with DIALOGTYPE=ERROR.
+  ##   parent: parent dialog, can be NULL.
+  ##   message: text message contents. It can be a language pre-defined string without the "_@" prefix.
+  ## If parent is NULL the title defaults to "Error!" and tries the global attribute "PARENTDIALOG" as the parent dialog.
+  ## The dialog title will be the same title of the parent dialog.
+  ## The dialog is shown centered relative to its parent.
+  MessageError(cast[PIhandle](ih), cstring(message))
+
+proc MessageAlarm*(parent: IUPhandle_t, title, message, buttons: string) {.cdecl.} =
+  ## Shows a modal dialog containing a question message, similar to IupAlarm. It simply creates and popup a IupMessageDlg with DIALOGTYPE=QUESTION.
+  ## parent: parent dialog, can be NULL.
+  ##   title: dialog’s title, can be NULL.  It can be a language pre-defined string without the "_@" prefix.
+  ##   message: text message contents.  It can be a language pre-defined string without the "_@" prefix.
+  ##   buttons: list of buttons. Can have values: "OK", "OKCANCEL", "RETRYCANCEL", "YESNO", or "YESNOCANCEL".
+  ## Returns: the number of the button selected by the user (1, 2 or 3).
+  ## If parent is NULL the title defaults to "Attention!" and tries the global attribute "PARENTDIALOG" as the parent dialog.
+  ## The dialog is shown centered relative to its parent.
+  MessageAlarm(cast[PIhandle](parent), cstring(title), cstring(message), cstring(buttons))
+
 # Controls/Management
-proc Map*(ih: IUPhandle_t) =
+proc Map*(ih: IUPhandle_t) {.cdecl.} =
   Map(cast[PIhandle](ih))
 
-proc Unmap*(ih: IUPhandle_t) =
+proc Unmap*(ih: IUPhandle_t) {.cdecl.} =
   Unmap(cast[PIhandle](ih))
 
 # Resources/Handle Names
-proc SetHandle*(name: string, handle: IUPhandle_t ) =
+proc SetHandle*(name: string, handle: IUPhandle_t ) {.cdecl.} =
   SetHandle(name, cast[PIhandle](handle))
 
 #
-proc SetFocus*(ih: IUPhandle_t) =
+proc SetFocus*(ih: IUPhandle_t) {.cdecl.} =
   SetFocus(cast[PIhandle](ih))
+
+# utility functions
+proc SetAttributeId*(ih: IUPhandle_t, name: string, id: int, value: string) {.cdecl.} =
+  SetAttributeId(cast[PIhandle](ih), cstring(name), id, cstring(value))
+
+proc GetAttributeId*(ih: IUPhandle_t, name: string, id: int): string {.cdecl.} =
+  return $GetAttributeId(cast[PIhandle](ih), cstring(name), id)
+
+proc SetIntId*(ih: IUPhandle_t, name: string, id:int , value: int) {.cdecl.} =
+  SetIntId(cast[PIhandle](ih), cstring(name), id, value)
+
+proc GetIntId*(ih: IUPhandle_t, name: string, id: int): int {.cdecl.} =
+  return GetIntId(cast[PIhandle](ih), cstring(name), int id)
+
+proc SetFloatId*(ih: IUPhandle_t, name: string, id: int, value: float) {.cdecl.} =
+  SetFloatId(cast[PIhandle](ih), cstring(name), id, value)
+
+proc GetFloatId*(ih: IUPhandle_t, name: string, id: int): float {.cdecl.} =
+  return GetFloatId(cast[PIhandle](ih), name, id)
+
+# List utility functions
+#IMAGEid
+#INSERTITEMid
 
 # K_* callbacks
 proc `k_sp=`*(control: IUPhandle_t, cb: proc (ih: PIhandle, c: cint): cint {.cdecl.}) =

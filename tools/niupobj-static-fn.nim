@@ -1,33 +1,93 @@
-proc `[]`*(ih: IUPhandle_t, attribute: string): string =
-  return $GetAttribute(ih, attribute)
+# Attributes
 
-proc `[]=`*(ih: IUPhandle_t, attribute, value: string) =
+proc `[]`*(ih: IUPhandle_t, attribute: string): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), attribute)
+
+proc `[]=`*(ih: IUPhandle_t, attribute, value: string) {.cdecl.} =
   SetAttribute(cast[PIhandle](ih), cstring(attribute), cstring(value))
 
+proc SetAttributes*(ih: IUPhandle_t, attrs: string) {.cdecl.} =
+  SetAttributes(cast[PIhandle](ih), cstring(attrs))
+
+proc GetInt*(ih: IUPhandle_t, name: string): int {.cdecl.} =
+  return GetInt(cast[PIhandle](ih), cstring(name))
+
 # Dialog/Reference
-proc Show*(ih: IUPhandle_t) =
+proc Show*(ih: IUPhandle_t) {.cdecl.} =
   Show(cast[PIhandle](ih))
 
-proc ShowXY*(ih: IUPhandle_t, x, y: cint | int) =
+proc ShowXY*(ih: IUPhandle_t, x, y: cint | int) {.cdecl.} =
   ShowXY(cast[PIhandle](ih), x, y)
 
-proc Hide*(ih: IUPhandle_t) =
+proc Hide*(ih: IUPhandle_t) {.cdecl.} =
   Hide(cast[PIhandle](ih))
 
+proc Message*(title, message: string) {.cdecl.} =
+  ## Shows a modal dialog containing a message. It simply creates and popup a IupMessageDlg.
+  ##  title: dialog title
+  ##  message: text message contents
+  ##  format: same format as the C sprintf function
+  ## The IupMessage function shows a dialog centralized on the screen, showing the message and the “OK” button. The ‘\n’ character can be added to the message to indicate line change.
+  ## The dialog uses a global attribute called "PARENTDIALOG" as the parent dialog if it is defined. It also uses a global attribute called "ICON" as the dialog icon if it is defined (used only in Motif, in Windows MessageBox does not have an icon in the title bar).
+  Message(cstring(title), cstring(message))
+
+proc MessageError*(ih: IUPhandle_t, message: string) {.cdecl.} =
+  ## Shows a modal dialog containing an error message. It simply creates and popup a IupMessageDlg with DIALOGTYPE=ERROR.
+  ##   parent: parent dialog, can be NULL.
+  ##   message: text message contents. It can be a language pre-defined string without the "_@" prefix.
+  ## If parent is NULL the title defaults to "Error!" and tries the global attribute "PARENTDIALOG" as the parent dialog.
+  ## The dialog title will be the same title of the parent dialog.
+  ## The dialog is shown centered relative to its parent.
+  MessageError(cast[PIhandle](ih), cstring(message))
+
+proc MessageAlarm*(parent: IUPhandle_t, title, message, buttons: string) {.cdecl.} =
+  ## Shows a modal dialog containing a question message, similar to IupAlarm. It simply creates and popup a IupMessageDlg with DIALOGTYPE=QUESTION.
+  ## parent: parent dialog, can be NULL.
+  ##   title: dialog’s title, can be NULL.  It can be a language pre-defined string without the "_@" prefix.
+  ##   message: text message contents.  It can be a language pre-defined string without the "_@" prefix.
+  ##   buttons: list of buttons. Can have values: "OK", "OKCANCEL", "RETRYCANCEL", "YESNO", or "YESNOCANCEL".
+  ## Returns: the number of the button selected by the user (1, 2 or 3).
+  ## If parent is NULL the title defaults to "Attention!" and tries the global attribute "PARENTDIALOG" as the parent dialog.
+  ## The dialog is shown centered relative to its parent.
+  MessageAlarm(cast[PIhandle](parent), cstring(title), cstring(message), cstring(buttons))
+
 # Controls/Management
-proc Map*(ih: IUPhandle_t) =
+proc Map*(ih: IUPhandle_t) {.cdecl.} =
   Map(cast[PIhandle](ih))
 
-proc Unmap*(ih: IUPhandle_t) =
+proc Unmap*(ih: IUPhandle_t) {.cdecl.} =
   Unmap(cast[PIhandle](ih))
 
 # Resources/Handle Names
-proc SetHandle*(name: string, handle: IUPhandle_t ) =
+proc SetHandle*(name: string, handle: IUPhandle_t ) {.cdecl.} =
   SetHandle(name, cast[PIhandle](handle))
 
 #
-proc SetFocus*(ih: IUPhandle_t) =
+proc SetFocus*(ih: IUPhandle_t) {.cdecl.} =
   SetFocus(cast[PIhandle](ih))
+
+# utility functions
+proc SetAttributeId*(ih: IUPhandle_t, name: string, id: int, value: string) {.cdecl.} =
+  SetAttributeId(cast[PIhandle](ih), cstring(name), id, cstring(value))
+
+proc GetAttributeId*(ih: IUPhandle_t, name: string, id: int): string {.cdecl.} =
+  return $GetAttributeId(cast[PIhandle](ih), cstring(name), id)
+
+proc SetIntId*(ih: IUPhandle_t, name: string, id:int , value: int) {.cdecl.} =
+  SetIntId(cast[PIhandle](ih), cstring(name), id, value)
+
+proc GetIntId*(ih: IUPhandle_t, name: string, id: int): int {.cdecl.} =
+  return GetIntId(cast[PIhandle](ih), cstring(name), int id)
+
+proc SetFloatId*(ih: IUPhandle_t, name: string, id: int, value: float) {.cdecl.} =
+  SetFloatId(cast[PIhandle](ih), cstring(name), id, value)
+
+proc GetFloatId*(ih: IUPhandle_t, name: string, id: int): float {.cdecl.} =
+  return GetFloatId(cast[PIhandle](ih), name, id)
+
+# List utility functions
+#IMAGEid
+#INSERTITEMid
 
 # K_* callbacks
 proc `k_sp=`*(control: IUPhandle_t, cb: proc (ih: PIhandle, c: cint): cint {.cdecl.}) =

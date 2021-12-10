@@ -176,7 +176,7 @@ proc genCtors(controlsSheet: Sheet) =
       echo "  inner.add newNilLit()"
       echo "  result.add inner"
     else:
-      echo &"proc {control}*({constructor}):{control}_t ="
+      echo &"proc {control}*({constructor}):{control}_t {{.cdecl.}} ="
       if notes != "":
         echoDocString(notes)
       echo &"  return {control}_t(niupc.{control}({callArgs}))"
