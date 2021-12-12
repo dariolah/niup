@@ -86,8 +86,11 @@ proc GetFloatId*(ih: IUPhandle_t, name: string, id: int): float {.cdecl.} =
   return GetFloatId(cast[PIhandle](ih), name, id)
 
 # List utility functions
-#IMAGEid
-#INSERTITEMid
+proc image*(ih: List_t , n: int, img: Image_t | ImageRGB_t | ImageRGBA_t) {.cdecl.} =
+   SetAttributeHandle(cast[PIhandle](ih), &"IMAGE{n}", cast[PIhandle](img))
+
+proc insertitem*(ih: List_t , n: int, value: string) {.cdecl.} =
+   SetAttribute(cast[PIhandle](ih), &"INSERTITEM{n}", cstring(value))
 
 # K_* callbacks
 proc `k_sp=`*(control: IUPhandle_t, cb: proc (ih: PIhandle, c: cint): cint {.cdecl.}) =

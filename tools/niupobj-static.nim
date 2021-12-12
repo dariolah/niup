@@ -4,13 +4,16 @@ import strformat
 
 export niupc except Dialog, User
 
-proc Open*(utf8Mode: bool = false) =
+proc Open*(utf8Mode: bool = false, imageLib: bool = false) =
   var argc:cint=0
   var argv:cstringArray=nil
   Open(argc, addr argv)
 
   if utf8Mode:
     SetGlobal("UTF8MODE", "Yes")
+
+  if imageLib:
+    ImageLibOpen()
 
 
 # Text, MultiLine aux
