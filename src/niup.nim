@@ -4067,10 +4067,10 @@ proc GetFloatId*(ih: IUPhandle_t, name: string, id: int): float {.cdecl.} =
 
 # List utility functions
 proc image*(ih: List_t , n: int, img: Image_t | ImageRGB_t | ImageRGBA_t) {.cdecl.} =
-   SetAttributeHandle(cast[PIhandle](ih), &"IMAGE{n}", cast[PIhandle](img))
+   SetAttributeHandle(cast[PIhandle](ih), cstring(&"IMAGE{n}"), cast[PIhandle](img))
 
 proc insertitem*(ih: List_t , n: int, value: string) {.cdecl.} =
-   SetAttribute(cast[PIhandle](ih), &"INSERTITEM{n}", cstring(value))
+   SetAttribute(cast[PIhandle](ih), cstring(&"INSERTITEM{n}"), cstring(value))
 
 # Text, MultiLine aux
 proc TextConvertLinColToPos(ih: IUPhandle_t, lin, col: int, pos: var int) {.cdecl.} =
