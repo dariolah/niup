@@ -58,6 +58,9 @@ proc Map*(ih: IUPhandle_t) {.cdecl.} =
 proc Unmap*(ih: IUPhandle_t) {.cdecl.} =
   Unmap(cast[PIhandle](ih))
 
+proc Destroy*(ih: IUPhandle_t) {.cdecl.} =
+  Destroy(cast[PIhandle](ih))
+
 # Resources/Handle Names
 proc SetHandle*(name: string, handle: IUPhandle_t ) {.cdecl.} =
   SetHandle(name, cast[PIhandle](handle))
@@ -86,8 +89,18 @@ proc GetFloatId*(ih: IUPhandle_t, name: string, id: int): float {.cdecl.} =
   return GetFloatId(cast[PIhandle](ih), name, id)
 
 # List utility functions
-#IMAGEid
-#INSERTITEMid
+proc image*(ih: List_t , n: int, img: Image_t | ImageRGB_t | ImageRGBA_t) {.cdecl.} =
+   SetAttributeHandle(cast[PIhandle](ih), cstring(&"IMAGE{n}"), cast[PIhandle](img))
+
+proc insertitem*(ih: List_t , n: int, value: string) {.cdecl.} =
+   SetAttribute(cast[PIhandle](ih), cstring(&"INSERTITEM{n}"), cstring(value))
+
+# Text, MultiLine aux
+proc TextConvertLinColToPos(ih: IUPhandle_t, lin, col: int, pos: var int) {.cdecl.} =
+  niupc.TextConvertLinColToPos(cast[PIhandle](ih), cint(lin), cint(col), cast[var cint](pos))
+
+proc TextConvertPosToLinCol(ih: IUPhandle_t, pos: int, lin, col: var int) {.cdecl.} =
+  niupc.TextConvertPosToLinCol(cast[PIhandle](ih), cint(pos), cast[var cint](lin), cast[var cint](col))
 
 # K_* callbacks
 proc `k_sp=`*(control: IUPhandle_t, cb: proc (ih: PIhandle, c: cint): cint {.cdecl.}) =
