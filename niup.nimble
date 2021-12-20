@@ -1,7 +1,7 @@
 # Package
 
 backend       = "c"
-version       = "3.30.4"
+version       = "3.30.5"
 author        = "Dario Lah"
 description   = "IUP FFI bindings"
 license       = "MIT"
