@@ -18,6 +18,7 @@ proc Open*(utf8Mode: bool = false, imageLib: bool = false) {.cdecl.} =
 # CONTROLS
 type
   Button_t* = distinct PIhandle
+  Canvas_t* = distinct PIhandle
   Frame_t* = distinct PIhandle
   Image_t* = distinct PIhandle
   ImageRGB_t* = distinct PIhandle
@@ -29,15 +30,16 @@ type
   Toggle_t* = distinct PIhandle
   Timer_t* = distinct PIhandle
 
-type IUPControls_t* = Button_t | Frame_t | Image_t | ImageRGB_t | ImageRGBA_t | Label_t | List_t | MultiLine_t | Text_t | Toggle_t | Timer_t
+type IUPControls_t* = Button_t | Canvas_t | Frame_t | Image_t | ImageRGB_t | ImageRGBA_t | Label_t | List_t | MultiLine_t | Text_t | Toggle_t | Timer_t
 
 # CONTAINERS
 type
+  BackgroundBox_t* = distinct PIhandle
   Hbox_t* = distinct PIhandle
   User_t* = distinct PIhandle
   Vbox_t* = distinct PIhandle
 
-type IUPContainers_t* = Hbox_t | User_t | Vbox_t
+type IUPContainers_t* = BackgroundBox_t | Hbox_t | User_t | Vbox_t
 
 # DIALOGS
 type
@@ -59,6 +61,20 @@ proc Button*(title:string, action:string):Button_t {.cdecl.} =
 
 proc Button*(title:string):Button_t {.cdecl.} =
   return Button_t(niupc.Button(title, nil))
+
+proc Canvas*():Canvas_t {.cdecl.} =
+  ## Creates an interface element that is a canvas - a drawing area for your application.
+  ## Notes
+  ## Note that some keys might remove the focus from the canvas. To avoid this, return IGNORE in the K_ANY callback.
+  ## The mouse cursor position can be programmatically controlled using the global attribute CURSORPOS.
+  ## When the canvas is displayed for the first time, the callback call order is always:
+  ## MAP_CB()
+  ## RESIZE_CB()
+  ## ACTION()
+  ## When the canvas is resized the ACTION callback is always called after the RESIZE_CB callback.
+  ## The IupDraw API can be used to draw in the canvas. But the ACTION callback function can NOT be called manually from inside the application, it must be invoked by the system, so if you need to redraw then call IupRedraw or IupUpdate.
+  ## In GTK uses GtkFixed, in Windows uses a custom window class called "IupCanvas", and in Motif uses xmDrawingArea.
+  return Canvas_t(niupc.Canvas(nil))
 
 proc Frame*(child: IUPhandle_t):Frame_t {.cdecl.} =
   ## Creates a native container, which draws a frame with a title around its child.
@@ -141,6 +157,12 @@ proc Timer*():Timer_t {.cdecl.} =
 
 
 # CTORs
+proc BackgroundBox*(child: IUPhandle_t):BackgroundBox_t {.cdecl.} =
+  ## Creates a simple native container with no decorations. Useful for controlling children visibility for IupZbox or IupExpander. It inherits from IupCanvas.
+  ## The box can be created with no elements and be dynamic filled using IupAppend or IupInsert.
+  ## The ACTION callback can be defined and the application can draw bellow other children inside the BackgroundBox, but only with the IupDraw API. To avoid overlapping the drawing areas it is recommended that children must be inside native containers.
+  return BackgroundBox_t(niupc.BackgroundBox(cast[PIhandle](child)))
+
 macro Hbox*(args: varargs[untyped]): Hbox_t =
   ## The box can be created with no elements and be dynamic filled using IupAppend or IupInsert.
   ## The box will NOT expand its children, it will allow its children to expand according to the space left in the box parent. So for the expansion to occur, the children must be expandable with EXPAND!=NO, and there must be room in the box parent.
@@ -202,7 +224,7 @@ proc Dialog*(child: IUPhandle_t):Dialog_t {.cdecl.} =
 
 
 # ATTRIBUTES
-type ActiveTypes* = Button_t | Frame_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
+type ActiveTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
 proc `active=`*(ih: ActiveTypes, value: string) {.cdecl.} =
   ## Activates or inhibits user interaction.
   SetAttribute(cast[PIhandle](ih), "ACTIVE", value)
@@ -395,7 +417,21 @@ proc `bgcolor`*(ih: BgcolorfrmTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "BGCOLOR")
 
 
-type BorderTypes* = Dialog_t | Text_t | MultiLine_t
+type BgcolorcanvasTypes* = Canvas_t
+proc `bgcolor=`*(ih: BgcolorcanvasTypes, value: string) {.cdecl.} =
+  ## Background color. The background is painted only if the ACTION callback is not defined. If the callback is defined the application must draw all the canvas contents. In GTK or Motif if you set the ACTION callback after map then you should also set BGCOLOR to any value just after setting the callback or the first redraw will be lost. Default: "255 255 255".
+  SetAttribute(cast[PIhandle](ih), "BGCOLOR", value)
+
+proc `bgcolor`*(ih: BgcolorcanvasTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "BGCOLOR", value)
+
+proc `bgcolor`*(ih: BgcolorcanvasTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "BGCOLOR")
+
+proc `bgcolor`*(ih: BgcolorcanvasTypes, red, green, blue:int) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "BGCOLOR", cstring(&"{red} {green} {blue}"))
+
+type BorderTypes* = Canvas_t | Dialog_t | Text_t | MultiLine_t
 proc `border=`*(ih: BorderTypes, value: string) {.cdecl.} =
   ## (non inheritable) (creation only): Shows a resize border around the dialog. Default: "YES". BORDER=NO is useful only when RESIZE=NO, MAXBOX=NO, MINBOX=NO, MENUBOX=NO and TITLE=NULL, if any of these are defined there will be always some border.
   SetAttribute(cast[PIhandle](ih), "BORDER", value)
@@ -440,7 +476,7 @@ proc `bulk`*(ih: BulktxtfmtTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "BULK")
 
 
-type CanfocusTypes* = Button_t | List_t | Text_t | MultiLine_t | Toggle_t
+type CanfocusTypes* = Button_t | Canvas_t | List_t | Text_t | MultiLine_t | Toggle_t
 proc `canfocus=`*(ih: CanfocusTypes, value: string) {.cdecl.} =
   ## (creation only) (non inheritable): enables the focus traversal of the control. In Windows the button will respect CANFOCUS differently to some other controls. Default: YES. (since 3.0)
   SetAttribute(cast[PIhandle](ih), "CANFOCUS", value)
@@ -611,6 +647,20 @@ proc `clipboard`*(ih: ClipboardTypes, value: string) {.cdecl.} =
   SetAttribute(cast[PIhandle](ih), "CLIPBOARD", value)
 
 
+type CliprectTypes* = Canvas_t
+proc `cliprect=`*(ih: CliprectTypes, value: string) {.cdecl.} =
+  ## [Windows and GTK Only] (only during ACTION): Specifies a rectangle that has its region invalidated for painting, it could be used for clipping. Format: "%d %d %d %d"="x1 y1 x2 y2".
+  SetAttribute(cast[PIhandle](ih), "CLIPRECT", value)
+
+proc `cliprect`*(ih: CliprectTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "CLIPRECT", value)
+
+proc `cliprect`*(ih: CliprectTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "CLIPRECT")
+
+proc `cliprect`*(ih: CliprectTypes, x1, y1, x2, y2: int) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "CLIPRECT", cstring(&"{x1} {y1} {x2} {y2}"))
+
 type CmarginTypes* = Vbox_t | Hbox_t
 proc `cmargin=`*(ih: CmarginTypes, value: string) {.cdecl.} =
   ## Defines a margin in pixels, CMARGIN is in the same units of the SIZE attribute. Its value has the format "widthxheight", where width and height are integer values corresponding to the horizontal and vertical margins, respectively. Default: "0x0"(no margin). (CMARGIN since 3.0)
@@ -703,7 +753,7 @@ proc `cuebanner`*(ih: CuebannerTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "CUEBANNER")
 
 
-type CursorTypes* = Dialog_t
+type CursorTypes* = Canvas_t | Dialog_t
 proc `cursor=`*(ih: CursorTypes, value: string) {.cdecl.} =
   ## Defines the element's cursor.ValueName of a cursor.It will check first for the following predefined names: "NONE"or "NULL"--- "APPSTARTING"(Windows Only)"ARROW""BUSY""CROSS""HAND""HELP""MOVE"--- "NO"(Windows Only)"PEN"(*)"RESIZE_N""RESIZE_S""RESIZE_NS""RESIZE_W""RESIZE_E""RESIZE_WE""RESIZE_NE""RESIZE_SW""RESIZE_NW""RESIZE_SE""SPLITTER_HORIZ""SPLITTER_VERT""TEXT""UPARROW"Default: "ARROW"(*) To use this cursor on Windows, the iup.rc file, provided with IUP, must be linked with the application (except when using the IUP DLL).The Windows SDK recommends that cursors and icons should be implemented as resources rather than created at run time.The GTK cursors have the same appearance of the X-Windows cursors. Althought GTK cursors can have more than 2 colors depending on the X-Server.If it is not a pre-defined name, then will check for other system cursors. In Windows the value will be used to load a cursor form the application resources. In Motif the value will be used as a X-Windows cursor number, see definitions in the X11 header "cursorfont.h". In GTK the value will be used as a cursor name, see the GDK documentation on Cursors.If no system cursors were found then the value will be used to try to find an IUP image with the same name. Use IupSetHandle to define a name for an IupImage. But the image will need an extra attribute and some specific characteristics, see notes below.NotesFor an image to represent a cursor, it should has the attribute "HOTSPOT"to define the cursor hotspot (place where the mouse click is actually effective). The default value is "0:0".Usually only color indices 0, 1 and 2 can be used in a cursor, where 0 will be transparent (must be "BGCOLOR"). The RGB colors corresponding to indices 1 and 2 are defined just as in regular images. In Windows and GTK the cursor can have more than 2 colors. Cursor sizes are usually less than or equal to 32x32.The cursor will only change when the interface system regains control or when IupFlush is called.The Windows SDK recommends that cursors and icons should be implemented as resources rather than created at run time.When the cursor image is no longer necessary, it must be destroyed through function IupDestroy. Attention: the cursor cannot be in use when it is destroyed.
   SetAttribute(cast[PIhandle](ih), "CURSOR", value)
@@ -865,7 +915,7 @@ proc `dpi`*(ih: DpiTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "DPI")
 
 
-type DragcursorTypes* = Label_t | List_t | Dialog_t
+type DragcursorTypes* = Canvas_t | Label_t | List_t | Dialog_t
 proc `dragcursor=`*(ih: DragcursorTypes, value: string) {.cdecl.} =
   ## (non inheritable): name of an image to be used as cursor during drag. Use IupSetHandle or IupSetAttributeHandle to associate an image to a name. See also IupImage. (since 3.11)
   SetAttribute(cast[PIhandle](ih), "DRAGCURSOR", value)
@@ -889,7 +939,7 @@ proc `dragdroplist`*(ih: DragdroplistTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "DRAGDROPLIST")
 
 
-type DragsourceTypes* = Label_t | List_t | Dialog_t
+type DragsourceTypes* = Canvas_t | Label_t | List_t | Dialog_t
 proc `dragsource=`*(ih: DragsourceTypes, value: string) {.cdecl.} =
   ## (non inheritable): Set up a control as a source for drag operations. Default: NO.
   SetAttribute(cast[PIhandle](ih), "DRAGSOURCE", value)
@@ -901,7 +951,7 @@ proc `dragsource`*(ih: DragsourceTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "DRAGSOURCE")
 
 
-type DragsourcemoveTypes* = Label_t | List_t | Dialog_t
+type DragsourcemoveTypes* = Canvas_t | Label_t | List_t | Dialog_t
 proc `dragsourcemove=`*(ih: DragsourcemoveTypes, value: string) {.cdecl.} =
   ## (non inheritable): Enables the move action. Default: NO (only copy is enabled).
   SetAttribute(cast[PIhandle](ih), "DRAGSOURCEMOVE", value)
@@ -913,7 +963,7 @@ proc `dragsourcemove`*(ih: DragsourcemoveTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "DRAGSOURCEMOVE")
 
 
-type DragtypesTypes* = Label_t | List_t | Dialog_t
+type DragtypesTypes* = Canvas_t | Label_t | List_t | Dialog_t
 proc `dragtypes=`*(ih: DragtypesTypes, value: string) {.cdecl.} =
   ## (non inheritable): A list of data types that are supported by the source. Accepts a string with one or more names separated by commas. See Notes bellow for a list of known names. Must be set.
   ## 
@@ -933,6 +983,37 @@ proc `dragtypes`*(ih: DragtypesTypes, value: string) {.cdecl.} =
 
 proc `dragtypes`*(ih: DragtypesTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "DRAGTYPES")
+
+
+type DrawdriverTypes* = Canvas_t
+proc `drawdriver`*(ih: DrawdriverTypes): string {.cdecl.} =
+  ## (read-only): returns the name of the draw driver in use by the IupDraw API. Can be: X11 (Motif), GDK (GTK), Cairo (GTK), D2D (Windows), GDI+ (Windows) or GDI (Windows). (since 3.25)
+  return $GetAttribute(cast[PIhandle](ih), "DRAWDRIVER")
+
+
+type DrawsizeTypes* = Canvas_t
+proc `drawsize=`*(ih: DrawsizeTypes, value: string) {.cdecl.} =
+  ## (non inheritable): The size of the drawing area in pixels. This size is also used in the RESIZE_CB callback.
+  ## Notice that the drawing area size is not the same as RASTERSIZE. The SCROLLBAR and BORDER attributes affect the size of the drawing area.
+  SetAttribute(cast[PIhandle](ih), "DRAWSIZE", value)
+
+proc `drawsize`*(ih: DrawsizeTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "DRAWSIZE", value)
+
+proc `drawsize`*(ih: DrawsizeTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "DRAWSIZE")
+
+
+type DrawusegdiTypes* = Canvas_t
+proc `drawusegdi=`*(ih: DrawusegdiTypes, value: string) {.cdecl.} =
+  ## [Windows Only] (non inheritable): force the use of the old GDI driver, instead of the new DirectD2 driver. Used in the IupGauge, IupMatrix and Flat Scrollbars for better performance and backward compatibility. (since 3.26)
+  SetAttribute(cast[PIhandle](ih), "DRAWUSEGDI", value)
+
+proc `drawusegdi`*(ih: DrawusegdiTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "DRAWUSEGDI", value)
+
+proc `drawusegdi`*(ih: DrawusegdiTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "DRAWUSEGDI")
 
 
 type DropdownTypes* = List_t
@@ -959,7 +1040,7 @@ proc `dropexpand`*(ih: DropexpandTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "DROPEXPAND")
 
 
-type DropfilestargetTypes* = Label_t | List_t | Dialog_t | Text_t | MultiLine_t
+type DropfilestargetTypes* = Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
 proc `dropfilestarget=`*(ih: DropfilestargetTypes, value: string) {.cdecl.} =
   ## [Windows and GTK Only] (non inheritable): Enable or disable the drop of files. Default: NO, but if DROPFILES_CB is defined when the element is mapped then it will be automatically enabled. (since 3.0)
   SetAttribute(cast[PIhandle](ih), "DROPFILESTARGET", value)
@@ -971,7 +1052,7 @@ proc `dropfilestarget`*(ih: DropfilestargetTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "DROPFILESTARGET")
 
 
-type DroptargetTypes* = Label_t | List_t | Dialog_t
+type DroptargetTypes* = Canvas_t | Label_t | List_t | Dialog_t
 proc `droptarget=`*(ih: DroptargetTypes, value: string) {.cdecl.} =
   ## (non inheritable): Set up a control as a destination for drop operations. Default: NO.
   SetAttribute(cast[PIhandle](ih), "DROPTARGET", value)
@@ -983,7 +1064,7 @@ proc `droptarget`*(ih: DroptargetTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "DROPTARGET")
 
 
-type DroptypesTypes* = Label_t | List_t | Dialog_t
+type DroptypesTypes* = Canvas_t | Label_t | List_t | Dialog_t
 proc `droptypes=`*(ih: DroptypesTypes, value: string) {.cdecl.} =
   ## (non inheritable): A list of data types that are supported by the target. Accepts a string with one or more names separated by commas. See Notes bellow for a list of known names. Must be set.
   ## 
@@ -1003,6 +1084,30 @@ proc `droptypes`*(ih: DroptypesTypes, value: string) {.cdecl.} =
 
 proc `droptypes`*(ih: DroptypesTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "DROPTYPES")
+
+
+type DxcanvasTypes* = Canvas_t
+proc `dx=`*(ih: DxcanvasTypes, value: string) {.cdecl.} =
+  ## Size of the thumb in the horizontal scrollbar. Also the horizontal page size. Default: "0.1".
+  SetAttribute(cast[PIhandle](ih), "DX", value)
+
+proc `dx`*(ih: DxcanvasTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "DX", value)
+
+proc `dx`*(ih: DxcanvasTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "DX")
+
+
+type DycanvasTypes* = Canvas_t
+proc `dy=`*(ih: DycanvasTypes, value: string) {.cdecl.} =
+  ## Size of the thumb in the vertical scrollbar. Also the vertical page size. Default: "0.1".
+  SetAttribute(cast[PIhandle](ih), "DY", value)
+
+proc `dy`*(ih: DycanvasTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "DY", value)
+
+proc `dy`*(ih: DycanvasTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "DY")
 
 
 type EditboxTypes* = List_t
@@ -1029,7 +1134,7 @@ proc `ellipsis`*(ih: EllipsisTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "ELLIPSIS")
 
 
-type ExpandTypes* = Button_t | Frame_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
+type ExpandTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
 proc `expand=`*(ih: ExpandTypes, value: string) {.cdecl.} =
   ## Allows the element to expand, fulfilling empty spaces inside its container.
   ## It is a non inheritable attribute, but a container inherit its parents EXPAND attribute. In other words, although EXPAND is non inheritable, it is inheritable for containers. So if you set it at a container it will not affect its children, except for those who are containers.
@@ -1122,7 +1227,7 @@ proc `flat`*(ih: FlatTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "FLAT")
 
 
-type FontTypes* = Button_t | Frame_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
+type FontTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
 proc `font=`*(ih: FontTypes, value: string) {.cdecl.} =
   ## Value
   ## 
@@ -1172,7 +1277,7 @@ proc `font`*(ih: FontTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "FONT")
 
 
-type FontfaceTypes* = Button_t | Frame_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
+type FontfaceTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
 proc `fontface=`*(ih: FontfaceTypes, value: string) {.cdecl.} =
   ## (non inheritable) Replaces or returns the face name of the current FONT attribute.
   SetAttribute(cast[PIhandle](ih), "FONTFACE", value)
@@ -1184,7 +1289,7 @@ proc `fontface`*(ih: FontfaceTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "FONTFACE")
 
 
-type FontfacetxtfmtTypes* = Frame_t | List_t | User_t
+type FontfacetxtfmtTypes* = User_t
 proc `fontface=`*(ih: FontfacetxtfmtTypes, value: string) {.cdecl.} =
   ## the face name of the font.
   SetAttribute(cast[PIhandle](ih), "FONTFACE", value)
@@ -1196,7 +1301,7 @@ proc `fontface`*(ih: FontfacetxtfmtTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "FONTFACE")
 
 
-type FontscaletxtfmtTypes* = Frame_t | List_t | User_t
+type FontscaletxtfmtTypes* = User_t
 proc `fontscale=`*(ih: FontscaletxtfmtTypes, value: string) {.cdecl.} =
   ## a size scale relative to the selected or current size. Values greatter than 1 will increase the font. Values smaller than 1 will shirnk the font. Default: 1.0. The following values are also accpeted: "XX-SMALL"(0.58), "X-SMALL"(0.64), "SMALL"(0.83), "MEDIUM"(1.0), "LARGE"(1.2), "X-LARGE"(1.44), "XX-LARGE"(1.73).
   SetAttribute(cast[PIhandle](ih), "FONTSCALE", value)
@@ -1208,7 +1313,7 @@ proc `fontscale`*(ih: FontscaletxtfmtTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "FONTSCALE")
 
 
-type FontsizeTypes* = Button_t | Frame_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
+type FontsizeTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
 proc `fontsize=`*(ih: FontsizeTypes, value: string) {.cdecl.} =
   ## (non inheritable) Replaces or returns the size of the current FONT attribute.
   SetAttribute(cast[PIhandle](ih), "FONTSIZE", value)
@@ -1220,7 +1325,7 @@ proc `fontsize`*(ih: FontsizeTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "FONTSIZE")
 
 
-type FontsizetxtfmtTypes* = Frame_t | List_t | User_t
+type FontsizetxtfmtTypes* = User_t
 proc `fontsize=`*(ih: FontsizetxtfmtTypes, value: string) {.cdecl.} =
   ## the size of the font in pixels or points. Pixel size uses negative values.
   SetAttribute(cast[PIhandle](ih), "FONTSIZE", value)
@@ -1232,7 +1337,7 @@ proc `fontsize`*(ih: FontsizetxtfmtTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "FONTSIZE")
 
 
-type FontstyleTypes* = Button_t | Frame_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
+type FontstyleTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
 proc `fontstyle=`*(ih: FontstyleTypes, value: string) {.cdecl.} =
   ## (non inheritable) Replaces or returns the style of the current FONT attribute. Since font styles are case sensitive, this attribute is also case sensitive.
   SetAttribute(cast[PIhandle](ih), "FONTSTYLE", value)
@@ -1372,7 +1477,7 @@ proc `hotspot`*(ih: HotspotTypes): string {.cdecl.} =
 proc `hotspot`*(ih: HotspotTypes, x, y:int) {.cdecl.} =
   SetAttribute(cast[PIhandle](ih), "HOTSPOT", cstring(&"{x}:{y}"))
 
-type HwndTypes* = Dialog_t
+type HwndTypes* = Canvas_t | Dialog_t
 proc `hwnd`*(ih: HwndTypes): string {.cdecl.} =
   ## [Windows Only] (non inheritable, read-only): Returns the Windows Window handle. Available in the Windows driver or in the GTK driver in Windows.
   return $GetAttribute(cast[PIhandle](ih), "HWND")
@@ -1555,6 +1660,30 @@ proc `linevalue`*(ih: LinevalueTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "LINEVALUE")
 
 
+type LinexcanvasTypes* = Canvas_t
+proc `linex=`*(ih: LinexcanvasTypes, value: string) {.cdecl.} =
+  ## The amount the thumb moves when an horizontal step is performed. Default: 1/10th of DX. (since 3.0)
+  SetAttribute(cast[PIhandle](ih), "LINEX", value)
+
+proc `linex`*(ih: LinexcanvasTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "LINEX", value)
+
+proc `linex`*(ih: LinexcanvasTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "LINEX")
+
+
+type LineycanvasTypes* = Canvas_t
+proc `liney=`*(ih: LineycanvasTypes, value: string) {.cdecl.} =
+  ## The amount the thumb moves when a vertical step is performed. Default: 1/10th of DY. (since 3.0)
+  SetAttribute(cast[PIhandle](ih), "LINEY", value)
+
+proc `liney`*(ih: LineycanvasTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "LINEY", value)
+
+proc `liney`*(ih: LineycanvasTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "LINEY")
+
+
 type LoadrtfTypes* = Text_t | MultiLine_t
 proc `loadrtf=`*(ih: LoadrtfTypes, value: string) {.cdecl.} =
   ## (write-only) [Windows Only]: loads formatted text from a Rich Text Format file given its filename. The attribute LOADRTFSTATUS is set to OK or FAILED after the file is loaded. (since 3.28)
@@ -1649,7 +1778,7 @@ proc `maximized`*(ih: MaximizedTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "MAXIMIZED")
 
 
-type MaxsizeTypes* = Button_t | Frame_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
+type MaxsizeTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
 proc `maxsize=`*(ih: MaxsizeTypes, value: string) {.cdecl.} =
   ## Specifies the element maximum size in pixels during the layout process.
   ## See the Layout Guide for more details on sizes.
@@ -1824,7 +1953,7 @@ proc `minimized`*(ih: MinimizedTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "MINIMIZED")
 
 
-type MinsizeTypes* = Button_t | Frame_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
+type MinsizeTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
 proc `minsize=`*(ih: MinsizeTypes, value: string) {.cdecl.} =
   ## Specifies the element minimum size in pixels during the layout process.
   ## See the Layout Guide for more details on sizes.
@@ -2148,7 +2277,7 @@ proc `placement`*(ih: PlacementTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "PLACEMENT")
 
 
-type PositionTypes* = Button_t | Frame_t | Label_t | List_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
+type PositionTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
 proc `position=`*(ih: PositionTypes, value: string) {.cdecl.} =
   ## The position of the element relative to the origin of the Client area of the native parent. If you add the CLIENTOFFSET attribute of the native parent, you can obtain the coordinates relative to the Window area of the native parent. See the Layout Guide.
   ## It will be changed during the layout computation, except when FLOATING=YES or when used inside a concrete layout container.
@@ -2169,7 +2298,31 @@ proc `position`*(ih: PositionTypes): string {.cdecl.} =
 proc `position`*(ih: PositionTypes, x, y:int) {.cdecl.} =
   SetAttribute(cast[PIhandle](ih), "POSITION", cstring(&"{x},{y}"))
 
-type PropagatefocusTypes* = Button_t | List_t | Text_t | MultiLine_t | Toggle_t
+type PosxcanvasTypes* = Canvas_t
+proc `posx=`*(ih: PosxcanvasTypes, value: string) {.cdecl.} =
+  ## Position of the thumb in the horizontal scrollbar. Default: "0.0".
+  SetAttribute(cast[PIhandle](ih), "POSX", value)
+
+proc `posx`*(ih: PosxcanvasTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "POSX", value)
+
+proc `posx`*(ih: PosxcanvasTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "POSX")
+
+
+type PosycanvasTypes* = Canvas_t
+proc `posy=`*(ih: PosycanvasTypes, value: string) {.cdecl.} =
+  ## Position of the thumb in the vertical scrollbar. Default: "0.0".
+  SetAttribute(cast[PIhandle](ih), "POSY", value)
+
+proc `posy`*(ih: PosycanvasTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "POSY", value)
+
+proc `posy`*(ih: PosycanvasTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "POSY")
+
+
+type PropagatefocusTypes* = Button_t | Canvas_t | List_t | Text_t | MultiLine_t | Toggle_t
 proc `propagatefocus=`*(ih: PropagatefocusTypes, value: string) {.cdecl.} =
   ## (non inheritable): enables the focus callback forwarding to the next native parent with FOCUS_CB defined. Default: NO. (since 3.23)
   SetAttribute(cast[PIhandle](ih), "PROPAGATEFOCUS", value)
@@ -2204,7 +2357,7 @@ proc `radio`*(ih: RadioTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "RADIO")
 
 
-type RastersizeTypes* = Button_t | Frame_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Image_t | ImageRGB_t | ImageRGBA_t | Text_t | MultiLine_t
+type RastersizeTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Image_t | ImageRGB_t | ImageRGBA_t | Text_t | MultiLine_t
 proc `rastersize=`*(ih: RastersizeTypes, value: string) {.cdecl.} =
   ## Specifies the element User size, and returns the Current size, in pixels.
   ## See the Layout Guide for more details on sizes.
@@ -2384,7 +2537,7 @@ proc `scaled`*(ih: ScaledTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "SCALED")
 
 
-type ScreenpositionTypes* = Button_t | Frame_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
+type ScreenpositionTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
 proc `screenposition=`*(ih: ScreenpositionTypes, value: string) {.cdecl.} =
   ## Returns the absolute horizontal and/or vertical position of the top-left corner of the client area relative to the origin of the main screen in pixels. It is similar to POSITION but relative to the origin of the main screen, instead of the origin of the client area. The origin of the main screen is at the top-left corner, in Windows it is affected by the position of the Start Menu when it is at the top or left side of the screen.
   ## IMPORTANT: For the dialog, it is the position of the top-left corner of the window, NOT the client area. It is the same position used in IupShowXY and IupPopup. In GTK, if the dialog is hidden the values can be outdated.
@@ -2425,6 +2578,31 @@ proc `scrollbar`*(ih: ScrollbarlstTypes, value: string) {.cdecl.} =
   SetAttribute(cast[PIhandle](ih), "SCROLLBAR", value)
 
 proc `scrollbar`*(ih: ScrollbarlstTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "SCROLLBAR")
+
+
+type ScrollbarcanvasTypes* = Canvas_t
+proc `scrollbar=`*(ih: ScrollbarcanvasTypes, value: string) {.cdecl.} =
+  ## Associates a horizontal and/or vertical scrollbar to the element.
+  ## The scrollbar allows you to create a virtual space associated to the element.
+  ## Hence you can clearly deduce that POSX is limited to XMIN and XMAX-DX, or  XMIN<=POSX<=XMAX-DX.
+  ## 
+  ## Usually applications configure XMIN and XMAX to a region in World coordinates, and set DX to the canvas visible area in World coordinates. Since the canvas can have scrollbars and borders, its visible area in pixel coordinates can be easily obtained using the DRAWSIZE attribute.
+  ## 
+  ## IMPORTANT: the LINEX, XMAX and XMIN attributes are only updated in the scrollbar when the DX attribute is updated.
+  ## 
+  ## IMPORTANT: when working with a virtual space with integer coordinates, set XMAX to the integer size of the virtual space, NOT to "width-1", or the last pixel of the virtual space will never be visible. If you decide to let XMAX with the default value of 1.0 and to control only DX, then use the formula DX=visible_width/width.
+  ## 
+  ## IMPORTANT: When the virtual space has the same size as the canvas, i.e. when DX >= XMAX-XMIN, the scrollbar is automatically hidden if XAUTOHIDE=Yes. The width of the vertical scrollbar (the same as the height of the horizontal scrollbar) can be obtained using the SCROLLBARSIZE global attribute (since 3.9).
+  ## 
+  ## The same is valid for YMIN, YMAX, DY and POSY. But remember that the Y axis is oriented from top to bottom in IUP. So if you want to consider YMIN and YMAX as bottom-up oriented, then the actual YPOS must be obtained using YMAX-DY-POSY.
+  ## IMPORTANT: Changes in the scrollbar parameters do NOT generate ACTION nor SCROLL_CB callback events. If you need to update the canvas contents call your own action callback or call IupUpdate. But a change in the DX attribute may generate a RESIZE_CB callback event if XAUTOHIDE=Yes.
+  SetAttribute(cast[PIhandle](ih), "SCROLLBAR", value)
+
+proc `scrollbar`*(ih: ScrollbarcanvasTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "SCROLLBAR", value)
+
+proc `scrollbar`*(ih: ScrollbarcanvasTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "SCROLLBAR")
 
 
@@ -2617,7 +2795,7 @@ proc `simulatemodal`*(ih: SimulatemodalTypes, value: string) {.cdecl.} =
   SetAttribute(cast[PIhandle](ih), "SIMULATEMODAL", value)
 
 
-type SizeTypes* = Button_t | Frame_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
+type SizeTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
 proc `size=`*(ih: SizeTypes, value: string) {.cdecl.} =
   ## Specifies the element User size, and returns the Current size, in units proportional to the size of a character.
   ## See the Layout Guide for more details on sizes.
@@ -2944,7 +3122,7 @@ proc `taskbarprogressvalue`*(ih: TaskbarprogressvalueTypes, value: string) {.cde
   SetAttribute(cast[PIhandle](ih), "TASKBARPROGRESSVALUE", value)
 
 
-type ThemeTypes* = Button_t | Frame_t | Label_t | List_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
+type ThemeTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
 proc `theme=`*(ih: ThemeTypes, value: string) {.cdecl.} =
   ## Applies a set of attributes to a control. The THEME attribute in inheritable and the NTHEME attribute is NOT inheritable.
   SetAttribute(cast[PIhandle](ih), "THEME", value)
@@ -2973,7 +3151,7 @@ proc `time=`*(ih: TimeTypes, ms: int) {.cdecl.} =
 proc `time`*(ih: TimeTypes, ms: int) {.cdecl.} =
   SetAttribute(cast[PIhandle](ih), "TIME", cstring(&"{ms}"))
 
-type TipTypes* = Button_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
+type TipTypes* = Button_t | Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
 proc `tip=`*(ih: TipTypes, value: string) {.cdecl.} =
   ## Text to be shown when the mouse lies over the element.
   SetAttribute(cast[PIhandle](ih), "TIP", value)
@@ -2985,7 +3163,7 @@ proc `tip`*(ih: TipTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "TIP")
 
 
-type TipballoonTypes* = Button_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
+type TipballoonTypes* = Button_t | Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
 proc `tipballoon=`*(ih: TipballoonTypes, value: string) {.cdecl.} =
   ## [Windows Only]: The tip window will have the appearance of a cartoon "balloon"with rounded corners and a stem pointing to the item. Default: NO.
   SetAttribute(cast[PIhandle](ih), "TIPBALLOON", value)
@@ -2997,7 +3175,7 @@ proc `tipballoon`*(ih: TipballoonTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "TIPBALLOON")
 
 
-type TipballoontitleTypes* = Button_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
+type TipballoontitleTypes* = Button_t | Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
 proc `tipballoontitle=`*(ih: TipballoontitleTypes, value: string) {.cdecl.} =
   ## [Windows Only]: When using the balloon format, the tip can also has a title in a separate area.
   SetAttribute(cast[PIhandle](ih), "TIPBALLOONTITLE", value)
@@ -3009,7 +3187,7 @@ proc `tipballoontitle`*(ih: TipballoontitleTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "TIPBALLOONTITLE")
 
 
-type TipballoontitleiconTypes* = Button_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
+type TipballoontitleiconTypes* = Button_t | Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
 proc `tipballoontitleicon=`*(ih: TipballoontitleiconTypes, value: string) {.cdecl.} =
   ## [Windows Only]: When using the balloon format, the tip can also has a pre-defined icon in the title area. Values can be:
   ## "0"- No icon (default)
@@ -3025,7 +3203,7 @@ proc `tipballoontitleicon`*(ih: TipballoontitleiconTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "TIPBALLOONTITLEICON")
 
 
-type TipbgcolorTypes* = Button_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
+type TipbgcolorTypes* = Button_t | Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
 proc `tipbgcolor=`*(ih: TipbgcolorTypes, value: string) {.cdecl.} =
   ## [Windows and Motif Only]: The tip background color. Default: "255 255 225"(Light Yellow)
   SetAttribute(cast[PIhandle](ih), "TIPBGCOLOR", value)
@@ -3037,7 +3215,7 @@ proc `tipbgcolor`*(ih: TipbgcolorTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "TIPBGCOLOR")
 
 
-type TipdelayTypes* = Button_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
+type TipdelayTypes* = Button_t | Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
 proc `tipdelay=`*(ih: TipdelayTypes, value: string) {.cdecl.} =
   ## [Windows and Motif Only]: Time the tip will remain visible. Default: "5000". In Windows the maximum value is 32767 milliseconds.
   SetAttribute(cast[PIhandle](ih), "TIPDELAY", value)
@@ -3049,7 +3227,7 @@ proc `tipdelay`*(ih: TipdelayTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "TIPDELAY")
 
 
-type TipfgcolorTypes* = Button_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
+type TipfgcolorTypes* = Button_t | Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
 proc `tipfgcolor=`*(ih: TipfgcolorTypes, value: string) {.cdecl.} =
   ## [Windows and Motif Only]: The tip text color. Default: "0 0 0"(Black)
   SetAttribute(cast[PIhandle](ih), "TIPFGCOLOR", value)
@@ -3061,7 +3239,7 @@ proc `tipfgcolor`*(ih: TipfgcolorTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "TIPFGCOLOR")
 
 
-type TipfontTypes* = Button_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
+type TipfontTypes* = Button_t | Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
 proc `tipfont=`*(ih: TipfontTypes, value: string) {.cdecl.} =
   ## [Windows and Motif Only]: The font for the tip text. If not defined the font used for the text is the same as the FONT attribute for the element. If the value is SYSTEM then, no font is selected and the default system font for the tip will be used.
   SetAttribute(cast[PIhandle](ih), "TIPFONT", value)
@@ -3073,7 +3251,7 @@ proc `tipfont`*(ih: TipfontTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "TIPFONT")
 
 
-type TipiconTypes* = Button_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
+type TipiconTypes* = Button_t | Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
 proc `tipicon=`*(ih: TipiconTypes, value: string) {.cdecl.} =
   ## [GTK only]: name of an image to be displayed in the TIP. See IupImage. (GTK 2.12)
   SetAttribute(cast[PIhandle](ih), "TIPICON", value)
@@ -3085,7 +3263,7 @@ proc `tipicon`*(ih: TipiconTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "TIPICON")
 
 
-type TipmarkupTypes* = Button_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
+type TipmarkupTypes* = Button_t | Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
 proc `tipmarkup=`*(ih: TipmarkupTypes, value: string) {.cdecl.} =
   ## [GTK only]: allows the tip string to contains Pango markup commands. Can be "YES"or "NO". Default: "NO". Must be set before setting the TIP attribute. (GTK 2.12)
   SetAttribute(cast[PIhandle](ih), "TIPMARKUP", value)
@@ -3097,7 +3275,7 @@ proc `tipmarkup`*(ih: TipmarkupTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "TIPMARKUP")
 
 
-type TiprectTypes* = Button_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
+type TiprectTypes* = Button_t | Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
 proc `tiprect=`*(ih: TiprectTypes, value: string) {.cdecl.} =
   ## (non inheritable): Specifies a rectangle inside the element where the tip will be activated. Format: "%d %d %d %d"="x1 y1 x2 y2". Default: all the element area. (GTK 2.12)
   SetAttribute(cast[PIhandle](ih), "TIPRECT", value)
@@ -3109,7 +3287,7 @@ proc `tiprect`*(ih: TiprectTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "TIPRECT")
 
 
-type TipvisibleTypes* = Button_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
+type TipvisibleTypes* = Button_t | Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
 proc `tipvisible=`*(ih: TipvisibleTypes, value: string) {.cdecl.} =
   ## Shows or hides the tip under the mouse cursor. Use values "YES"or "NO". Returns the current visible state. (GTK 2.12) (since 3.5)
   SetAttribute(cast[PIhandle](ih), "TIPVISIBLE", value)
@@ -3195,6 +3373,18 @@ proc `topmost`*(ih: TopmostTypes, value: string) {.cdecl.} =
 
 proc `topmost`*(ih: TopmostTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "TOPMOST")
+
+
+type TouchTypes* = Canvas_t
+proc `touch=`*(ih: TouchTypes, value: string) {.cdecl.} =
+  ## [Windows 7 Only]: enable the multi-touch events processing. (since 3.3)
+  SetAttribute(cast[PIhandle](ih), "TOUCH", value)
+
+proc `touch`*(ih: TouchTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "TOUCH", value)
+
+proc `touch`*(ih: TouchTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "TOUCH")
 
 
 type TrayTypes* = Dialog_t
@@ -3395,7 +3585,7 @@ proc `valuestring`*(ih: ValuestringlstTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "VALUESTRING")
 
 
-type VisibleTypes* = Button_t | Frame_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
+type VisibleTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
 proc `visible=`*(ih: VisibleTypes, value: string) {.cdecl.} =
   ## Shows or hides the element.
   ## 
@@ -3489,7 +3679,19 @@ proc `weight`*(ih: WeighttxtfmtTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "WEIGHT")
 
 
-type WidTypes* = Button_t | Frame_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Image_t | ImageRGB_t | ImageRGBA_t | Text_t | MultiLine_t | Timer_t
+type WheeldropfocusTypes* = Canvas_t
+proc `wheeldropfocus=`*(ih: WheeldropfocusTypes, value: string) {.cdecl.} =
+  ## (non inheritable): when the wheel is used the focus control receives a SHOWDROPDOWN=No. (since 3.28)
+  SetAttribute(cast[PIhandle](ih), "WHEELDROPFOCUS", value)
+
+proc `wheeldropfocus`*(ih: WheeldropfocusTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "WHEELDROPFOCUS", value)
+
+proc `wheeldropfocus`*(ih: WheeldropfocusTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "WHEELDROPFOCUS")
+
+
+type WidTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Image_t | ImageRGB_t | ImageRGBA_t | Text_t | MultiLine_t | Timer_t
 proc `wid`*(ih: WidTypes): string {.cdecl.} =
   ## Element identifier in the native interface system.
   ## 
@@ -3522,13 +3724,91 @@ proc `wordwrap`*(ih: WordwrapTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "WORDWRAP")
 
 
-type XwindowTypes* = Dialog_t
+type XautohidecanvasTypes* = Canvas_t
+proc `xautohide=`*(ih: XautohidecanvasTypes, value: string) {.cdecl.} =
+  ## When enabled, if DX >= XMAX-XMIN then the horizontal scrollbar is hidden. Default: "YES". (since 3.0)
+  SetAttribute(cast[PIhandle](ih), "XAUTOHIDE", value)
+
+proc `xautohide`*(ih: XautohidecanvasTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "XAUTOHIDE", value)
+
+proc `xautohide`*(ih: XautohidecanvasTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "XAUTOHIDE")
+
+
+type XdisplayTypes* = Canvas_t
+proc `xdisplay`*(ih: XdisplayTypes): string {.cdecl.} =
+  ## [UNIX Only](non inheritable, read-only): Returns the X-Windows Display. Available in the Motif driver or in the GTK driver in UNIX.
+  return $GetAttribute(cast[PIhandle](ih), "XDISPLAY")
+
+
+type XmaxcanvasTypes* = Canvas_t
+proc `xmax=`*(ih: XmaxcanvasTypes, value: string) {.cdecl.} =
+  ## Maximum value of the horizontal scrollbar. Default: "1.0".
+  SetAttribute(cast[PIhandle](ih), "XMAX", value)
+
+proc `xmax`*(ih: XmaxcanvasTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "XMAX", value)
+
+proc `xmax`*(ih: XmaxcanvasTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "XMAX")
+
+
+type XmincanvasTypes* = Canvas_t
+proc `xmin=`*(ih: XmincanvasTypes, value: string) {.cdecl.} =
+  ## Minimum value of the horizontal scrollbar. Default: "0.0".
+  SetAttribute(cast[PIhandle](ih), "XMIN", value)
+
+proc `xmin`*(ih: XmincanvasTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "XMIN", value)
+
+proc `xmin`*(ih: XmincanvasTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "XMIN")
+
+
+type XwindowTypes* = Canvas_t | Dialog_t
 proc `xwindow`*(ih: XwindowTypes): string {.cdecl.} =
   ## [UNIX Only] (non inheritable, read-only): Returns the X-Windows Window (Drawable). Available in the Motif driver or in the GTK driver in UNIX.
   return $GetAttribute(cast[PIhandle](ih), "XWINDOW")
 
 
-type ZorderTypes* = Button_t | Frame_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
+type YautohidecanvasTypes* = Canvas_t
+proc `yautohide=`*(ih: YautohidecanvasTypes, value: string) {.cdecl.} =
+  ## When enabled, if DY >= YMAX-YMIN then the vertical scrollbar is hidden. Default: "YES". (since 3.0)
+  SetAttribute(cast[PIhandle](ih), "YAUTOHIDE", value)
+
+proc `yautohide`*(ih: YautohidecanvasTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "YAUTOHIDE", value)
+
+proc `yautohide`*(ih: YautohidecanvasTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "YAUTOHIDE")
+
+
+type YmaxcanvasTypes* = Canvas_t
+proc `ymax=`*(ih: YmaxcanvasTypes, value: string) {.cdecl.} =
+  ## Maximum value of the vertical scrollbar. Default: "1.0".
+  SetAttribute(cast[PIhandle](ih), "YMAX", value)
+
+proc `ymax`*(ih: YmaxcanvasTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "YMAX", value)
+
+proc `ymax`*(ih: YmaxcanvasTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "YMAX")
+
+
+type YmincanvasTypes* = Canvas_t
+proc `ymin=`*(ih: YmincanvasTypes, value: string) {.cdecl.} =
+  ## Minimum value of the vertical scrollbar. Default: "0.0".
+  SetAttribute(cast[PIhandle](ih), "YMIN", value)
+
+proc `ymin`*(ih: YmincanvasTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "YMIN", value)
+
+proc `ymin`*(ih: YmincanvasTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "YMIN")
+
+
+type ZorderTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
 proc `zorder=`*(ih: ZorderTypes, value: string) {.cdecl.} =
   ## Change the ZORDER of a dialog or control. It is commonly used for dialogs, but it can be used to control the z-order of controls in a dialog.
   ## 
@@ -3585,6 +3865,16 @@ proc `action=`*(control: ActionlstTypes, cb: proc (ih: PIhandle, text: cstring, 
 proc `action`*(control: ActionlstTypes): proc (ih: PIhandle, text: cstring, item, state: cint): cint {.cdecl.} =
   return cast[proc (ih: PIhandle, text: cstring, item, state: cint): cint {.cdecl.}](GetCallback(cast[PIhandle](control), "ACTION"))
 
+type ActioncanvasTypes* = Canvas_t
+proc `action=`*(control: ActioncanvasTypes, cb: proc (ih: PIhandle, posx, posy: cfloat): cint {.cdecl.}) =
+  ## Action generated when the canvas needs to be redrawn.
+  ## ih: identifier of the element that activated the event.
+  ## posx: thumb position in the horizontal scrollbar. The POSX attribute value. Old parameter in float format, use POSX attribute to get the value in double format.
+  ## Posy: thumb position in the vertical scrollbar. The POSY attribute value. Old parameter in float format, use POSX attribute to get the value in double format.
+  SetCallback(cast[PIhandle](control), "ACTION", cast[Icallback](cb))
+proc `action`*(control: ActioncanvasTypes): proc (ih: PIhandle, posx, posy: cfloat): cint {.cdecl.} =
+  return cast[proc (ih: PIhandle, posx, posy: cfloat): cint {.cdecl.}](GetCallback(cast[PIhandle](control), "ACTION"))
+
 type Action_cbtimeTypes* = Timer_t
 proc `action_cb=`*(control: Action_cbtimeTypes, cb: proc (ih: PIhandle): cint {.cdecl.}) =
   ## Called every time the defined time interval is reached. To stop the callback from being called simply stop de timer with RUN=NO. Inside the callback the attribute ELAPSEDTIME returns the time elapsed since the timer was started in milliseconds (since 3.15).
@@ -3593,7 +3883,7 @@ proc `action_cb=`*(control: Action_cbtimeTypes, cb: proc (ih: PIhandle): cint {.
 proc `action_cb`*(control: Action_cbtimeTypes): proc (ih: PIhandle): cint {.cdecl.} =
   return cast[proc (ih: PIhandle): cint {.cdecl.}](GetCallback(cast[PIhandle](control), "ACTION_CB"))
 
-type Button_cbTypes* = Button_t | Label_t | Text_t | MultiLine_t
+type Button_cbTypes* = Button_t | Canvas_t | Label_t | Text_t | MultiLine_t
 proc `button_cb=`*(control: Button_cbTypes, cb: proc (ih: PIhandle; button, pressed, x, y: cint; status: cstring): cint {.cdecl.}) =
   ## Action generated when any mouse button is pressed and when it is released. Both calls occur before the ACTION callback when button 1 is being used.
   SetCallback(cast[PIhandle](control), "BUTTON_CB", cast[Icallback](cb))
@@ -3662,14 +3952,14 @@ proc `dblclick_cb=`*(control: Dblclick_cbTypes, cb: proc (ih: PIhandle, item: ci
 proc `dblclick_cb`*(control: Dblclick_cbTypes): proc (ih: PIhandle, item: cint, text: cstring): cint {.cdecl.} =
   return cast[proc (ih: PIhandle, item: cint, text: cstring): cint {.cdecl.}](GetCallback(cast[PIhandle](control), "DBLCLICK_CB"))
 
-type Destroy_cbTypes* = Button_t | Frame_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t | Toggle_t
+type Destroy_cbTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t | Toggle_t
 proc `destroy_cb=`*(control: Destroy_cbTypes, cb: proc (ih: PIhandle): cint {.cdecl.}) =
   ## Called right before an element is destroyed.
   SetCallback(cast[PIhandle](control), "DESTROY_CB", cast[Icallback](cb))
 proc `destroy_cb`*(control: Destroy_cbTypes): proc (ih: PIhandle): cint {.cdecl.} =
   return cast[proc (ih: PIhandle): cint {.cdecl.}](GetCallback(cast[PIhandle](control), "DESTROY_CB"))
 
-type Dragbegin_cbTypes* = Label_t | List_t | Dialog_t | Text_t | MultiLine_t
+type Dragbegin_cbTypes* = Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
 proc `dragbegin_cb=`*(control: Dragbegin_cbTypes, cb: proc (ih: PIhandle, x: cint, y: cint): cint {.cdecl.}) =
   ## notifies source that drag started. It is called when the mouse starts a drag operation.
   ## ih: identifier of the element that activated the event.
@@ -3680,7 +3970,7 @@ proc `dragbegin_cb=`*(control: Dragbegin_cbTypes, cb: proc (ih: PIhandle, x: cin
 proc `dragbegin_cb`*(control: Dragbegin_cbTypes): proc (ih: PIhandle, x: cint, y: cint): cint {.cdecl.} =
   return cast[proc (ih: PIhandle, x: cint, y: cint): cint {.cdecl.}](GetCallback(cast[PIhandle](control), "DRAGBEGIN_CB"))
 
-type Dragdata_cbTypes* = Label_t | List_t | Dialog_t | Text_t | MultiLine_t
+type Dragdata_cbTypes* = Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
 proc `dragdata_cb=`*(control: Dragdata_cbTypes, cb: proc (ih: PIhandle, dragtype: cstring, data: pointer, size: cint): cint {.cdecl.}) =
   ## request for drag data from source. It is called when the data is dropped.
   ## Ih: identifier of the element that activated the event.
@@ -3691,7 +3981,7 @@ proc `dragdata_cb=`*(control: Dragdata_cbTypes, cb: proc (ih: PIhandle, dragtype
 proc `dragdata_cb`*(control: Dragdata_cbTypes): proc (ih: PIhandle, dragtype: cstring, data: pointer, size: cint): cint {.cdecl.} =
   return cast[proc (ih: PIhandle, dragtype: cstring, data: pointer, size: cint): cint {.cdecl.}](GetCallback(cast[PIhandle](control), "DRAGDATA_CB"))
 
-type Dragdatasize_cbTypes* = Label_t | List_t | Dialog_t | Text_t | MultiLine_t
+type Dragdatasize_cbTypes* = Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
 proc `dragdatasize_cb=`*(control: Dragdatasize_cbTypes, cb: proc (ih: PIhandle, dragtype: cstring): cint {.cdecl.}) =
   ## request for size of drag data from source. It is called when the data is dropped, before the DRAGDATA_CB callback.
   ## ih: identifier of the element that activated the event.
@@ -3702,7 +3992,7 @@ proc `dragdatasize_cb=`*(control: Dragdatasize_cbTypes, cb: proc (ih: PIhandle, 
 proc `dragdatasize_cb`*(control: Dragdatasize_cbTypes): proc (ih: PIhandle, dragtype: cstring): cint {.cdecl.} =
   return cast[proc (ih: PIhandle, dragtype: cstring): cint {.cdecl.}](GetCallback(cast[PIhandle](control), "DRAGDATASIZE_CB"))
 
-type Dragdrop_cblstTypes* = List_t
+type Dragdrop_cblstTypes* = Canvas_t | List_t
 proc `dragdrop_cb=`*(control: Dragdrop_cblstTypes, cb: proc (ih: PIhandle, drag_id, drop_id, isshift, iscontrol: cint): cint {.cdecl.}) =
   ## Action generated when an internal drag and drop is executed. Only active if SHOWDRAGDROP=YES. (since 3.7)
   ## ih: identifier of the element that activated the event.
@@ -3715,7 +4005,7 @@ proc `dragdrop_cb=`*(control: Dragdrop_cblstTypes, cb: proc (ih: PIhandle, drag_
 proc `dragdrop_cb`*(control: Dragdrop_cblstTypes): proc (ih: PIhandle, drag_id, drop_id, isshift, iscontrol: cint): cint {.cdecl.} =
   return cast[proc (ih: PIhandle, drag_id, drop_id, isshift, iscontrol: cint): cint {.cdecl.}](GetCallback(cast[PIhandle](control), "DRAGDROP_CB"))
 
-type Dragend_cbTypes* = Label_t | List_t | Dialog_t | Text_t | MultiLine_t
+type Dragend_cbTypes* = Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
 proc `dragend_cb=`*(control: Dragend_cbTypes, cb: proc (ih: PIhandle, action: cint): cint {.cdecl.}) =
   ## notifies source that drag is done. The only drag callback that is optional. It is called after the data has been dropped.
   ## ih: identifier of the element that activated the event.
@@ -3726,7 +4016,7 @@ proc `dragend_cb=`*(control: Dragend_cbTypes, cb: proc (ih: PIhandle, action: ci
 proc `dragend_cb`*(control: Dragend_cbTypes): proc (ih: PIhandle, action: cint): cint {.cdecl.} =
   return cast[proc (ih: PIhandle, action: cint): cint {.cdecl.}](GetCallback(cast[PIhandle](control), "DRAGEND_CB"))
 
-type Dropdata_cbTypes* = Label_t | List_t | Dialog_t | Text_t | MultiLine_t
+type Dropdata_cbTypes* = Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
 proc `dropdata_cb=`*(control: Dropdata_cbTypes, cb: proc (ih: PIhandle, dragtype: cstring, data: pointer, size, x, y: cint): cint {.cdecl.}) =
   ## source has sent target the requested data. It is called when the data is dropped. If both drag and drop would be in the same application it would be called after the DRAGDATA_CB callback.
   ## ih: identifier of the element that activated the event.
@@ -3738,7 +4028,7 @@ proc `dropdata_cb=`*(control: Dropdata_cbTypes, cb: proc (ih: PIhandle, dragtype
 proc `dropdata_cb`*(control: Dropdata_cbTypes): proc (ih: PIhandle, dragtype: cstring, data: pointer, size, x, y: cint): cint {.cdecl.} =
   return cast[proc (ih: PIhandle, dragtype: cstring, data: pointer, size, x, y: cint): cint {.cdecl.}](GetCallback(cast[PIhandle](control), "DROPDATA_CB"))
 
-type Dropdown_cbTypes* = List_t
+type Dropdown_cbTypes* = Canvas_t | List_t
 proc `dropdown_cb=`*(control: Dropdown_cbTypes, cb: proc (ih: PIhandle, state: cint): cint {.cdecl.}) =
   ## Action generated when the list of a dropdown is shown or hidden. Called only when DROPDOWN=YES. (since 3.0)
   ## ih: identifier of the element that activated the event.
@@ -3747,7 +4037,7 @@ proc `dropdown_cb=`*(control: Dropdown_cbTypes, cb: proc (ih: PIhandle, state: c
 proc `dropdown_cb`*(control: Dropdown_cbTypes): proc (ih: PIhandle, state: cint): cint {.cdecl.} =
   return cast[proc (ih: PIhandle, state: cint): cint {.cdecl.}](GetCallback(cast[PIhandle](control), "DROPDOWN_CB"))
 
-type Dropfiles_cbTypes* = Label_t | List_t | Dialog_t | Text_t | MultiLine_t
+type Dropfiles_cbTypes* = Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
 proc `dropfiles_cb=`*(control: Dropfiles_cbTypes, cb: proc (Ih: PIhandle, filename: cstring, num, x, y: cint): cint {.cdecl.}) =
   ## [Windows and GTK Only]: Action generated when one or more files are dropped in the element. (since 3.3)
   ## filename: Name of the dropped file.
@@ -3760,7 +4050,7 @@ proc `dropfiles_cb=`*(control: Dropfiles_cbTypes, cb: proc (Ih: PIhandle, filena
 proc `dropfiles_cb`*(control: Dropfiles_cbTypes): proc (Ih: PIhandle, filename: cstring, num, x, y: cint): cint {.cdecl.} =
   return cast[proc (Ih: PIhandle, filename: cstring, num, x, y: cint): cint {.cdecl.}](GetCallback(cast[PIhandle](control), "DROPFILES_CB"))
 
-type Dropmotion_cbTypes* = Label_t | List_t | Dialog_t | Text_t | MultiLine_t
+type Dropmotion_cbTypes* = Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
 proc `dropmotion_cb=`*(control: Dropmotion_cbTypes, cb: proc (ih: PIhandle, x, y: cint, status: cstring): cint {.cdecl.}) =
   ## notifies destination about drag pointer motion. The only drop callback that is optional. It is called when the mouse moves over any valid drop site.
   ## Ih: identifier of the element that activated the event.
@@ -3782,7 +4072,7 @@ proc `edit_cb=`*(control: Edit_cbTypes, cb: proc (ih: PIhandle, c: cint, new_val
 proc `edit_cb`*(control: Edit_cbTypes): proc (ih: PIhandle, c: cint, new_value: cstring): cint {.cdecl.} =
   return cast[proc (ih: PIhandle, c: cint, new_value: cstring): cint {.cdecl.}](GetCallback(cast[PIhandle](control), "EDIT_CB"))
 
-type Enterwindow_cbTypes* = Button_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t | Toggle_t
+type Enterwindow_cbTypes* = Button_t | Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t | Toggle_t
 proc `enterwindow_cb=`*(control: Enterwindow_cbTypes, cb: proc (ih: PIhandle): cint {.cdecl.}) =
   ## Action generated when the mouse enters the native element.
   ## 
@@ -3793,7 +4083,7 @@ proc `enterwindow_cb=`*(control: Enterwindow_cbTypes, cb: proc (ih: PIhandle): c
 proc `enterwindow_cb`*(control: Enterwindow_cbTypes): proc (ih: PIhandle): cint {.cdecl.} =
   return cast[proc (ih: PIhandle): cint {.cdecl.}](GetCallback(cast[PIhandle](control), "ENTERWINDOW_CB"))
 
-type Focus_cbTypes* = Frame_t
+type Focus_cbTypes* = Canvas_t | Frame_t
 proc `focus_cb=`*(control: Focus_cbTypes, cb: proc (ih: PIhandle, focus: cint): cint {.cdecl.}) =
   ## Called when a child of the container gets or looses the focus. It is called only if PROPAGATEFOCUS is defined in the child. (since 3.23)
   ## ih: identifier of the element that activated the event.
@@ -3802,21 +4092,21 @@ proc `focus_cb=`*(control: Focus_cbTypes, cb: proc (ih: PIhandle, focus: cint): 
 proc `focus_cb`*(control: Focus_cbTypes): proc (ih: PIhandle, focus: cint): cint {.cdecl.} =
   return cast[proc (ih: PIhandle, focus: cint): cint {.cdecl.}](GetCallback(cast[PIhandle](control), "FOCUS_CB"))
 
-type Getfocus_cbTypes* = Button_t | List_t | Dialog_t | Text_t | MultiLine_t | Toggle_t
+type Getfocus_cbTypes* = Button_t | Canvas_t | List_t | Dialog_t | Text_t | MultiLine_t | Toggle_t
 proc `getfocus_cb=`*(control: Getfocus_cbTypes, cb: proc (ih: PIhandle): cint {.cdecl.}) =
   ## Action generated when an element is given keyboard focus. This callback is called after the KILLFOCUS_CB of the element that loosed the focus. The IupGetFocus function during the callback returns the element that loosed the focus.
   SetCallback(cast[PIhandle](control), "GETFOCUS_CB", cast[Icallback](cb))
 proc `getfocus_cb`*(control: Getfocus_cbTypes): proc (ih: PIhandle): cint {.cdecl.} =
   return cast[proc (ih: PIhandle): cint {.cdecl.}](GetCallback(cast[PIhandle](control), "GETFOCUS_CB"))
 
-type Help_cbTypes* = Button_t | List_t | Dialog_t | Text_t | MultiLine_t | Toggle_t
+type Help_cbTypes* = Button_t | Canvas_t | List_t | Dialog_t | Text_t | MultiLine_t | Toggle_t
 proc `help_cb=`*(control: Help_cbTypes, cb: proc (ih: PIhandle): cint {.cdecl.}) =
   ## Action generated when the user press F1 at a control. In Motif is also activated by the Help button in some workstations keyboard.
   SetCallback(cast[PIhandle](control), "HELP_CB", cast[Icallback](cb))
 proc `help_cb`*(control: Help_cbTypes): proc (ih: PIhandle): cint {.cdecl.} =
   return cast[proc (ih: PIhandle): cint {.cdecl.}](GetCallback(cast[PIhandle](control), "HELP_CB"))
 
-type K_anyTypes* = Button_t | List_t | Dialog_t | Text_t | MultiLine_t | Toggle_t
+type K_anyTypes* = Button_t | Canvas_t | List_t | Dialog_t | Text_t | MultiLine_t | Toggle_t
 proc `k_any=`*(control: K_anyTypes, cb: proc (ih: PIhandle, c: cint): cint {.cdecl.}) =
   ## Action generated when a keyboard event occurs.
   ## ih: identifier of the element that activated the event.
@@ -3835,14 +4125,25 @@ proc `k_any=`*(control: K_anyTypes, cb: proc (ih: PIhandle, c: cint): cint {.cde
 proc `k_any`*(control: K_anyTypes): proc (ih: PIhandle, c: cint): cint {.cdecl.} =
   return cast[proc (ih: PIhandle, c: cint): cint {.cdecl.}](GetCallback(cast[PIhandle](control), "K_ANY"))
 
-type Killfocus_cbTypes* = Button_t | List_t | Dialog_t | Text_t | MultiLine_t | Toggle_t
+type Keypress_cbcanvasTypes* = Canvas_t
+proc `keypress_cb=`*(control: Keypress_cbcanvasTypes, cb: proc (ih: PIhandle, c, press: cint): cint {.cdecl.}) =
+  ## Action generated when a key is pressed or released. If the key is pressed and held several calls will occur. It is called after the callback K_ANY is processed.
+  ## ih: identifier of the element that activated the event.
+  ## c: identifier of typed key. Please refer to the Keyboard Codes table for a list of possible values.
+  ## press: 1 is the user pressed the key or 0 otherwise.
+  ## Returns: If IUP_IGNORE is returned the key is ignored by the system. IUP_CLOSE will be processed.
+  SetCallback(cast[PIhandle](control), "KEYPRESS_CB", cast[Icallback](cb))
+proc `keypress_cb`*(control: Keypress_cbcanvasTypes): proc (ih: PIhandle, c, press: cint): cint {.cdecl.} =
+  return cast[proc (ih: PIhandle, c, press: cint): cint {.cdecl.}](GetCallback(cast[PIhandle](control), "KEYPRESS_CB"))
+
+type Killfocus_cbTypes* = Button_t | Canvas_t | List_t | Dialog_t | Text_t | MultiLine_t | Toggle_t
 proc `killfocus_cb=`*(control: Killfocus_cbTypes, cb: proc (ih: PIhandle): cint {.cdecl.}) =
   ## Action generated when an element loses keyboard focus. This callback is called before the GETFOCUS_CB of the element that gets the focus.
   SetCallback(cast[PIhandle](control), "KILLFOCUS_CB", cast[Icallback](cb))
 proc `killfocus_cb`*(control: Killfocus_cbTypes): proc (ih: PIhandle): cint {.cdecl.} =
   return cast[proc (ih: PIhandle): cint {.cdecl.}](GetCallback(cast[PIhandle](control), "KILLFOCUS_CB"))
 
-type Leavewindow_cbTypes* = Button_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t | Toggle_t
+type Leavewindow_cbTypes* = Button_t | Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t | Toggle_t
 proc `leavewindow_cb=`*(control: Leavewindow_cbTypes, cb: proc (ih: PIhandle): cint {.cdecl.}) =
   ## Action generated when the mouse leaves the native element.
   ## 
@@ -3853,7 +4154,7 @@ proc `leavewindow_cb=`*(control: Leavewindow_cbTypes, cb: proc (ih: PIhandle): c
 proc `leavewindow_cb`*(control: Leavewindow_cbTypes): proc (ih: PIhandle): cint {.cdecl.} =
   return cast[proc (ih: PIhandle): cint {.cdecl.}](GetCallback(cast[PIhandle](control), "LEAVEWINDOW_CB"))
 
-type Map_cbTypes* = Button_t | Frame_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t | Toggle_t
+type Map_cbTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t | Toggle_t
 proc `map_cb=`*(control: Map_cbTypes, cb: proc (ih: PIhandle): cint {.cdecl.}) =
   ## Called right after an element is mapped and its attributes updated in IupMap.
   ## When the element is a dialog, it is called after the layout is updated. For all other elements is called before the layout is updated, so the element current size will still be 0x0 during MAP_CB (since 3.14).
@@ -3868,7 +4169,7 @@ proc `mdiactivate_cb=`*(control: Mdiactivate_cbTypes, cb: proc (ih: PIhandle): c
 proc `mdiactivate_cb`*(control: Mdiactivate_cbTypes): proc (ih: PIhandle): cint {.cdecl.} =
   return cast[proc (ih: PIhandle): cint {.cdecl.}](GetCallback(cast[PIhandle](control), "MDIACTIVATE_CB"))
 
-type Motion_cbTypes* = Label_t | Text_t | MultiLine_t
+type Motion_cbTypes* = Canvas_t | Label_t | Text_t | MultiLine_t
 proc `motion_cb=`*(control: Motion_cbTypes, cb: proc (ih: PIhandle, x, y: cint, status: cstring): cint {.cdecl.}) =
   ## Action generated when the mouse is moved. (since 3.20)
   ## X, y: position in the canvas where the event has occurred, in pixels.
@@ -3903,7 +4204,21 @@ proc `multiselect_cb=`*(control: Multiselect_cbTypes, cb: proc (ih: PIhandle, va
 proc `multiselect_cb`*(control: Multiselect_cbTypes): proc (ih: PIhandle, value: cstring): cint {.cdecl.} =
   return cast[proc (ih: PIhandle, value: cstring): cint {.cdecl.}](GetCallback(cast[PIhandle](control), "MULTISELECT_CB"))
 
-type Resize_cbTypes* = Dialog_t
+type Multitouch_cbTypes* = Canvas_t
+proc `multitouch_cb=`*(control: Multitouch_cbTypes, cb: proc (ih: PIhandle, count: cint, pid, px, py, pstate: ptr cint): cint {.cdecl.}) =
+  ## [Windows 7 Only]: Action generated when multiple touch events occurred. Must set TOUCH=Yes to receive this event. (Since 3.3)
+  ## ih: identifier of the element that activated the event.
+  ## count: Number of touch points in the array.
+  ## pid: Array of touch point ids.
+  ## px: Array of touch point x coordinates in pixels, relative to the top-left corner of the canvas.
+  ## py: Array of touch point y coordinates in pixels, relative to the top-left corner of the canvas.
+  ## pstate: Array of touch point states. Can be 'D'(DOWN), 'U'(UP) or 'M'(MOVE).
+  ## Returns: IUP_CLOSE will be processed.
+  SetCallback(cast[PIhandle](control), "MULTITOUCH_CB", cast[Icallback](cb))
+proc `multitouch_cb`*(control: Multitouch_cbTypes): proc (ih: PIhandle, count: cint, pid, px, py, pstate: ptr cint): cint {.cdecl.} =
+  return cast[proc (ih: PIhandle, count: cint, pid, px, py, pstate: ptr cint): cint {.cdecl.}](GetCallback(cast[PIhandle](control), "MULTITOUCH_CB"))
+
+type Resize_cbTypes* = Canvas_t | Dialog_t
 proc `resize_cb=`*(control: Resize_cbTypes, cb: proc (ih: PIhandle, width, height: cint): cint {.cdecl.}) =
   ## Action generated when the canvas or dialog size is changed.
   ## ih: identifier of the element that activated the event.
@@ -3916,6 +4231,38 @@ proc `resize_cb=`*(control: Resize_cbTypes, cb: proc (ih: PIhandle, width, heigh
   SetCallback(cast[PIhandle](control), "RESIZE_CB", cast[Icallback](cb))
 proc `resize_cb`*(control: Resize_cbTypes): proc (ih: PIhandle, width, height: cint): cint {.cdecl.} =
   return cast[proc (ih: PIhandle, width, height: cint): cint {.cdecl.}](GetCallback(cast[PIhandle](control), "RESIZE_CB"))
+
+type Scroll_cbTypes* = Canvas_t
+proc `scroll_cb=`*(control: Scroll_cbTypes, cb: proc (ih: PIhandle, op: cint, posx, posy: cfloat): cint {.cdecl.}) =
+  ## Called when some manipulation is made to the scrollbar. The canvas is automatically redrawn only if this callback is NOT defined.
+  ## (GTK 2.8) Also the POSX and POSY values will not be correctly updated for older GTK versions.
+  ## In Ubuntu, when liboverlay-scrollbar is enabled (the new tiny auto-hide scrollbar) only the IUP_SBPOSV and IUP_SBPOSH codes are used.
+  ## ih: identifier of the element that activated the event.
+  ## op: indicates the operation performed on the scrollbar.
+  ## If the manipulation was made on the vertical scrollbar, it can have the following values:
+  ## IUP_SBUP - line up
+  ## IUP_SBDN - line down
+  ## IUP_SBPGUP - page up
+  ## IUP_SBPGDN - page down
+  ## IUP_SBPOSV - vertical positioning
+  ## IUP_SBDRAGV - vertical drag
+  ## 
+  ## If it was on the horizontal scrollbar, the following values are valid:
+  ## IUP_SBLEFT - column left
+  ## IUP_SBRIGHT - column right
+  ## IUP_SBPGLEFT - page left
+  ## IUP_SBPGRIGHT - page right
+  ## IUP_SBPOSH - horizontal positioning
+  ## IUP_SBDRAGH - horizontal drag
+  ## 
+  ## posx, posy: the same as the ACTION canvas callback (corresponding to the values of attributes POSX and POSY).
+  ## 
+  ## Notes
+  ## IUP_SBDRAGH and IUP_SBDRAGV are not supported in GTK. During drag IUP_SBPOSH and IUP_SBPOSV are used.
+  ## In Windows, after a drag when mouse is released IUP_SBPOSH or IUP_SBPOSV are called.
+  SetCallback(cast[PIhandle](control), "SCROLL_CB", cast[Icallback](cb))
+proc `scroll_cb`*(control: Scroll_cbTypes): proc (ih: PIhandle, op: cint, posx, posy: cfloat): cint {.cdecl.} =
+  return cast[proc (ih: PIhandle, op: cint, posx, posy: cfloat): cint {.cdecl.}](GetCallback(cast[PIhandle](control), "SCROLL_CB"))
 
 type Show_cbTypes* = Dialog_t
 proc `show_cb=`*(control: Show_cbTypes, cb: proc (ih: PIhandle, state: cint): cint {.cdecl.}) =
@@ -3949,6 +4296,18 @@ proc `tips_cb=`*(control: Tips_cbTypes, cb: proc (ih: PIhandle, x: cint, y: cint
 proc `tips_cb`*(control: Tips_cbTypes): proc (ih: PIhandle, x: cint, y: cint): cint {.cdecl.} =
   return cast[proc (ih: PIhandle, x: cint, y: cint): cint {.cdecl.}](GetCallback(cast[PIhandle](control), "TIPS_CB"))
 
+type Touch_cbTypes* = Canvas_t
+proc `touch_cb=`*(control: Touch_cbTypes, cb: proc (ih: PIhandle, id, x, y: cint, state: cstring): cint {.cdecl.}) =
+  ## [Windows 7 Only]: Action generated when a touch event occurred. Multiple touch events will trigger several calls. Must set TOUCH=Yes to receive this event. (Since 3.3)
+  ## ih: identifies the element that activated the event.
+  ## id: identifies the touch point.
+  ## x, y: position in pixels, relative to the top-left corner of the canvas.
+  ## state: the touch point state. Can be: DOWN, MOVE or UP. If the point is a "primary"point then "-PRIMARY"is appended to the string.
+  ## Returns: IUP_CLOSE will be processed.
+  SetCallback(cast[PIhandle](control), "TOUCH_CB", cast[Icallback](cb))
+proc `touch_cb`*(control: Touch_cbTypes): proc (ih: PIhandle, id, x, y: cint, state: cstring): cint {.cdecl.} =
+  return cast[proc (ih: PIhandle, id, x, y: cint, state: cstring): cint {.cdecl.}](GetCallback(cast[PIhandle](control), "TOUCH_CB"))
+
 type Trayclick_cbTypes* = Dialog_t
 proc `trayclick_cb=`*(control: Trayclick_cbTypes, cb: proc (ih: PIhandle, but, pressed, dclick: cint): cint {.cdecl.}) =
   ## [Windows and GTK Only]: Called right after the mouse button is pressed or released over the tray icon. (GTK 2.10)
@@ -3961,7 +4320,7 @@ proc `trayclick_cb=`*(control: Trayclick_cbTypes, cb: proc (ih: PIhandle, but, p
 proc `trayclick_cb`*(control: Trayclick_cbTypes): proc (ih: PIhandle, but, pressed, dclick: cint): cint {.cdecl.} =
   return cast[proc (ih: PIhandle, but, pressed, dclick: cint): cint {.cdecl.}](GetCallback(cast[PIhandle](control), "TRAYCLICK_CB"))
 
-type Unmap_cbTypes* = Button_t | Frame_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t | Toggle_t
+type Unmap_cbTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t | Toggle_t
 proc `unmap_cb=`*(control: Unmap_cbTypes, cb: proc (ih: PIhandle): cint {.cdecl.}) =
   ## Called right before an element is unmapped.
   SetCallback(cast[PIhandle](control), "UNMAP_CB", cast[Icallback](cb))
@@ -3975,6 +4334,20 @@ proc `valuechanged_cb=`*(control: Valuechanged_cbTypes, cb: proc (ih: PIhandle):
 proc `valuechanged_cb`*(control: Valuechanged_cbTypes): proc (ih: PIhandle): cint {.cdecl.} =
   return cast[proc (ih: PIhandle): cint {.cdecl.}](GetCallback(cast[PIhandle](control), "VALUECHANGED_CB"))
 
+type Wheel_cbTypes* = Canvas_t
+proc `wheel_cb=`*(control: Wheel_cbTypes, cb: proc (ih: PIhandle, delta: cfloat, x, y: cint, status: cstring): cint {.cdecl.}) =
+  ## Action generated when the mouse wheel is rotated. If this callback is not defined the wheel will automatically scroll the canvas in the vertical direction by some lines, the SCROLL_CB callback if defined will be called with the IUP_SBDRAGV operation.
+  ## ih: identifier of the element that activated the event.
+  ## delta: the amount the wheel was rotated in notches.
+  ## x, y: position in the canvas where the event has occurred, in pixels.
+  ## status: status of mouse buttons and certain keyboard keys at the moment the event was generated. The same macros used for BUTTON_CB can be used for this status.
+  ## 
+  ## Notes
+  ## In Motif and GTK delta is always 1 or -1. In Windows is some situations delta can reach the value of two. In the future with more precise wheels this increment can be changed.
+  SetCallback(cast[PIhandle](control), "WHEEL_CB", cast[Icallback](cb))
+proc `wheel_cb`*(control: Wheel_cbTypes): proc (ih: PIhandle, delta: cfloat, x, y: cint, status: cstring): cint {.cdecl.} =
+  return cast[proc (ih: PIhandle, delta: cfloat, x, y: cint, status: cstring): cint {.cdecl.}](GetCallback(cast[PIhandle](control), "WHEEL_CB"))
+
 # Attributes
 
 proc `[]`*(ih: IUPhandle_t, attribute: string): string {.cdecl.} =
@@ -3982,6 +4355,9 @@ proc `[]`*(ih: IUPhandle_t, attribute: string): string {.cdecl.} =
 
 proc `[]=`*(ih: IUPhandle_t, attribute, value: string) {.cdecl.} =
   SetAttribute(cast[PIhandle](ih), cstring(attribute), cstring(value))
+
+proc `[]=`*(ih: IUPhandle_t, attribute: string, value: typeof(nil)) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), cstring(attribute), value)
 
 proc SetAttributes*(ih: IUPhandle_t, attrs: string) {.cdecl.} =
   SetAttributes(cast[PIhandle](ih), cstring(attrs))
