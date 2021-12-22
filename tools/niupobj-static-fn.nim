@@ -3,14 +3,17 @@
 proc `[]`*(ih: IUPhandle_t, attribute: string): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), attribute)
 
-proc `[]=`*(ih: IUPhandle_t, attribute, value: string) {.cdecl.} =
+proc `[]=`*(ih: IUPhandle_t, attribute, value: string or typeof(nil)) {.cdecl.} =
   SetAttribute(cast[PIhandle](ih), cstring(attribute), cstring(value))
 
-proc `[]=`*(ih: IUPhandle_t, attribute: string, value: typeof(nil)) {.cdecl.} =
-  SetAttribute(cast[PIhandle](ih), cstring(attribute), value)
+proc SetAttributes*(ih: IUPhandle_t, attrs: string): IUPhandle_t {.cdecl.} =
+  return cast[IUPhandle_t](SetAttributes(cast[PIhandle](ih), cstring(attrs)))
 
-proc SetAttributes*(ih: IUPhandle_t, attrs: string) {.cdecl.} =
-  SetAttributes(cast[PIhandle](ih), cstring(attrs))
+proc SetAttributeHandle*(ih: IUPhandle_t, attribute: string, img: Image_t | ImageRGB_t | ImageRGBA_t) =
+  SetAttributeHandle(cast[PIhandle](ih), cstring(attribute), cast[PIhandle](img))
+
+proc GetAttributeHandle*(ih: IUPhandle_t, attribute: string): PIhandle =
+  return GetAttributeHandle(cast[PIhandle](ih), cstring(attribute))
 
 proc GetInt*(ih: IUPhandle_t, name: string): int {.cdecl.} =
   return GetInt(cast[PIhandle](ih), cstring(name))

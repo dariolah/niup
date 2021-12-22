@@ -19,6 +19,7 @@ proc Open*(utf8Mode: bool = false, imageLib: bool = false) {.cdecl.} =
 type
   Button_t* = distinct PIhandle
   Canvas_t* = distinct PIhandle
+  FlatLabel_t* = distinct PIhandle
   Frame_t* = distinct PIhandle
   Image_t* = distinct PIhandle
   ImageRGB_t* = distinct PIhandle
@@ -30,7 +31,7 @@ type
   Toggle_t* = distinct PIhandle
   Timer_t* = distinct PIhandle
 
-type IUPControls_t* = Button_t | Canvas_t | Frame_t | Image_t | ImageRGB_t | ImageRGBA_t | Label_t | List_t | MultiLine_t | Text_t | Toggle_t | Timer_t
+type IUPControls_t* = Button_t | Canvas_t | FlatLabel_t | Frame_t | Image_t | ImageRGB_t | ImageRGBA_t | Label_t | List_t | MultiLine_t | Text_t | Toggle_t | Timer_t
 
 # CONTAINERS
 type
@@ -75,6 +76,16 @@ proc Canvas*():Canvas_t {.cdecl.} =
   ## The IupDraw API can be used to draw in the canvas. But the ACTION callback function can NOT be called manually from inside the application, it must be invoked by the system, so if you need to redraw then call IupRedraw or IupUpdate.
   ## In GTK uses GtkFixed, in Windows uses a custom window class called "IupCanvas", and in Motif uses xmDrawingArea.
   return Canvas_t(niupc.Canvas(nil))
+
+proc FlatLabel*(title: string):FlatLabel_t {.cdecl.} =
+  ## Creates an interface element that is a label, but it does not have native decorations. Its visual presentation can contain a text and/or an image.
+  ## It behaves just like an IupLabel, but since it is not a native control it has more flexibility for additional options.
+  ## It inherits from IupCanvas.
+  ## Notes
+  ## The IupFlatLabel can contain text and image simultaneously.
+  ## The natural size will be a combination of the size of the image and the title, if any, plus PADDING and SPACING (if both image and title are present).
+  ## The IupLabel SEPARATOR attribute to configure a separator (horizontal or vertical lines) is not supported. ELLIPSIS, MARKUP and WORDWRAP IupLabel attributes are also not supported. Mnemonics are not supported.
+  return FlatLabel_t(niupc.FlatLabel(title))
 
 proc Frame*(child: IUPhandle_t):Frame_t {.cdecl.} =
   ## Creates a native container, which draws a frame with a title around its child.
@@ -308,6 +319,18 @@ proc `alignment`*(ih: AlignmenttogTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "ALIGNMENT")
 
 
+type AlignmentflatlblTypes* = FlatLabel_t
+proc `alignment=`*(ih: AlignmentflatlblTypes, value: string) {.cdecl.} =
+  ## (non inheritable): horizontal and vertical alignment of the set image+text. Possible values: "ALEFT", "ACENTER"and "ARIGHT", combined to "ATOP", "ACENTER"and "ABOTTOM". Default: "ALEFT:ACENTER". Partial values are also accepted, like "ARIGHT"or ":ATOP", the other value will be obtained from the default value. Alignment does not includes the padding area.
+  SetAttribute(cast[PIhandle](ih), "ALIGNMENT", value)
+
+proc `alignment`*(ih: AlignmentflatlblTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "ALIGNMENT", value)
+
+proc `alignment`*(ih: AlignmentflatlblTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "ALIGNMENT")
+
+
 type AppendTypes* = List_t | Text_t | MultiLine_t
 proc `append=`*(ih: AppendTypes, value: string) {.cdecl.} =
   ## (write-only): Inserts a text at the end of the current text. In the Multiline, if APPENDNEWLINE=YES, a "\n"character will be automatically inserted before the appended text if the current text is not empty(APPENDNEWLINE default is YES). Ignored if set before map.
@@ -365,6 +388,18 @@ proc `autoscale`*(ih: AutoscaleTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "AUTOSCALE")
 
 
+type BackcolorbgboxTypes* = BackgroundBox_t
+proc `backcolor=`*(ih: BackcolorbgboxTypes, value: string) {.cdecl.} =
+  ## (non inheritable): if defined used to fill the background color when BACKIMAGE is defined. If not defined BGCOLOR is used. (since 3.26)
+  SetAttribute(cast[PIhandle](ih), "BACKCOLOR", value)
+
+proc `backcolor`*(ih: BackcolorbgboxTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "BACKCOLOR", value)
+
+proc `backcolor`*(ih: BackcolorbgboxTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "BACKCOLOR")
+
+
 type BackgroundTypes* = Dialog_t
 proc `background=`*(ih: BackgroundTypes, value: string) {.cdecl.} =
   ## (non inheritable): Dialog background color or image. Can be a non inheritable alternative to BGCOLOR or can be the name of an image to be tiled on the background. See also the screenshots of the sample.c results with normal background, changing the dialog BACKGROUND, the dialog BGCOLOR and the children BGCOLOR. Not working in GTK 3. (since 3.0)
@@ -375,6 +410,60 @@ proc `background`*(ih: BackgroundTypes, value: string) {.cdecl.} =
 
 proc `background`*(ih: BackgroundTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "BACKGROUND")
+
+
+type BackimagebgboxTypes* = BackgroundBox_t
+proc `backimage=`*(ih: BackimagebgboxTypes, value: string) {.cdecl.} =
+  ## (non inheritable): image name to be used as background. Use IupSetHandle or IupSetAttributeHandle to associate an image to a name. See also IupImage. When defined the ACTION callback of the IupCanvas will be defined. (since 3.26)
+  SetAttribute(cast[PIhandle](ih), "BACKIMAGE", value)
+
+proc `backimage`*(ih: BackimagebgboxTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "BACKIMAGE", value)
+
+proc `backimage=`*(ih: BackimagebgboxTypes, value: Image_t | ImageRGB_t | ImageRGBA_t) {.cdecl.} =
+  SetAttributeHandle(cast[PIhandle](ih), "BACKIMAGE", cast[PIhandle](value))
+
+proc `backimage`*(ih: BackimagebgboxTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "BACKIMAGE")
+
+
+type BackimageflatlblTypes* = FlatLabel_t
+proc `backimage=`*(ih: BackimageflatlblTypes, value: string) {.cdecl.} =
+  ## (non inheritable): image name to be used as background. Use IupSetHandle or IupSetAttributeHandle to associate an image to a name. See also IupImage.
+  SetAttribute(cast[PIhandle](ih), "BACKIMAGE", value)
+
+proc `backimage`*(ih: BackimageflatlblTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "BACKIMAGE", value)
+
+proc `backimage=`*(ih: BackimageflatlblTypes, value: Image_t | ImageRGB_t | ImageRGBA_t) {.cdecl.} =
+  SetAttributeHandle(cast[PIhandle](ih), "BACKIMAGE", cast[PIhandle](value))
+
+proc `backimage`*(ih: BackimageflatlblTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "BACKIMAGE")
+
+
+type BackimagezoombgboxTypes* = BackgroundBox_t
+proc `backimagezoom=`*(ih: BackimagezoombgboxTypes, value: string) {.cdecl.} =
+  ## (non inheritable): if set the back image will be zoomed to occupy the full background. Aspect ratio is NOT preserved. Can be Yes or No. Default: No. (since 3.26)
+  SetAttribute(cast[PIhandle](ih), "BACKIMAGEZOOM", value)
+
+proc `backimagezoom`*(ih: BackimagezoombgboxTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "BACKIMAGEZOOM", value)
+
+proc `backimagezoom`*(ih: BackimagezoombgboxTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "BACKIMAGEZOOM")
+
+
+type BackimagezoomflatlblTypes* = FlatLabel_t
+proc `backimagezoom=`*(ih: BackimagezoomflatlblTypes, value: string) {.cdecl.} =
+  ## (non inheritable): if set the back image will be zoomed to occupy the full background. Aspect ratio is NOT preserved. Can be Yes or No. Default: No. (since 3.25)
+  SetAttribute(cast[PIhandle](ih), "BACKIMAGEZOOM", value)
+
+proc `backimagezoom`*(ih: BackimagezoomflatlblTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "BACKIMAGEZOOM", value)
+
+proc `backimagezoom`*(ih: BackimagezoomflatlblTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "BACKIMAGEZOOM")
 
 
 type BgcolorTypes* = Button_t | Label_t | List_t | Dialog_t | Image_t | ImageRGB_t | ImageRGBA_t | Text_t | MultiLine_t | Toggle_t
@@ -431,6 +520,32 @@ proc `bgcolor`*(ih: BgcolorcanvasTypes): string {.cdecl.} =
 proc `bgcolor`*(ih: BgcolorcanvasTypes, red, green, blue:int) {.cdecl.} =
   SetAttribute(cast[PIhandle](ih), "BGCOLOR", cstring(&"{red} {green} {blue}"))
 
+type BgcolorbgboxTypes* = BackgroundBox_t
+proc `bgcolor=`*(ih: BgcolorbgboxTypes, value: string) {.cdecl.} =
+  ## by default will use the background color of the native parent, but can be set to a custom value (since 3.11).
+  SetAttribute(cast[PIhandle](ih), "BGCOLOR", value)
+
+proc `bgcolor`*(ih: BgcolorbgboxTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "BGCOLOR", value)
+
+proc `bgcolor`*(ih: BgcolorbgboxTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "BGCOLOR")
+
+proc `bgcolor`*(ih: BgcolorbgboxTypes, red, green, blue:int, alpha:int = 255) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "BGCOLOR", cstring(&"{red} {green} {blue} {alpha}"))
+
+type BgcolorflatlblTypes* = FlatLabel_t
+proc `bgcolor=`*(ih: BgcolorflatlblTypes, value: string) {.cdecl.} =
+  ## ignored. It will use the background color of the native parent.
+  SetAttribute(cast[PIhandle](ih), "BGCOLOR", value)
+
+proc `bgcolor`*(ih: BgcolorflatlblTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "BGCOLOR", value)
+
+proc `bgcolor`*(ih: BgcolorflatlblTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "BGCOLOR")
+
+
 type BorderTypes* = Canvas_t | Dialog_t | Text_t | MultiLine_t
 proc `border=`*(ih: BorderTypes, value: string) {.cdecl.} =
   ## (non inheritable) (creation only): Shows a resize border around the dialog. Default: "YES". BORDER=NO is useful only when RESIZE=NO, MAXBOX=NO, MINBOX=NO, MENUBOX=NO and TITLE=NULL, if any of these are defined there will be always some border.
@@ -440,6 +555,30 @@ proc `border`*(ih: BorderTypes, value: string) {.cdecl.} =
   SetAttribute(cast[PIhandle](ih), "BORDER", value)
 
 proc `border`*(ih: BorderTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "BORDER")
+
+
+type BorderbgboxTypes* = BackgroundBox_t
+proc `border=`*(ih: BorderbgboxTypes, value: string) {.cdecl.} =
+  ## (creation only): the default value is "NO".
+  SetAttribute(cast[PIhandle](ih), "BORDER", value)
+
+proc `border`*(ih: BorderbgboxTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "BORDER", value)
+
+proc `border`*(ih: BorderbgboxTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "BORDER")
+
+
+type BorderflatlblTypes* = FlatLabel_t
+proc `border=`*(ih: BorderflatlblTypes, value: string) {.cdecl.} =
+  ## (creation only): the default value is "NO". This is the IupCanvas border.
+  SetAttribute(cast[PIhandle](ih), "BORDER", value)
+
+proc `border`*(ih: BorderflatlblTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "BORDER", value)
+
+proc `border`*(ih: BorderflatlblTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "BORDER")
 
 
@@ -486,6 +625,30 @@ proc `canfocus`*(ih: CanfocusTypes, value: string) {.cdecl.} =
 
 proc `canfocus`*(ih: CanfocusTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "CANFOCUS")
+
+
+type CanfocusbgboxTypes* = BackgroundBox_t
+proc `canfocus=`*(ih: CanfocusbgboxTypes, value: string) {.cdecl.} =
+  ## (non inheritable): the default is changed to NO. But it can receive the focus (since 3.19).
+  SetAttribute(cast[PIhandle](ih), "CANFOCUS", value)
+
+proc `canfocus`*(ih: CanfocusbgboxTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "CANFOCUS", value)
+
+proc `canfocus`*(ih: CanfocusbgboxTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "CANFOCUS")
+
+
+type CanvasboxbgboxTypes* = BackgroundBox_t
+proc `canvasbox=`*(ih: CanvasboxbgboxTypes, value: string) {.cdecl.} =
+  ## (non inheritable): enable the behavior of a canvas box instead of a regular container. This will affect the EXPAND attribute, the Natural size computation, and children layout distribution. Can be Yes or No. Default: No. (since 3.19)
+  SetAttribute(cast[PIhandle](ih), "CANVASBOX", value)
+
+proc `canvasbox`*(ih: CanvasboxbgboxTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "CANVASBOX", value)
+
+proc `canvasbox`*(ih: CanvasboxbgboxTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "CANVASBOX")
 
 
 type CaretTypes* = List_t | Text_t | MultiLine_t
@@ -573,6 +736,20 @@ proc `childoffset`*(ih: ChildoffsetTypes): string {.cdecl.} =
 
 proc `childoffset`*(ih: ChildoffsetTypes, dx, dy:int) {.cdecl.} =
   SetAttribute(cast[PIhandle](ih), "CHILDOFFSET", cstring(&"{dx}x{dy}"))
+
+type ChildoffsetbgboxTypes* = BackgroundBox_t
+proc `childoffset=`*(ih: ChildoffsetbgboxTypes, value: string) {.cdecl.} =
+  ## (non inheritable): Allow to specify a position offset for the child. Available for native containers only. It will not affect the natural size, and allows to position controls outside the client area. Format "dxxdy", where dx and dy are integer values corresponding to the horizontal and vertical offsets, respectively, in pixels. Default: 0x0. (since 3.14)
+  SetAttribute(cast[PIhandle](ih), "CHILDOFFSET", value)
+
+proc `childoffset`*(ih: ChildoffsetbgboxTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "CHILDOFFSET", value)
+
+proc `childoffset`*(ih: ChildoffsetbgboxTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "CHILDOFFSET")
+
+proc `childoffset`*(ih: ChildoffsetbgboxTypes, x, y:int) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "CHILDOFFSET", cstring(&"{x}x{y}"))
 
 type CleanouttxtfmtTypes* = User_t
 proc `cleanout=`*(ih: CleanouttxtfmtTypes, value: string) {.cdecl.} =
@@ -729,6 +906,18 @@ proc `cpadding`*(ih: CpaddingTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "CPADDING")
 
 
+type CpaddingflatlblTypes* = FlatLabel_t
+proc `cpadding=`*(ih: CpaddingflatlblTypes, value: string) {.cdecl.} =
+  ## same as PADDING but using the units of the SIZE attribute. It will actually set the PADDING attribute. (since 3.29)
+  SetAttribute(cast[PIhandle](ih), "CPADDING", value)
+
+proc `cpadding`*(ih: CpaddingflatlblTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "CPADDING", value)
+
+proc `cpadding`*(ih: CpaddingflatlblTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "CPADDING")
+
+
 type CspacingTypes* = Button_t | List_t
 proc `cspacing=`*(ih: CspacingTypes, value: string) {.cdecl.} =
   ## same as SPACING but using the units of the vertical part of the SIZE attribute. It will actually set the SPACING attribute. (since 3.29)
@@ -738,6 +927,18 @@ proc `cspacing`*(ih: CspacingTypes, value: string) {.cdecl.} =
   SetAttribute(cast[PIhandle](ih), "CSPACING", value)
 
 proc `cspacing`*(ih: CspacingTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "CSPACING")
+
+
+type CspacingflatlblTypes* = FlatLabel_t
+proc `cspacing=`*(ih: CspacingflatlblTypes, value: string) {.cdecl.} =
+  ## same as SPACING but using the units of the vertical part of the SIZE attribute. It will actually set the SPACING attribute. (since 3.29)
+  SetAttribute(cast[PIhandle](ih), "CSPACING", value)
+
+proc `cspacing`*(ih: CspacingflatlblTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "CSPACING", value)
+
+proc `cspacing`*(ih: CspacingflatlblTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "CSPACING")
 
 
@@ -753,7 +954,7 @@ proc `cuebanner`*(ih: CuebannerTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "CUEBANNER")
 
 
-type CursorTypes* = Canvas_t | Dialog_t
+type CursorTypes* = Canvas_t | Dialog_t | BackgroundBox_t
 proc `cursor=`*(ih: CursorTypes, value: string) {.cdecl.} =
   ## Defines the element's cursor.ValueName of a cursor.It will check first for the following predefined names: "NONE"or "NULL"--- "APPSTARTING"(Windows Only)"ARROW""BUSY""CROSS""HAND""HELP""MOVE"--- "NO"(Windows Only)"PEN"(*)"RESIZE_N""RESIZE_S""RESIZE_NS""RESIZE_W""RESIZE_E""RESIZE_WE""RESIZE_NE""RESIZE_SW""RESIZE_NW""RESIZE_SE""SPLITTER_HORIZ""SPLITTER_VERT""TEXT""UPARROW"Default: "ARROW"(*) To use this cursor on Windows, the iup.rc file, provided with IUP, must be linked with the application (except when using the IUP DLL).The Windows SDK recommends that cursors and icons should be implemented as resources rather than created at run time.The GTK cursors have the same appearance of the X-Windows cursors. Althought GTK cursors can have more than 2 colors depending on the X-Server.If it is not a pre-defined name, then will check for other system cursors. In Windows the value will be used to load a cursor form the application resources. In Motif the value will be used as a X-Windows cursor number, see definitions in the X11 header "cursorfont.h". In GTK the value will be used as a cursor name, see the GDK documentation on Cursors.If no system cursors were found then the value will be used to try to find an IUP image with the same name. Use IupSetHandle to define a name for an IupImage. But the image will need an extra attribute and some specific characteristics, see notes below.NotesFor an image to represent a cursor, it should has the attribute "HOTSPOT"to define the cursor hotspot (place where the mouse click is actually effective). The default value is "0:0".Usually only color indices 0, 1 and 2 can be used in a cursor, where 0 will be transparent (must be "BGCOLOR"). The RGB colors corresponding to indices 1 and 2 are defined just as in regular images. In Windows and GTK the cursor can have more than 2 colors. Cursor sizes are usually less than or equal to 32x32.The cursor will only change when the interface system regains control or when IupFlush is called.The Windows SDK recommends that cursors and icons should be implemented as resources rather than created at run time.When the cursor image is no longer necessary, it must be destroyed through function IupDestroy. Attention: the cursor cannot be in use when it is destroyed.
   SetAttribute(cast[PIhandle](ih), "CURSOR", value)
@@ -837,6 +1038,46 @@ proc `customframesimulate`*(ih: CustomframesimulateTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "CUSTOMFRAMESIMULATE")
 
 
+type DecorationbgboxTypes* = BackgroundBox_t
+proc `decoration=`*(ih: DecorationbgboxTypes, value: string) {.cdecl.} =
+  ## (non inheritable): Enable a decoration area around the child. Can be Yes or No. Default No. (since 3.20)
+  SetAttribute(cast[PIhandle](ih), "DECORATION", value)
+
+proc `decoration`*(ih: DecorationbgboxTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "DECORATION", value)
+
+proc `decoration`*(ih: DecorationbgboxTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "DECORATION")
+
+
+type DecoroffsetbgboxTypes* = BackgroundBox_t
+proc `decoroffset=`*(ih: DecoroffsetbgboxTypes, value: string) {.cdecl.} =
+  ## (non inheritable): decoration offset from left border and top border in the format "XxY"(in C "%dx%d). Used only when DECORATION=Yes. (since 3.20)
+  SetAttribute(cast[PIhandle](ih), "DECOROFFSET", value)
+
+proc `decoroffset`*(ih: DecoroffsetbgboxTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "DECOROFFSET", value)
+
+proc `decoroffset`*(ih: DecoroffsetbgboxTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "DECOROFFSET")
+
+proc `decoroffset`*(ih: DecoroffsetbgboxTypes, x, y:int) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "DECOROFFSET", cstring(&"{x}x{y}"))
+
+type DecorsizebgboxTypes* = BackgroundBox_t
+proc `decorsize=`*(ih: DecorsizebgboxTypes, value: string) {.cdecl.} =
+  ## (non inheritable): total size of the decoration in the format "WidthxHeight"(in C "%dx%d). Used only when DECORATION=Yes. (since 3.20)
+  SetAttribute(cast[PIhandle](ih), "DECORSIZE", value)
+
+proc `decorsize`*(ih: DecorsizebgboxTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "DECORSIZE", value)
+
+proc `decorsize`*(ih: DecorsizebgboxTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "DECORSIZE")
+
+proc `decorsize`*(ih: DecorsizebgboxTypes, width, height:int) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "DECORSIZE", cstring(&"{width}x{height}"))
+
 type DefaultenterTypes* = Dialog_t
 proc `defaultenter=`*(ih: DefaultenterTypes, value: string) {.cdecl.} =
   ## Name of the button activated when the user press Enter when focus is in another control of the dialog. Use IupSetHandle or IupSetAttributeHandle to associate a button to a name.
@@ -915,7 +1156,7 @@ proc `dpi`*(ih: DpiTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "DPI")
 
 
-type DragcursorTypes* = Canvas_t | Label_t | List_t | Dialog_t
+type DragcursorTypes* = Canvas_t | Label_t | List_t | Dialog_t | BackgroundBox_t
 proc `dragcursor=`*(ih: DragcursorTypes, value: string) {.cdecl.} =
   ## (non inheritable): name of an image to be used as cursor during drag. Use IupSetHandle or IupSetAttributeHandle to associate an image to a name. See also IupImage. (since 3.11)
   SetAttribute(cast[PIhandle](ih), "DRAGCURSOR", value)
@@ -939,7 +1180,7 @@ proc `dragdroplist`*(ih: DragdroplistTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "DRAGDROPLIST")
 
 
-type DragsourceTypes* = Canvas_t | Label_t | List_t | Dialog_t
+type DragsourceTypes* = Canvas_t | Label_t | List_t | Dialog_t | BackgroundBox_t
 proc `dragsource=`*(ih: DragsourceTypes, value: string) {.cdecl.} =
   ## (non inheritable): Set up a control as a source for drag operations. Default: NO.
   SetAttribute(cast[PIhandle](ih), "DRAGSOURCE", value)
@@ -951,7 +1192,7 @@ proc `dragsource`*(ih: DragsourceTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "DRAGSOURCE")
 
 
-type DragsourcemoveTypes* = Canvas_t | Label_t | List_t | Dialog_t
+type DragsourcemoveTypes* = Canvas_t | Label_t | List_t | Dialog_t | BackgroundBox_t
 proc `dragsourcemove=`*(ih: DragsourcemoveTypes, value: string) {.cdecl.} =
   ## (non inheritable): Enables the move action. Default: NO (only copy is enabled).
   SetAttribute(cast[PIhandle](ih), "DRAGSOURCEMOVE", value)
@@ -963,7 +1204,7 @@ proc `dragsourcemove`*(ih: DragsourcemoveTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "DRAGSOURCEMOVE")
 
 
-type DragtypesTypes* = Canvas_t | Label_t | List_t | Dialog_t
+type DragtypesTypes* = Canvas_t | Label_t | List_t | Dialog_t | BackgroundBox_t
 proc `dragtypes=`*(ih: DragtypesTypes, value: string) {.cdecl.} =
   ## (non inheritable): A list of data types that are supported by the source. Accepts a string with one or more names separated by commas. See Notes bellow for a list of known names. Must be set.
   ## 
@@ -985,13 +1226,13 @@ proc `dragtypes`*(ih: DragtypesTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "DRAGTYPES")
 
 
-type DrawdriverTypes* = Canvas_t
+type DrawdriverTypes* = Canvas_t | BackgroundBox_t
 proc `drawdriver`*(ih: DrawdriverTypes): string {.cdecl.} =
   ## (read-only): returns the name of the draw driver in use by the IupDraw API. Can be: X11 (Motif), GDK (GTK), Cairo (GTK), D2D (Windows), GDI+ (Windows) or GDI (Windows). (since 3.25)
   return $GetAttribute(cast[PIhandle](ih), "DRAWDRIVER")
 
 
-type DrawsizeTypes* = Canvas_t
+type DrawsizeTypes* = Canvas_t | BackgroundBox_t
 proc `drawsize=`*(ih: DrawsizeTypes, value: string) {.cdecl.} =
   ## (non inheritable): The size of the drawing area in pixels. This size is also used in the RESIZE_CB callback.
   ## Notice that the drawing area size is not the same as RASTERSIZE. The SCROLLBAR and BORDER attributes affect the size of the drawing area.
@@ -1004,7 +1245,7 @@ proc `drawsize`*(ih: DrawsizeTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "DRAWSIZE")
 
 
-type DrawusegdiTypes* = Canvas_t
+type DrawusegdiTypes* = Canvas_t | BackgroundBox_t
 proc `drawusegdi=`*(ih: DrawusegdiTypes, value: string) {.cdecl.} =
   ## [Windows Only] (non inheritable): force the use of the old GDI driver, instead of the new DirectD2 driver. Used in the IupGauge, IupMatrix and Flat Scrollbars for better performance and backward compatibility. (since 3.26)
   SetAttribute(cast[PIhandle](ih), "DRAWUSEGDI", value)
@@ -1040,7 +1281,7 @@ proc `dropexpand`*(ih: DropexpandTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "DROPEXPAND")
 
 
-type DropfilestargetTypes* = Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
+type DropfilestargetTypes* = Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t | BackgroundBox_t
 proc `dropfilestarget=`*(ih: DropfilestargetTypes, value: string) {.cdecl.} =
   ## [Windows and GTK Only] (non inheritable): Enable or disable the drop of files. Default: NO, but if DROPFILES_CB is defined when the element is mapped then it will be automatically enabled. (since 3.0)
   SetAttribute(cast[PIhandle](ih), "DROPFILESTARGET", value)
@@ -1052,7 +1293,7 @@ proc `dropfilestarget`*(ih: DropfilestargetTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "DROPFILESTARGET")
 
 
-type DroptargetTypes* = Canvas_t | Label_t | List_t | Dialog_t
+type DroptargetTypes* = Canvas_t | Label_t | List_t | Dialog_t | BackgroundBox_t
 proc `droptarget=`*(ih: DroptargetTypes, value: string) {.cdecl.} =
   ## (non inheritable): Set up a control as a destination for drop operations. Default: NO.
   SetAttribute(cast[PIhandle](ih), "DROPTARGET", value)
@@ -1064,7 +1305,7 @@ proc `droptarget`*(ih: DroptargetTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "DROPTARGET")
 
 
-type DroptypesTypes* = Canvas_t | Label_t | List_t | Dialog_t
+type DroptypesTypes* = Canvas_t | Label_t | List_t | Dialog_t | BackgroundBox_t
 proc `droptypes=`*(ih: DroptypesTypes, value: string) {.cdecl.} =
   ## (non inheritable): A list of data types that are supported by the target. Accepts a string with one or more names separated by commas. See Notes bellow for a list of known names. Must be set.
   ## 
@@ -1086,7 +1327,7 @@ proc `droptypes`*(ih: DroptypesTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "DROPTYPES")
 
 
-type DxcanvasTypes* = Canvas_t
+type DxcanvasTypes* = Canvas_t | BackgroundBox_t
 proc `dx=`*(ih: DxcanvasTypes, value: string) {.cdecl.} =
   ## Size of the thumb in the horizontal scrollbar. Also the horizontal page size. Default: "0.1".
   SetAttribute(cast[PIhandle](ih), "DX", value)
@@ -1098,7 +1339,7 @@ proc `dx`*(ih: DxcanvasTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "DX")
 
 
-type DycanvasTypes* = Canvas_t
+type DycanvasTypes* = Canvas_t | BackgroundBox_t
 proc `dy=`*(ih: DycanvasTypes, value: string) {.cdecl.} =
   ## Size of the thumb in the vertical scrollbar. Also the vertical page size. Default: "0.1".
   SetAttribute(cast[PIhandle](ih), "DY", value)
@@ -1148,6 +1389,30 @@ proc `expand`*(ih: ExpandTypes, value: string) {.cdecl.} =
   SetAttribute(cast[PIhandle](ih), "EXPAND", value)
 
 proc `expand`*(ih: ExpandTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "EXPAND")
+
+
+type ExpandbgboxTypes* = BackgroundBox_t
+proc `expand=`*(ih: ExpandbgboxTypes, value: string) {.cdecl.} =
+  ## (non inheritable): behaves as a container. See CANVASBOX attribute.
+  SetAttribute(cast[PIhandle](ih), "EXPAND", value)
+
+proc `expand`*(ih: ExpandbgboxTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "EXPAND", value)
+
+proc `expand`*(ih: ExpandbgboxTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "EXPAND")
+
+
+type ExpandflatlblTypes* = FlatLabel_t
+proc `expand=`*(ih: ExpandflatlblTypes, value: string) {.cdecl.} =
+  ## (non inheritable): The default value is "NO".
+  SetAttribute(cast[PIhandle](ih), "EXPAND", value)
+
+proc `expand`*(ih: ExpandflatlblTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "EXPAND", value)
+
+proc `expand`*(ih: ExpandflatlblTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "EXPAND")
 
 
@@ -1203,6 +1468,18 @@ proc `fgcolor`*(ih: FgcolorfrmTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "FGCOLOR")
 
 
+type FgcolorflatlblTypes* = FlatLabel_t
+proc `fgcolor=`*(ih: FgcolorflatlblTypes, value: string) {.cdecl.} =
+  ## Text color. Default: the global attribute DLGFGCOLOR.
+  SetAttribute(cast[PIhandle](ih), "FGCOLOR", value)
+
+proc `fgcolor`*(ih: FgcolorflatlblTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "FGCOLOR", value)
+
+proc `fgcolor`*(ih: FgcolorflatlblTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "FGCOLOR")
+
+
 type FilterTypes* = List_t | Text_t | MultiLine_t
 proc `filter=`*(ih: FilterTypes, value: string) {.cdecl.} =
   ## [Windows Only] (non inheritable): allows a custom filter to process the characters: Can be LOWERCASE, UPPERCASE or NUMBER (only numbers allowed). (since 3.0)
@@ -1213,6 +1490,18 @@ proc `filter`*(ih: FilterTypes, value: string) {.cdecl.} =
 
 proc `filter`*(ih: FilterTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "FILTER")
+
+
+type FittobackimageflatlblTypes* = FlatLabel_t
+proc `fittobackimage=`*(ih: FittobackimageflatlblTypes, value: string) {.cdecl.} =
+  ## (non inheritable): enable the natural size to be computed from the BACKIMAGE. If BACKIMAGE is not defined will be ignored. Can be Yes or No. Default: No.
+  SetAttribute(cast[PIhandle](ih), "FITTOBACKIMAGE", value)
+
+proc `fittobackimage`*(ih: FittobackimageflatlblTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "FITTOBACKIMAGE", value)
+
+proc `fittobackimage`*(ih: FittobackimageflatlblTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "FITTOBACKIMAGE")
 
 
 type FlatTypes* = Button_t | Toggle_t
@@ -1227,7 +1516,7 @@ proc `flat`*(ih: FlatTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "FLAT")
 
 
-type FontTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
+type FontTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t | BackgroundBox_t
 proc `font=`*(ih: FontTypes, value: string) {.cdecl.} =
   ## Value
   ## 
@@ -1277,7 +1566,7 @@ proc `font`*(ih: FontTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "FONT")
 
 
-type FontfaceTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
+type FontfaceTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t | BackgroundBox_t
 proc `fontface=`*(ih: FontfaceTypes, value: string) {.cdecl.} =
   ## (non inheritable) Replaces or returns the face name of the current FONT attribute.
   SetAttribute(cast[PIhandle](ih), "FONTFACE", value)
@@ -1313,7 +1602,7 @@ proc `fontscale`*(ih: FontscaletxtfmtTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "FONTSCALE")
 
 
-type FontsizeTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
+type FontsizeTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t | BackgroundBox_t
 proc `fontsize=`*(ih: FontsizeTypes, value: string) {.cdecl.} =
   ## (non inheritable) Replaces or returns the size of the current FONT attribute.
   SetAttribute(cast[PIhandle](ih), "FONTSIZE", value)
@@ -1337,7 +1626,7 @@ proc `fontsize`*(ih: FontsizetxtfmtTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "FONTSIZE")
 
 
-type FontstyleTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
+type FontstyleTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t | BackgroundBox_t
 proc `fontstyle=`*(ih: FontstyleTypes, value: string) {.cdecl.} =
   ## (non inheritable) Replaces or returns the style of the current FONT attribute. Since font styles are case sensitive, this attribute is also case sensitive.
   SetAttribute(cast[PIhandle](ih), "FONTSTYLE", value)
@@ -1376,6 +1665,21 @@ proc `foundry`*(ih: FoundryTypes, value: string) {.cdecl.} =
 
 proc `foundry`*(ih: FoundryTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "FOUNDRY")
+
+
+type FrontimageflatlblTypes* = FlatLabel_t
+proc `frontimage=`*(ih: FrontimageflatlblTypes, value: string) {.cdecl.} =
+  ## (non inheritable): image name to be used as foreground. The foreground image is drawn in the same position as the background, but it is drawn at last. Use IupSetHandle or IupSetAttributeHandle to associate an image to a name. See also IupImage.
+  SetAttribute(cast[PIhandle](ih), "FRONTIMAGE", value)
+
+proc `frontimage`*(ih: FrontimageflatlblTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "FRONTIMAGE", value)
+
+proc `frontimage=`*(ih: FrontimageflatlblTypes, value: Image_t | ImageRGB_t | ImageRGBA_t) {.cdecl.} =
+  SetAttributeHandle(cast[PIhandle](ih), "FRONTIMAGE", cast[PIhandle](value))
+
+proc `frontimage`*(ih: FrontimageflatlblTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "FRONTIMAGE")
 
 
 type FullscreenTypes* = Dialog_t
@@ -1477,7 +1781,7 @@ proc `hotspot`*(ih: HotspotTypes): string {.cdecl.} =
 proc `hotspot`*(ih: HotspotTypes, x, y:int) {.cdecl.} =
   SetAttribute(cast[PIhandle](ih), "HOTSPOT", cstring(&"{x}:{y}"))
 
-type HwndTypes* = Canvas_t | Dialog_t
+type HwndTypes* = Canvas_t | Dialog_t | BackgroundBox_t
 proc `hwnd`*(ih: HwndTypes): string {.cdecl.} =
   ## [Windows Only] (non inheritable, read-only): Returns the Windows Window handle. Available in the Windows driver or in the GTK driver in Windows.
   return $GetAttribute(cast[PIhandle](ih), "HWND")
@@ -1532,6 +1836,36 @@ proc `image`*(ih: ImageTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "IMAGE")
 
 
+type ImageflatlblTypes* = FlatLabel_t
+proc `image=`*(ih: ImageflatlblTypes, value: string) {.cdecl.} =
+  ## (non inheritable): Image name. Use IupSetHandle or IupSetAttributeHandle to associate an image to a name. See also IupImage.
+  SetAttribute(cast[PIhandle](ih), "IMAGE", value)
+
+proc `image`*(ih: ImageflatlblTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "IMAGE", value)
+
+proc `image=`*(ih: ImageflatlblTypes, value: Image_t | ImageRGB_t | ImageRGBA_t) {.cdecl.} =
+  SetAttributeHandle(cast[PIhandle](ih), "IMAGE", cast[PIhandle](value))
+
+proc `image`*(ih: ImageflatlblTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "IMAGE")
+
+
+type ImageinactiveflatlblTypes* = FlatLabel_t
+proc `imageinactive=`*(ih: ImageinactiveflatlblTypes, value: string) {.cdecl.} =
+  ## (non inheritable): Image name of the element when inactive. If it is not defined then the IMAGE is used and its colors will be replaced by a modified version creating the disabled effect.
+  SetAttribute(cast[PIhandle](ih), "IMAGEINACTIVE", value)
+
+proc `imageinactive`*(ih: ImageinactiveflatlblTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "IMAGEINACTIVE", value)
+
+proc `imageinactive=`*(ih: ImageinactiveflatlblTypes, value: Image_t | ImageRGB_t | ImageRGBA_t) {.cdecl.} =
+  SetAttributeHandle(cast[PIhandle](ih), "IMAGEINACTIVE", cast[PIhandle](value))
+
+proc `imageinactive`*(ih: ImageinactiveflatlblTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "IMAGEINACTIVE")
+
+
 type ImagepositionTypes* = Button_t
 proc `imageposition=`*(ih: ImagepositionTypes, value: string) {.cdecl.} =
   ## (non inheritable): Position of the image relative to the text when both are displayed. Can be: LEFT, RIGHT, TOP, BOTTOM. Default: LEFT. (since 3.0) (GTK 2.10)
@@ -1541,6 +1875,18 @@ proc `imageposition`*(ih: ImagepositionTypes, value: string) {.cdecl.} =
   SetAttribute(cast[PIhandle](ih), "IMAGEPOSITION", value)
 
 proc `imageposition`*(ih: ImagepositionTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "IMAGEPOSITION")
+
+
+type ImagepositionflatlblTypes* = FlatLabel_t
+proc `imageposition=`*(ih: ImagepositionflatlblTypes, value: string) {.cdecl.} =
+  ## (non inheritable): Position of the image relative to the text when both are displayed. Can be: LEFT, RIGHT, TOP, BOTTOM. Default: LEFT.
+  SetAttribute(cast[PIhandle](ih), "IMAGEPOSITION", value)
+
+proc `imageposition`*(ih: ImagepositionflatlblTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "IMAGEPOSITION", value)
+
+proc `imageposition`*(ih: ImagepositionflatlblTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "IMAGEPOSITION")
 
 
@@ -1660,7 +2006,7 @@ proc `linevalue`*(ih: LinevalueTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "LINEVALUE")
 
 
-type LinexcanvasTypes* = Canvas_t
+type LinexcanvasTypes* = Canvas_t | BackgroundBox_t
 proc `linex=`*(ih: LinexcanvasTypes, value: string) {.cdecl.} =
   ## The amount the thumb moves when an horizontal step is performed. Default: 1/10th of DX. (since 3.0)
   SetAttribute(cast[PIhandle](ih), "LINEX", value)
@@ -1672,7 +2018,7 @@ proc `linex`*(ih: LinexcanvasTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "LINEX")
 
 
-type LineycanvasTypes* = Canvas_t
+type LineycanvasTypes* = Canvas_t | BackgroundBox_t
 proc `liney=`*(ih: LineycanvasTypes, value: string) {.cdecl.} =
   ## The amount the thumb moves when a vertical step is performed. Default: 1/10th of DY. (since 3.0)
   SetAttribute(cast[PIhandle](ih), "LINEY", value)
@@ -1778,7 +2124,7 @@ proc `maximized`*(ih: MaximizedTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "MAXIMIZED")
 
 
-type MaxsizeTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
+type MaxsizeTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t | BackgroundBox_t
 proc `maxsize=`*(ih: MaxsizeTypes, value: string) {.cdecl.} =
   ## Specifies the element maximum size in pixels during the layout process.
   ## See the Layout Guide for more details on sizes.
@@ -1953,7 +2299,7 @@ proc `minimized`*(ih: MinimizedTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "MINIMIZED")
 
 
-type MinsizeTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
+type MinsizeTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t | BackgroundBox_t
 proc `minsize=`*(ih: MinsizeTypes, value: string) {.cdecl.} =
   ## Specifies the element minimum size in pixels during the layout process.
   ## See the Layout Guide for more details on sizes.
@@ -2230,6 +2576,18 @@ proc `padding`*(ih: PaddingTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "PADDING")
 
 
+type PaddingflatlblTypes* = FlatLabel_t
+proc `padding=`*(ih: PaddingflatlblTypes, value: string) {.cdecl.} =
+  ## internal margin. Works just like the MARGIN attribute of the IupHbox and IupVbox containers, but uses a different name to avoid inheritance problems. Default value: "0x0". Alignment does not includes the padding area.
+  SetAttribute(cast[PIhandle](ih), "PADDING", value)
+
+proc `padding`*(ih: PaddingflatlblTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "PADDING", value)
+
+proc `padding`*(ih: PaddingflatlblTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "PADDING")
+
+
 type ParentdialogTypes* = Dialog_t
 proc `parentdialog=`*(ih: ParentdialogTypes, value: string) {.cdecl.} =
   ## The parent dialog of a dialog.
@@ -2277,7 +2635,7 @@ proc `placement`*(ih: PlacementTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "PLACEMENT")
 
 
-type PositionTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
+type PositionTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Vbox_t | Hbox_t | Text_t | MultiLine_t | BackgroundBox_t
 proc `position=`*(ih: PositionTypes, value: string) {.cdecl.} =
   ## The position of the element relative to the origin of the Client area of the native parent. If you add the CLIENTOFFSET attribute of the native parent, you can obtain the coordinates relative to the Window area of the native parent. See the Layout Guide.
   ## It will be changed during the layout computation, except when FLOATING=YES or when used inside a concrete layout container.
@@ -2298,7 +2656,7 @@ proc `position`*(ih: PositionTypes): string {.cdecl.} =
 proc `position`*(ih: PositionTypes, x, y:int) {.cdecl.} =
   SetAttribute(cast[PIhandle](ih), "POSITION", cstring(&"{x},{y}"))
 
-type PosxcanvasTypes* = Canvas_t
+type PosxcanvasTypes* = Canvas_t | BackgroundBox_t
 proc `posx=`*(ih: PosxcanvasTypes, value: string) {.cdecl.} =
   ## Position of the thumb in the horizontal scrollbar. Default: "0.0".
   SetAttribute(cast[PIhandle](ih), "POSX", value)
@@ -2310,7 +2668,7 @@ proc `posx`*(ih: PosxcanvasTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "POSX")
 
 
-type PosycanvasTypes* = Canvas_t
+type PosycanvasTypes* = Canvas_t | BackgroundBox_t
 proc `posy=`*(ih: PosycanvasTypes, value: string) {.cdecl.} =
   ## Position of the thumb in the vertical scrollbar. Default: "0.0".
   SetAttribute(cast[PIhandle](ih), "POSY", value)
@@ -2322,7 +2680,7 @@ proc `posy`*(ih: PosycanvasTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "POSY")
 
 
-type PropagatefocusTypes* = Button_t | Canvas_t | List_t | Text_t | MultiLine_t | Toggle_t
+type PropagatefocusTypes* = Button_t | Canvas_t | List_t | Text_t | MultiLine_t | Toggle_t | BackgroundBox_t
 proc `propagatefocus=`*(ih: PropagatefocusTypes, value: string) {.cdecl.} =
   ## (non inheritable): enables the focus callback forwarding to the next native parent with FOCUS_CB defined. Default: NO. (since 3.23)
   SetAttribute(cast[PIhandle](ih), "PROPAGATEFOCUS", value)
@@ -2357,7 +2715,7 @@ proc `radio`*(ih: RadioTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "RADIO")
 
 
-type RastersizeTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Image_t | ImageRGB_t | ImageRGBA_t | Text_t | MultiLine_t
+type RastersizeTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Image_t | ImageRGB_t | ImageRGBA_t | Text_t | MultiLine_t | BackgroundBox_t
 proc `rastersize=`*(ih: RastersizeTypes, value: string) {.cdecl.} =
   ## Specifies the element User size, and returns the Current size, in pixels.
   ## See the Layout Guide for more details on sizes.
@@ -2537,7 +2895,7 @@ proc `scaled`*(ih: ScaledTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "SCALED")
 
 
-type ScreenpositionTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
+type ScreenpositionTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t | BackgroundBox_t
 proc `screenposition=`*(ih: ScreenpositionTypes, value: string) {.cdecl.} =
   ## Returns the absolute horizontal and/or vertical position of the top-left corner of the client area relative to the origin of the main screen in pixels. It is similar to POSITION but relative to the origin of the main screen, instead of the origin of the client area. The origin of the main screen is at the top-left corner, in Windows it is affected by the position of the Start Menu when it is at the top or left side of the screen.
   ## IMPORTANT: For the dialog, it is the position of the top-left corner of the window, NOT the client area. It is the same position used in IupShowXY and IupPopup. In GTK, if the dialog is hidden the values can be outdated.
@@ -2581,7 +2939,7 @@ proc `scrollbar`*(ih: ScrollbarlstTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "SCROLLBAR")
 
 
-type ScrollbarcanvasTypes* = Canvas_t
+type ScrollbarcanvasTypes* = Canvas_t | BackgroundBox_t
 proc `scrollbar=`*(ih: ScrollbarcanvasTypes, value: string) {.cdecl.} =
   ## Associates a horizontal and/or vertical scrollbar to the element.
   ## The scrollbar allows you to create a virtual space associated to the element.
@@ -2720,6 +3078,9 @@ proc `shapeimage=`*(ih: ShapeimageTypes, value: string) {.cdecl.} =
 proc `shapeimage`*(ih: ShapeimageTypes, value: string) {.cdecl.} =
   SetAttribute(cast[PIhandle](ih), "SHAPEIMAGE", value)
 
+proc `shapeimage=`*(ih: ShapeimageTypes, value: Image_t | ImageRGB_t | ImageRGBA_t) {.cdecl.} =
+  SetAttributeHandle(cast[PIhandle](ih), "SHAPEIMAGE", cast[PIhandle](value))
+
 proc `shapeimage`*(ih: ShapeimageTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "SHAPEIMAGE")
 
@@ -2795,7 +3156,7 @@ proc `simulatemodal`*(ih: SimulatemodalTypes, value: string) {.cdecl.} =
   SetAttribute(cast[PIhandle](ih), "SIMULATEMODAL", value)
 
 
-type SizeTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t
+type SizeTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Text_t | MultiLine_t | BackgroundBox_t
 proc `size=`*(ih: SizeTypes, value: string) {.cdecl.} =
   ## Specifies the element User size, and returns the Current size, in units proportional to the size of a character.
   ## See the Layout Guide for more details on sizes.
@@ -2907,6 +3268,18 @@ proc `spacing`*(ih: SpacinglstTypes, value: string) {.cdecl.} =
   SetAttribute(cast[PIhandle](ih), "SPACING", value)
 
 proc `spacing`*(ih: SpacinglstTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "SPACING")
+
+
+type SpacingflatlblTypes* = FlatLabel_t
+proc `spacing=`*(ih: SpacingflatlblTypes, value: string) {.cdecl.} =
+  ## non inheritable): spacing between the image and the text. Default: "2".
+  SetAttribute(cast[PIhandle](ih), "SPACING", value)
+
+proc `spacing`*(ih: SpacingflatlblTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "SPACING", value)
+
+proc `spacing`*(ih: SpacingflatlblTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "SPACING")
 
 
@@ -3122,6 +3495,54 @@ proc `taskbarprogressvalue`*(ih: TaskbarprogressvalueTypes, value: string) {.cde
   SetAttribute(cast[PIhandle](ih), "TASKBARPROGRESSVALUE", value)
 
 
+type TextalignmentflatlblTypes* = FlatLabel_t
+proc `textalignment=`*(ih: TextalignmentflatlblTypes, value: string) {.cdecl.} =
+  ## (non inheritable): Horizontal text alignment for multiple lines. Can be: ALEFT, ARIGHT or ACENTER. Default: ALEFT. (since 3.22)
+  SetAttribute(cast[PIhandle](ih), "TEXTALIGNMENT", value)
+
+proc `textalignment`*(ih: TextalignmentflatlblTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "TEXTALIGNMENT", value)
+
+proc `textalignment`*(ih: TextalignmentflatlblTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "TEXTALIGNMENT")
+
+
+type TextellipsisflatlblTypes* = FlatLabel_t
+proc `textellipsis=`*(ih: TextellipsisflatlblTypes, value: string) {.cdecl.} =
+  ## (non inheritable): If the text is larger that its box, an ellipsis ("...") will be placed near the last visible part of the text and replace the invisible part. It will be ignored when TEXTWRAP=Yes. (since 3.25)
+  SetAttribute(cast[PIhandle](ih), "TEXTELLIPSIS", value)
+
+proc `textellipsis`*(ih: TextellipsisflatlblTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "TEXTELLIPSIS", value)
+
+proc `textellipsis`*(ih: TextellipsisflatlblTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "TEXTELLIPSIS")
+
+
+type TextorientationflatlblTypes* = FlatLabel_t
+proc `textorientation=`*(ih: TextorientationflatlblTypes, value: string) {.cdecl.} =
+  ## (non inheritable): text angle in degrees and counterclockwise. The text size will adapt to include the rotated space. (since 3.25)
+  SetAttribute(cast[PIhandle](ih), "TEXTORIENTATION", value)
+
+proc `textorientation`*(ih: TextorientationflatlblTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "TEXTORIENTATION", value)
+
+proc `textorientation`*(ih: TextorientationflatlblTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "TEXTORIENTATION")
+
+
+type TextwrapflatlblTypes* = FlatLabel_t
+proc `textwrap=`*(ih: TextwrapflatlblTypes, value: string) {.cdecl.} =
+  ## (non inheritable): For single line texts if the text is larger than its box the line will be automatically broken in multiple lines. Notice that this is done internally by the system, the element natural size will still use only a single line. For the remaining lines to be visible the element should use EXPAND=VERTICAL or set a SIZE/RASTERSIZE with enough height for the wrapped lines. (since 3.25)
+  SetAttribute(cast[PIhandle](ih), "TEXTWRAP", value)
+
+proc `textwrap`*(ih: TextwrapflatlblTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "TEXTWRAP", value)
+
+proc `textwrap`*(ih: TextwrapflatlblTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "TEXTWRAP")
+
+
 type ThemeTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Vbox_t | Hbox_t | Text_t | MultiLine_t | BackgroundBox_t
 proc `theme=`*(ih: ThemeTypes, value: string) {.cdecl.} =
   ## Applies a set of attributes to a control. The THEME attribute in inheritable and the NTHEME attribute is NOT inheritable.
@@ -3151,7 +3572,7 @@ proc `time=`*(ih: TimeTypes, ms: int) {.cdecl.} =
 proc `time`*(ih: TimeTypes, ms: int) {.cdecl.} =
   SetAttribute(cast[PIhandle](ih), "TIME", cstring(&"{ms}"))
 
-type TipTypes* = Button_t | Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
+type TipTypes* = Button_t | Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t | BackgroundBox_t
 proc `tip=`*(ih: TipTypes, value: string) {.cdecl.} =
   ## Text to be shown when the mouse lies over the element.
   SetAttribute(cast[PIhandle](ih), "TIP", value)
@@ -3163,7 +3584,7 @@ proc `tip`*(ih: TipTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "TIP")
 
 
-type TipballoonTypes* = Button_t | Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
+type TipballoonTypes* = Button_t | Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t | BackgroundBox_t
 proc `tipballoon=`*(ih: TipballoonTypes, value: string) {.cdecl.} =
   ## [Windows Only]: The tip window will have the appearance of a cartoon "balloon"with rounded corners and a stem pointing to the item. Default: NO.
   SetAttribute(cast[PIhandle](ih), "TIPBALLOON", value)
@@ -3175,7 +3596,7 @@ proc `tipballoon`*(ih: TipballoonTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "TIPBALLOON")
 
 
-type TipballoontitleTypes* = Button_t | Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
+type TipballoontitleTypes* = Button_t | Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t | BackgroundBox_t
 proc `tipballoontitle=`*(ih: TipballoontitleTypes, value: string) {.cdecl.} =
   ## [Windows Only]: When using the balloon format, the tip can also has a title in a separate area.
   SetAttribute(cast[PIhandle](ih), "TIPBALLOONTITLE", value)
@@ -3187,7 +3608,7 @@ proc `tipballoontitle`*(ih: TipballoontitleTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "TIPBALLOONTITLE")
 
 
-type TipballoontitleiconTypes* = Button_t | Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
+type TipballoontitleiconTypes* = Button_t | Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t | BackgroundBox_t
 proc `tipballoontitleicon=`*(ih: TipballoontitleiconTypes, value: string) {.cdecl.} =
   ## [Windows Only]: When using the balloon format, the tip can also has a pre-defined icon in the title area. Values can be:
   ## "0"- No icon (default)
@@ -3203,7 +3624,7 @@ proc `tipballoontitleicon`*(ih: TipballoontitleiconTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "TIPBALLOONTITLEICON")
 
 
-type TipbgcolorTypes* = Button_t | Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
+type TipbgcolorTypes* = Button_t | Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t | BackgroundBox_t
 proc `tipbgcolor=`*(ih: TipbgcolorTypes, value: string) {.cdecl.} =
   ## [Windows and Motif Only]: The tip background color. Default: "255 255 225"(Light Yellow)
   SetAttribute(cast[PIhandle](ih), "TIPBGCOLOR", value)
@@ -3215,7 +3636,7 @@ proc `tipbgcolor`*(ih: TipbgcolorTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "TIPBGCOLOR")
 
 
-type TipdelayTypes* = Button_t | Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
+type TipdelayTypes* = Button_t | Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t | BackgroundBox_t
 proc `tipdelay=`*(ih: TipdelayTypes, value: string) {.cdecl.} =
   ## [Windows and Motif Only]: Time the tip will remain visible. Default: "5000". In Windows the maximum value is 32767 milliseconds.
   SetAttribute(cast[PIhandle](ih), "TIPDELAY", value)
@@ -3227,7 +3648,7 @@ proc `tipdelay`*(ih: TipdelayTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "TIPDELAY")
 
 
-type TipfgcolorTypes* = Button_t | Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
+type TipfgcolorTypes* = Button_t | Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t | BackgroundBox_t
 proc `tipfgcolor=`*(ih: TipfgcolorTypes, value: string) {.cdecl.} =
   ## [Windows and Motif Only]: The tip text color. Default: "0 0 0"(Black)
   SetAttribute(cast[PIhandle](ih), "TIPFGCOLOR", value)
@@ -3239,7 +3660,7 @@ proc `tipfgcolor`*(ih: TipfgcolorTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "TIPFGCOLOR")
 
 
-type TipfontTypes* = Button_t | Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
+type TipfontTypes* = Button_t | Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t | BackgroundBox_t
 proc `tipfont=`*(ih: TipfontTypes, value: string) {.cdecl.} =
   ## [Windows and Motif Only]: The font for the tip text. If not defined the font used for the text is the same as the FONT attribute for the element. If the value is SYSTEM then, no font is selected and the default system font for the tip will be used.
   SetAttribute(cast[PIhandle](ih), "TIPFONT", value)
@@ -3251,7 +3672,7 @@ proc `tipfont`*(ih: TipfontTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "TIPFONT")
 
 
-type TipiconTypes* = Button_t | Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
+type TipiconTypes* = Button_t | Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t | BackgroundBox_t
 proc `tipicon=`*(ih: TipiconTypes, value: string) {.cdecl.} =
   ## [GTK only]: name of an image to be displayed in the TIP. See IupImage. (GTK 2.12)
   SetAttribute(cast[PIhandle](ih), "TIPICON", value)
@@ -3263,7 +3684,7 @@ proc `tipicon`*(ih: TipiconTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "TIPICON")
 
 
-type TipmarkupTypes* = Button_t | Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
+type TipmarkupTypes* = Button_t | Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t | BackgroundBox_t
 proc `tipmarkup=`*(ih: TipmarkupTypes, value: string) {.cdecl.} =
   ## [GTK only]: allows the tip string to contains Pango markup commands. Can be "YES"or "NO". Default: "NO". Must be set before setting the TIP attribute. (GTK 2.12)
   SetAttribute(cast[PIhandle](ih), "TIPMARKUP", value)
@@ -3275,7 +3696,7 @@ proc `tipmarkup`*(ih: TipmarkupTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "TIPMARKUP")
 
 
-type TiprectTypes* = Button_t | Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
+type TiprectTypes* = Button_t | Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t | BackgroundBox_t
 proc `tiprect=`*(ih: TiprectTypes, value: string) {.cdecl.} =
   ## (non inheritable): Specifies a rectangle inside the element where the tip will be activated. Format: "%d %d %d %d"="x1 y1 x2 y2". Default: all the element area. (GTK 2.12)
   SetAttribute(cast[PIhandle](ih), "TIPRECT", value)
@@ -3287,7 +3708,7 @@ proc `tiprect`*(ih: TiprectTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "TIPRECT")
 
 
-type TipvisibleTypes* = Button_t | Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
+type TipvisibleTypes* = Button_t | Canvas_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t | BackgroundBox_t
 proc `tipvisible=`*(ih: TipvisibleTypes, value: string) {.cdecl.} =
   ## Shows or hides the tip under the mouse cursor. Use values "YES"or "NO". Returns the current visible state. (GTK 2.12) (since 3.5)
   SetAttribute(cast[PIhandle](ih), "TIPVISIBLE", value)
@@ -3342,6 +3763,18 @@ proc `title`*(ih: TitlefrmTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "TITLE")
 
 
+type TitleflatlblTypes* = FlatLabel_t
+proc `title=`*(ih: TitleflatlblTypes, value: string) {.cdecl.} =
+  ## (non inheritable): Label's text. The '\n'character is accepted for line change.
+  SetAttribute(cast[PIhandle](ih), "TITLE", value)
+
+proc `title`*(ih: TitleflatlblTypes, value: string) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), "TITLE", value)
+
+proc `title`*(ih: TitleflatlblTypes): string {.cdecl.} =
+  return $GetAttribute(cast[PIhandle](ih), "TITLE")
+
+
 type ToolboxTypes* = Dialog_t
 proc `toolbox=`*(ih: ToolboxTypes, value: string) {.cdecl.} =
   ## [Windows Only] (creation only): makes the dialog look like a toolbox with a smaller title bar. It is only valid if the PARENTDIALOG or NATIVEPARENT attribute is also defined. Default: NO.
@@ -3375,7 +3808,7 @@ proc `topmost`*(ih: TopmostTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "TOPMOST")
 
 
-type TouchTypes* = Canvas_t
+type TouchTypes* = Canvas_t | BackgroundBox_t
 proc `touch=`*(ih: TouchTypes, value: string) {.cdecl.} =
   ## [Windows 7 Only]: enable the multi-touch events processing. (since 3.3)
   SetAttribute(cast[PIhandle](ih), "TOUCH", value)
@@ -3585,7 +4018,7 @@ proc `valuestring`*(ih: ValuestringlstTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "VALUESTRING")
 
 
-type VisibleTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
+type VisibleTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t | BackgroundBox_t
 proc `visible=`*(ih: VisibleTypes, value: string) {.cdecl.} =
   ## Shows or hides the element.
   ## 
@@ -3679,7 +4112,7 @@ proc `weight`*(ih: WeighttxtfmtTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "WEIGHT")
 
 
-type WheeldropfocusTypes* = Canvas_t
+type WheeldropfocusTypes* = Canvas_t | BackgroundBox_t
 proc `wheeldropfocus=`*(ih: WheeldropfocusTypes, value: string) {.cdecl.} =
   ## (non inheritable): when the wheel is used the focus control receives a SHOWDROPDOWN=No. (since 3.28)
   SetAttribute(cast[PIhandle](ih), "WHEELDROPFOCUS", value)
@@ -3691,7 +4124,7 @@ proc `wheeldropfocus`*(ih: WheeldropfocusTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "WHEELDROPFOCUS")
 
 
-type WidTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Image_t | ImageRGB_t | ImageRGBA_t | Text_t | MultiLine_t | Timer_t
+type WidTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Dialog_t | Vbox_t | Hbox_t | Image_t | ImageRGB_t | ImageRGBA_t | Text_t | MultiLine_t | Timer_t | BackgroundBox_t
 proc `wid`*(ih: WidTypes): string {.cdecl.} =
   ## Element identifier in the native interface system.
   ## 
@@ -3724,7 +4157,7 @@ proc `wordwrap`*(ih: WordwrapTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "WORDWRAP")
 
 
-type XautohidecanvasTypes* = Canvas_t
+type XautohidecanvasTypes* = Canvas_t | BackgroundBox_t
 proc `xautohide=`*(ih: XautohidecanvasTypes, value: string) {.cdecl.} =
   ## When enabled, if DX >= XMAX-XMIN then the horizontal scrollbar is hidden. Default: "YES". (since 3.0)
   SetAttribute(cast[PIhandle](ih), "XAUTOHIDE", value)
@@ -3736,13 +4169,13 @@ proc `xautohide`*(ih: XautohidecanvasTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "XAUTOHIDE")
 
 
-type XdisplayTypes* = Canvas_t
+type XdisplayTypes* = Canvas_t | BackgroundBox_t
 proc `xdisplay`*(ih: XdisplayTypes): string {.cdecl.} =
   ## [UNIX Only](non inheritable, read-only): Returns the X-Windows Display. Available in the Motif driver or in the GTK driver in UNIX.
   return $GetAttribute(cast[PIhandle](ih), "XDISPLAY")
 
 
-type XmaxcanvasTypes* = Canvas_t
+type XmaxcanvasTypes* = Canvas_t | BackgroundBox_t
 proc `xmax=`*(ih: XmaxcanvasTypes, value: string) {.cdecl.} =
   ## Maximum value of the horizontal scrollbar. Default: "1.0".
   SetAttribute(cast[PIhandle](ih), "XMAX", value)
@@ -3754,7 +4187,7 @@ proc `xmax`*(ih: XmaxcanvasTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "XMAX")
 
 
-type XmincanvasTypes* = Canvas_t
+type XmincanvasTypes* = Canvas_t | BackgroundBox_t
 proc `xmin=`*(ih: XmincanvasTypes, value: string) {.cdecl.} =
   ## Minimum value of the horizontal scrollbar. Default: "0.0".
   SetAttribute(cast[PIhandle](ih), "XMIN", value)
@@ -3766,13 +4199,13 @@ proc `xmin`*(ih: XmincanvasTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "XMIN")
 
 
-type XwindowTypes* = Canvas_t | Dialog_t
+type XwindowTypes* = Canvas_t | Dialog_t | BackgroundBox_t
 proc `xwindow`*(ih: XwindowTypes): string {.cdecl.} =
   ## [UNIX Only] (non inheritable, read-only): Returns the X-Windows Window (Drawable). Available in the Motif driver or in the GTK driver in UNIX.
   return $GetAttribute(cast[PIhandle](ih), "XWINDOW")
 
 
-type YautohidecanvasTypes* = Canvas_t
+type YautohidecanvasTypes* = Canvas_t | BackgroundBox_t
 proc `yautohide=`*(ih: YautohidecanvasTypes, value: string) {.cdecl.} =
   ## When enabled, if DY >= YMAX-YMIN then the vertical scrollbar is hidden. Default: "YES". (since 3.0)
   SetAttribute(cast[PIhandle](ih), "YAUTOHIDE", value)
@@ -3784,7 +4217,7 @@ proc `yautohide`*(ih: YautohidecanvasTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "YAUTOHIDE")
 
 
-type YmaxcanvasTypes* = Canvas_t
+type YmaxcanvasTypes* = Canvas_t | BackgroundBox_t
 proc `ymax=`*(ih: YmaxcanvasTypes, value: string) {.cdecl.} =
   ## Maximum value of the vertical scrollbar. Default: "1.0".
   SetAttribute(cast[PIhandle](ih), "YMAX", value)
@@ -3796,7 +4229,7 @@ proc `ymax`*(ih: YmaxcanvasTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "YMAX")
 
 
-type YmincanvasTypes* = Canvas_t
+type YmincanvasTypes* = Canvas_t | BackgroundBox_t
 proc `ymin=`*(ih: YmincanvasTypes, value: string) {.cdecl.} =
   ## Minimum value of the vertical scrollbar. Default: "0.0".
   SetAttribute(cast[PIhandle](ih), "YMIN", value)
@@ -3808,7 +4241,7 @@ proc `ymin`*(ih: YmincanvasTypes): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), "YMIN")
 
 
-type ZorderTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t
+type ZorderTypes* = Button_t | Canvas_t | Frame_t | Label_t | List_t | Dialog_t | Text_t | MultiLine_t | BackgroundBox_t
 proc `zorder=`*(ih: ZorderTypes, value: string) {.cdecl.} =
   ## Change the ZORDER of a dialog or control. It is commonly used for dialogs, but it can be used to control the z-order of controls in a dialog.
   ## 
@@ -3821,158 +4254,6 @@ proc `zorder=`*(ih: ZorderTypes, value: string) {.cdecl.} =
 
 proc `zorder`*(ih: ZorderTypes, value: string) {.cdecl.} =
   SetAttribute(cast[PIhandle](ih), "ZORDER", value)
-
-
-type BackimagebgboxTypes* = BackgroundBox_t
-proc `backimage=`*(ih: BackimagebgboxTypes, value: string) {.cdecl.} =
-  ## (non inheritable): image name to be used as background. Use IupSetHandle or IupSetAttributeHandle to associate an image to a name. See also IupImage. When defined the ACTION callback of the IupCanvas will be defined. (since 3.26)
-  SetAttribute(cast[PIhandle](ih), "BACKIMAGE", value)
-
-proc `backimage`*(ih: BackimagebgboxTypes, value: string) {.cdecl.} =
-  SetAttribute(cast[PIhandle](ih), "BACKIMAGE", value)
-
-proc `backimage`*(ih: BackimagebgboxTypes): string {.cdecl.} =
-  return $GetAttribute(cast[PIhandle](ih), "BACKIMAGE")
-
-
-type BackimagezoombgboxTypes* = BackgroundBox_t
-proc `backimagezoom=`*(ih: BackimagezoombgboxTypes, value: string) {.cdecl.} =
-  ## (non inheritable): if set the back image will be zoomed to occupy the full background. Aspect ratio is NOT preserved. Can be Yes or No. Default: No. (since 3.26)
-  SetAttribute(cast[PIhandle](ih), "BACKIMAGEZOOM", value)
-
-proc `backimagezoom`*(ih: BackimagezoombgboxTypes, value: string) {.cdecl.} =
-  SetAttribute(cast[PIhandle](ih), "BACKIMAGEZOOM", value)
-
-proc `backimagezoom`*(ih: BackimagezoombgboxTypes): string {.cdecl.} =
-  return $GetAttribute(cast[PIhandle](ih), "BACKIMAGEZOOM")
-
-
-type BackcolorbgboxTypes* = BackgroundBox_t
-proc `backcolor=`*(ih: BackcolorbgboxTypes, value: string) {.cdecl.} =
-  ## (non inheritable): if defined used to fill the background color when BACKIMAGE is defined. If not defined BGCOLOR is used. (since 3.26)
-  SetAttribute(cast[PIhandle](ih), "BACKCOLOR", value)
-
-proc `backcolor`*(ih: BackcolorbgboxTypes, value: string) {.cdecl.} =
-  SetAttribute(cast[PIhandle](ih), "BACKCOLOR", value)
-
-proc `backcolor`*(ih: BackcolorbgboxTypes): string {.cdecl.} =
-  return $GetAttribute(cast[PIhandle](ih), "BACKCOLOR")
-
-
-type BgcolorbgboxTypes* = BackgroundBox_t
-proc `bgcolor=`*(ih: BgcolorbgboxTypes, value: string) {.cdecl.} =
-  ## by default will use the background color of the native parent, but can be set to a custom value (since 3.11).
-  SetAttribute(cast[PIhandle](ih), "BGCOLOR", value)
-
-proc `bgcolor`*(ih: BgcolorbgboxTypes, value: string) {.cdecl.} =
-  SetAttribute(cast[PIhandle](ih), "BGCOLOR", value)
-
-proc `bgcolor`*(ih: BgcolorbgboxTypes): string {.cdecl.} =
-  return $GetAttribute(cast[PIhandle](ih), "BGCOLOR")
-
-proc `bgcolor`*(ih: BgcolorbgboxTypes, red, green, blue:int, alpha:int = 255) {.cdecl.} =
-  SetAttribute(cast[PIhandle](ih), "BGCOLOR", cstring(&"{red} {green} {blue} {alpha}"))
-
-type BorderbgboxTypes* = BackgroundBox_t
-proc `border=`*(ih: BorderbgboxTypes, value: string) {.cdecl.} =
-  ## (creation only): the default value is "NO".
-  SetAttribute(cast[PIhandle](ih), "BORDER", value)
-
-proc `border`*(ih: BorderbgboxTypes, value: string) {.cdecl.} =
-  SetAttribute(cast[PIhandle](ih), "BORDER", value)
-
-proc `border`*(ih: BorderbgboxTypes): string {.cdecl.} =
-  return $GetAttribute(cast[PIhandle](ih), "BORDER")
-
-
-type CanvasboxbgboxTypes* = BackgroundBox_t
-proc `canvasbox=`*(ih: CanvasboxbgboxTypes, value: string) {.cdecl.} =
-  ## (non inheritable): enable the behavior of a canvas box instead of a regular container. This will affect the EXPAND attribute, the Natural size computation, and children layout distribution. Can be Yes or No. Default: No. (since 3.19)
-  SetAttribute(cast[PIhandle](ih), "CANVASBOX", value)
-
-proc `canvasbox`*(ih: CanvasboxbgboxTypes, value: string) {.cdecl.} =
-  SetAttribute(cast[PIhandle](ih), "CANVASBOX", value)
-
-proc `canvasbox`*(ih: CanvasboxbgboxTypes): string {.cdecl.} =
-  return $GetAttribute(cast[PIhandle](ih), "CANVASBOX")
-
-
-type ChildoffsetbgboxTypes* = BackgroundBox_t
-proc `childoffset=`*(ih: ChildoffsetbgboxTypes, value: string) {.cdecl.} =
-  ## (non inheritable): Allow to specify a position offset for the child. Available for native containers only. It will not affect the natural size, and allows to position controls outside the client area. Format "dxxdy", where dx and dy are integer values corresponding to the horizontal and vertical offsets, respectively, in pixels. Default: 0x0. (since 3.14)
-  SetAttribute(cast[PIhandle](ih), "CHILDOFFSET", value)
-
-proc `childoffset`*(ih: ChildoffsetbgboxTypes, value: string) {.cdecl.} =
-  SetAttribute(cast[PIhandle](ih), "CHILDOFFSET", value)
-
-proc `childoffset`*(ih: ChildoffsetbgboxTypes): string {.cdecl.} =
-  return $GetAttribute(cast[PIhandle](ih), "CHILDOFFSET")
-
-proc `childoffset`*(ih: ChildoffsetbgboxTypes, x, y:int) {.cdecl.} =
-  SetAttribute(cast[PIhandle](ih), "CHILDOFFSET", cstring(&"{x}x{y}"))
-
-type DecorationbgboxTypes* = BackgroundBox_t
-proc `decoration=`*(ih: DecorationbgboxTypes, value: string) {.cdecl.} =
-  ## (non inheritable): Enable a decoration area around the child. Can be Yes or No. Default No. (since 3.20)
-  SetAttribute(cast[PIhandle](ih), "DECORATION", value)
-
-proc `decoration`*(ih: DecorationbgboxTypes, value: string) {.cdecl.} =
-  SetAttribute(cast[PIhandle](ih), "DECORATION", value)
-
-proc `decoration`*(ih: DecorationbgboxTypes): string {.cdecl.} =
-  return $GetAttribute(cast[PIhandle](ih), "DECORATION")
-
-
-type DecorsizebgboxTypes* = BackgroundBox_t
-proc `decorsize=`*(ih: DecorsizebgboxTypes, value: string) {.cdecl.} =
-  ## (non inheritable): total size of the decoration in the format "WidthxHeight"(in C "%dx%d). Used only when DECORATION=Yes. (since 3.20)
-  SetAttribute(cast[PIhandle](ih), "DECORSIZE", value)
-
-proc `decorsize`*(ih: DecorsizebgboxTypes, value: string) {.cdecl.} =
-  SetAttribute(cast[PIhandle](ih), "DECORSIZE", value)
-
-proc `decorsize`*(ih: DecorsizebgboxTypes): string {.cdecl.} =
-  return $GetAttribute(cast[PIhandle](ih), "DECORSIZE")
-
-proc `decorsize`*(ih: DecorsizebgboxTypes, width, height:int) {.cdecl.} =
-  SetAttribute(cast[PIhandle](ih), "DECORSIZE", cstring(&"{width}x{height}"))
-
-type DecoroffsetbgboxTypes* = BackgroundBox_t
-proc `decoroffset=`*(ih: DecoroffsetbgboxTypes, value: string) {.cdecl.} =
-  ## (non inheritable): decoration offset from left border and top border in the format "XxY"(in C "%dx%d). Used only when DECORATION=Yes. (since 3.20)
-  SetAttribute(cast[PIhandle](ih), "DECOROFFSET", value)
-
-proc `decoroffset`*(ih: DecoroffsetbgboxTypes, value: string) {.cdecl.} =
-  SetAttribute(cast[PIhandle](ih), "DECOROFFSET", value)
-
-proc `decoroffset`*(ih: DecoroffsetbgboxTypes): string {.cdecl.} =
-  return $GetAttribute(cast[PIhandle](ih), "DECOROFFSET")
-
-proc `decoroffset`*(ih: DecoroffsetbgboxTypes, x, y:int) {.cdecl.} =
-  SetAttribute(cast[PIhandle](ih), "DECOROFFSET", cstring(&"{x}x{y}"))
-
-type ExpandbgboxTypes* = BackgroundBox_t
-proc `expand=`*(ih: ExpandbgboxTypes, value: string) {.cdecl.} =
-  ## (non inheritable): behaves as a container. See CANVASBOX attribute.
-  SetAttribute(cast[PIhandle](ih), "EXPAND", value)
-
-proc `expand`*(ih: ExpandbgboxTypes, value: string) {.cdecl.} =
-  SetAttribute(cast[PIhandle](ih), "EXPAND", value)
-
-proc `expand`*(ih: ExpandbgboxTypes): string {.cdecl.} =
-  return $GetAttribute(cast[PIhandle](ih), "EXPAND")
-
-
-type CanfocusbgboxTypes* = BackgroundBox_t
-proc `canfocus=`*(ih: CanfocusbgboxTypes, value: string) {.cdecl.} =
-  ## (non inheritable): the default is changed to NO. But it can receive the focus (since 3.19).
-  SetAttribute(cast[PIhandle](ih), "CANFOCUS", value)
-
-proc `canfocus`*(ih: CanfocusbgboxTypes, value: string) {.cdecl.} =
-  SetAttribute(cast[PIhandle](ih), "CANFOCUS", value)
-
-proc `canfocus`*(ih: CanfocusbgboxTypes): string {.cdecl.} =
-  return $GetAttribute(cast[PIhandle](ih), "CANFOCUS")
 
 
 # CALLBACKS
@@ -4505,14 +4786,17 @@ proc `wheel_cb`*(control: Wheel_cbTypes): proc (ih: PIhandle, delta: cfloat, x, 
 proc `[]`*(ih: IUPhandle_t, attribute: string): string {.cdecl.} =
   return $GetAttribute(cast[PIhandle](ih), attribute)
 
-proc `[]=`*(ih: IUPhandle_t, attribute, value: string) {.cdecl.} =
+proc `[]=`*(ih: IUPhandle_t, attribute, value: string or typeof(nil)) {.cdecl.} =
   SetAttribute(cast[PIhandle](ih), cstring(attribute), cstring(value))
 
-proc `[]=`*(ih: IUPhandle_t, attribute: string, value: typeof(nil)) {.cdecl.} =
-  SetAttribute(cast[PIhandle](ih), cstring(attribute), value)
+proc SetAttributes*(ih: IUPhandle_t, attrs: string): IUPhandle_t {.cdecl.} =
+  return cast[IUPhandle_t](SetAttributes(cast[PIhandle](ih), cstring(attrs)))
 
-proc SetAttributes*(ih: IUPhandle_t, attrs: string) {.cdecl.} =
-  SetAttributes(cast[PIhandle](ih), cstring(attrs))
+proc SetAttributeHandle*(ih: IUPhandle_t, attribute: string, img: Image_t | ImageRGB_t | ImageRGBA_t) =
+  SetAttributeHandle(cast[PIhandle](ih), cstring(attribute), cast[PIhandle](img))
+
+proc GetAttributeHandle*(ih: IUPhandle_t, attribute: string): PIhandle =
+  return GetAttributeHandle(cast[PIhandle](ih), cstring(attribute))
 
 proc GetInt*(ih: IUPhandle_t, name: string): int {.cdecl.} =
   return GetInt(cast[PIhandle](ih), cstring(name))
