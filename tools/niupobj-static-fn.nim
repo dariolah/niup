@@ -6,6 +6,9 @@ proc `[]`*(ih: IUPhandle_t, attribute: string): string {.cdecl.} =
 proc `[]=`*(ih: IUPhandle_t, attribute, value: string) {.cdecl.} =
   SetAttribute(cast[PIhandle](ih), cstring(attribute), cstring(value))
 
+proc `[]=`*(ih: IUPhandle_t, attribute: string, value: typeof(nil)) {.cdecl.} =
+  SetAttribute(cast[PIhandle](ih), cstring(attribute), value)
+
 proc SetAttributes*(ih: IUPhandle_t, attrs: string) {.cdecl.} =
   SetAttributes(cast[PIhandle](ih), cstring(attrs))
 
