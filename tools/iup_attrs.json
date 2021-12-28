@@ -1,0 +1,279 @@
+{
+  "dialog": {
+    "GAP": [
+      {
+        "ctor": "value: string",
+        "call": "cstring(value)",
+        "doc": ""
+      },
+      {
+        "ctor": "value: int",
+        "call": "cstring(&\"value\")",
+        "doc": ""
+      }
+    ],
+    "MARGIN": [
+      {
+        "ctor": "value: string",
+        "call": "cstring(value)",
+        "doc": ""
+      },
+      {
+        "ctor": "horiz, vert:int",
+        "call": "&\"{horiz}x{vert}\"",
+        "doc": ""
+      }
+    ],
+    "SHAPEIMAGE": [
+      {
+        "handle_type": "Image_t | ImageRGB_t | ImageRGBA_t",
+        "doc": ""
+      }
+    ]
+  },
+  "user": {
+    "ALIGNMENT": [
+      {
+        "ctor": "value: string",
+        "call": "cstring(value)",
+        "doc": ""
+      }
+    ],
+    "BGCOLOR": [
+      {
+        "ctor": "red, green, blue:int, alpha:int = 255",
+        "call": "&\"{red} {green} {blue} {alpha}\"",
+        "doc": ""
+      }
+    ],
+    "BULK": [
+      {
+        "ctor": "value: string",
+        "call": "cstring(value)",
+        "doc": ""
+      }
+    ],
+    "CLEANOUT": [
+      {
+        "ctor": "value: string",
+        "call": "cstring(value)",
+        "doc": ""
+      }
+    ],
+    "CLEARATTRIBUTES": [
+      {
+        "ctor": "value: string",
+        "call": "cstring(value)",
+        "doc": ""
+      }
+    ],
+    "DISABLED": [
+      {
+        "ctor": "value: string",
+        "call": "cstring(value)",
+        "doc": ""
+      }
+    ],
+    "FGCOLOR": [
+      {
+        "ctor": "value: string",
+        "call": "cstring(value)",
+        "doc": ""
+      }
+    ],
+    "FONTFACE": [
+      {
+        "ctor": "value: string",
+        "call": "cstring(value)",
+        "doc": ""
+      }
+    ],
+    "FONTSCALE": [
+      {
+        "ctor": "value: string",
+        "call": "cstring(value)",
+        "doc": ""
+      }
+    ],
+    "FONTSIZE": [
+      {
+        "ctor": "value: string",
+        "call": "cstring(value)",
+        "doc": ""
+      }
+    ],
+    "INDENT": [
+      {
+        "ctor": "value: string",
+        "call": "cstring(value)",
+        "doc": ""
+      }
+    ],
+    "ITALIC": [
+      {
+        "ctor": "value: string",
+        "call": "cstring(value)",
+        "doc": ""
+      },
+      {
+        "ctor": "yes: bool",
+        "call": "(if yes: \"YES\" else: \"NO\")",
+        "doc": ""
+      }
+    ],
+    "LANGUAGE": [
+      {
+        "ctor": "value: string",
+        "call": "cstring(value)",
+        "doc": ""
+      }
+    ],
+    "LINESPACING": [
+      {
+        "ctor": "value: string",
+        "call": "cstring(value)",
+        "doc": ""
+      }
+    ],
+    "NAME": [
+      {
+        "ctor": "value: string",
+        "call": "cstring(value)",
+        "doc": ""
+      }
+    ],
+    "NUMBERING": [
+      {
+        "ctor": "value: string",
+        "call": "cstring(value)",
+        "doc": ""
+      }
+    ],
+    "NUMBERINGSTYLE": [
+      {
+        "ctor": "value: string",
+        "call": "cstring(value)",
+        "doc": ""
+      }
+    ],
+    "NUMBERINGTAB": [
+      {
+        "ctor": "value: string",
+        "call": "cstring(value)",
+        "doc": ""
+      }
+    ],
+    "PROTECTED": [
+      {
+        "ctor": "value: string",
+        "call": "cstring(value)",
+        "doc": ""
+      }
+    ],
+    "RISE": [
+      {
+        "ctor": "value: string",
+        "call": "cstring(value)",
+        "doc": ""
+      }
+    ],
+    "SELECTION": [
+      {
+        "ctor": "value: string",
+        "call": "cstring(value)",
+        "doc": ""
+      }
+    ],
+    "SELECTIONPOS": [
+      {
+        "ctor": "value: string",
+        "call": "cstring(value)",
+        "doc": ""
+      }
+    ],
+    "SMALLCAPS": [
+      {
+        "ctor": "value: string",
+        "call": "cstring(value)",
+        "doc": ""
+      }
+    ],
+    "SPACEAFTER": [
+      {
+        "ctor": "value: string",
+        "call": "cstring(value)",
+        "doc": ""
+      }
+    ],
+    "SPACEBEFORE": [
+      {
+        "ctor": "value: string",
+        "call": "cstring(value)",
+        "doc": ""
+      }
+    ],
+    "STRETCH": [
+      {
+        "ctor": "value: string",
+        "call": "cstring(value)",
+        "doc": ""
+      }
+    ],
+    "STRIKEOUT": [
+      {
+        "ctor": "value: string",
+        "call": "cstring(value)",
+        "doc": ""
+      },
+      {
+        "ctor": "yes: bool",
+        "call": "(if yes: \"YES\" else: \"NO\")",
+        "doc": ""
+      }
+    ],
+    "TABSARRAY": [
+      {
+        "ctor": "value: string",
+        "call": "cstring(value)",
+        "doc": ""
+      }
+    ],
+    "UNDERLINE": [
+      {
+        "ctor": "value: string",
+        "call": "cstring(value)",
+        "doc": ""
+      }
+    ],
+    "UNITS": [
+      {
+        "ctor": "value: string",
+        "call": "cstring(value)",
+        "doc": ""
+      }
+    ],
+    "WEIGHT": [
+      {
+        "ctor": "value: string",
+        "call": "cstring(value)",
+        "doc": ""
+      }
+    ]
+  },
+  "timer": {
+    "RUN": [
+      {
+        "ctor": "yes: bool",
+        "call": "(if yes: \"YES\" else: \"NO\")",
+        "doc": ""
+      }
+      ],
+    "TIME": [
+      {
+        "ctor": "miliseconds: int",
+        "call": "&\"{miliseconds}\"",
+        "doc": ""
+      }
+    ]
+  }
+}

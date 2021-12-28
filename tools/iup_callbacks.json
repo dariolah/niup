@@ -1,0 +1,97 @@
+{
+  "ACTION": {
+    "text": "ih: PIhandle, c: cint, new_value: cstring",
+    "multiline": "ih: PIhandle, c: cint, new_value: cstring",
+    "toggle": "ih: PIhandle, state: cint",
+    "list": "ih: PIhandle, text: cstring, item, state: cint",
+    "canvas": "ih: PIhandle, posx, posy: cfloat"
+  },
+  "CARET_CB": {
+    "*": "ih: PIhandle, lin, col,  pos: cint"
+  },
+  "COPYDATA_CB": {
+    "*": "ih: PIhandle, cmdLine: cstring, size: cint"
+  },
+  "CUSTOMFRAMEACTIVATE_CB": {
+    "*": "ih: PIhandle, active: cint"
+  },
+  "DBLCLICK_CB": {
+    "*": "ih: PIhandle, item: cint, text: cstring"
+  },
+  "DRAGBEGIN_CB": {
+    "*": "ih: PIhandle, x: cint, y: cint"
+  },
+  "DRAGDATA_CB": {
+    "*": "ih: PIhandle, dragtype: cstring, data: pointer, size: cint"
+  },
+  "DRAGDATASIZE_CB": {
+    "*": "ih: PIhandle, dragtype: cstring"
+  },
+  "DRAGDROP_CB": {
+    "*": "ih: PIhandle, drag_id, drop_id, isshift, iscontrol: cint"
+  },
+  "DRAGEND_CB": {
+    "*": "ih: PIhandle, action: cint"
+  },
+  "DROPDATA_CB": {
+    "*": "ih: PIhandle, dragtype: cstring, data: pointer, size, x, y: cint"
+  },
+  "DROPDOWN_CB": {
+    "*": "ih: PIhandle, state: cint"
+  },
+  "DROPFILES_CB": {
+    "*": "Ih: PIhandle, filename: cstring, num, x, y: cint"
+  },
+  "DROPMOTION_CB": {
+    "*": "ih: PIhandle, x, y: cint, status: cstring"
+  },
+  "EDIT_CB": {
+    "*": "ih: PIhandle, c: cint, new_value: cstring"
+  },
+  "FOCUS_CB": {
+    "*": "ih: PIhandle, focus: cint"
+  },
+  "K_ANY": {
+    "*": "ih: PIhandle, c: cint"
+  },
+  "KEYPRESS_CB": {
+    "*": "ih: PIhandle, c, press: cint"
+  },
+  "MOTION_CB": {
+    "*": "ih: PIhandle, x, y: cint, status: cstring"
+  },
+  "MOVE_CB": {
+    "*": "ih: PIhandle, x, y: cint"
+  },
+  "MULTISELECT_CB": {
+    "*": "ih: PIhandle, value: cstring"
+  },
+  "MULTITOUCH_CB": {
+    "*": "ih: PIhandle, count: cint, pid, px, py, pstate: ptr cint"
+  },
+  "RESIZE_CB": {
+    "*": "ih: PIhandle, width, height: cint"
+  },
+  "SCROLL_CB": {
+    "*": "ih: PIhandle, op: cint, posx, posy: cfloat"
+  },
+  "SHOW_CB": {
+    "*": "ih: PIhandle, state: cint"
+  },
+  "SPIN_CB": {
+    "*": "ih: PIhandle, pos: cint"
+  },
+  "TIPS_CB": {
+    "*": "ih: PIhandle, x: cint, y: cint"
+  },
+  "TOUCH_CB": {
+    "*": "ih: PIhandle, id, x, y: cint, state: cstring"
+  },
+  "TRAYCLICK_CB": {
+    "*": "ih: PIhandle, but, pressed, dclick: cint"
+  },
+  "WHEEL_CB": {
+    "*": "ih: PIhandle, delta: cfloat, x, y: cint, status: cstring"
+  }
+}
+

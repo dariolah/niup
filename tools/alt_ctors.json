@@ -1,0 +1,26 @@
+{
+  "button": {
+    "args": "title:string",
+    "call_args": "title, nil"
+  },
+  "canvas": {
+    "args": "",
+    "call_args": "nil"
+  },
+  "list": {
+    "args": "",
+    "call_args": "nil"
+  },
+  "multiline": {
+    "args": "",
+    "call_args": "nil"
+  },
+  "text": {
+    "args": "",
+    "call_args": "nil"
+  },
+  "toggle": {
+    "args": "title: string",
+    "call_args": "title, nil"
+  }
+}

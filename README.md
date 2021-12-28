@@ -9,11 +9,15 @@ Tested with Nim 1.6.0 and IUP 3.30
 - Windows on Linux (cross-compiling, mingw, wine)
 - Windows (reported working)
 
+TODO
+- improve documentation
+  - split 'niup' into submodules per IUP control
+  
 #### Table of Contents
 
 - [Installation](#installation)
 - [QuickStart](#quickstart)
-- [NIUP module](#niup-module)
+- [NIUPC module](#niupc-module)
 - [NIUPEXT module](#niupext-module)
 - [Documentation](#documentation)
 - [Examples](#examples)
@@ -76,6 +80,11 @@ if isMainModule:
   mainProc()
 ```
 
+## NIUP module
+
+NIUP module is strong typed API, wrapper around NIUPC.  
+API is generated with help of <https://github.com/batiati/IUPMetadata>
+
 ## C-like API using 'niupc' module
 
 helloworldcb.nim
@@ -119,9 +128,9 @@ if isMainModule:
 Program **helloworldcb.nim** displays ``Dialog`` with ``Label`` and ``Button``. Click on button activates callback ``btn_exit_cb`` which terminates program.
 ``PIhandle`` (``Ihandle`` in C) is type for IUP objects. ``SetAttribute`` (``IupSetAttribute`` in C) sets values to propertie labels. This method for setting options is used for everything: numeric and text properties, options, callback functions. ``ShowXY`` (``IupShowXY`` in C) displays a dialog in a given position on the screen. ``MainLoop`` (``IupMainLoop`` in C) executes the user interaction until a callback returns ``IUP_CLOSE``, ``ExitLoop`` (``IupExitLoop`` in C) is called, or hiding the last visible dialog.
 
-## NIUP module
+## NIUPC module
 
-**NIUP** is low level wrapper for IUP libraries. API is very similiar to C.
+**NIUPC** is low level wrapper for IUP libraries. API is very similiar to C.
 
 ### Differences: Nim vs C API
 
