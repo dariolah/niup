@@ -74,7 +74,7 @@ done
 sed -i -E '
     /IUP_VERSION/d;
     s/ptr Ihandle/PIhandle/g;
-    s/Ihandle\* = Ihandle_/Ihandle = object\n  PIhandle* = ptr Ihandle\n\n  uptr_t = clong\n  sptr_t = clong/;
+    s/Ihandle\* = Ihandle_/Ihandle = object\n  PIhandle* = ptr Ihandle\n  uptr_t = clong\n  sptr_t = clong/;
     s/= (-?\d+|0x[[:xdigit:]]+)$/= cint(\1)/;
     /K_\w+\* =/{ s/('"'.*'"')/cint(ord(\1))/};
     /IUPMASK_/d;
@@ -171,63 +171,56 @@ when defined(Linux):
      """.}
      # END workaround
 
-when defined(Windows):
-  const 
-        libiupSONAME* = "iup.dll"
-        libiupcdSONAME* = "iupcd.dll"
-        libcdSONAME* = "cd.dll"
-        libiupcontrolsSONAME* = "iupcontrols.dll"
-        libiupglcontrolsSONAME* = "iupglcontrols.dll"
-        libiupglSONAME* = "iupgl.dll"
-        libiupimglibSONAME* = "iupimglib.dll"
-        libiupimSONAME* = "iupim.dll"
-        libiup_mglplotSONAME* = "iup_mglplot.dll"
-        libiup_plotSONAME* = "iup_plot.dll"
-        libiup_scintillaSONAME* = "iup_scintilla.dll"
-        libiuptuioSONAME* = "iuptuio.dll"
-        libiupwebSONAME* = "iupweb.dll"
-elif defined(MacOSX):
-  const 
-        libiupSONAME* = "libiup.dylib"
-        libiupcdSONAME* = "libiupcd.dylib"
-        libcdSONAME* = "libcd.dylib"
-        libiupcontrolsSONAME* = "libiupcontrols.dylib"
-        libiupglcontrolsSONAME* = "libiupglcontrols.dylib"
-        libiupglSONAME* = "libiupgl.dylib"
-        libiupimglibSONAME* = "libiupimglib.dylib"
-        libiupimSONAME* = "libiupim.dylib"
-        libiup_mglplotSONAME* = "libiup_mglplot.dylib"
-        libiup_plotSONAME* = "libiup_plot.dylib"
-        libiup_scintillaSONAME* = "libiup_scintilla.dylib"
-        libiuptuioSONAME* = "libiuptuio.dylib"
-        libiupwebSONAME* = "libiupweb.dylib"
-else:
-  const 
-        libiupSONAME* = "libiup.so"
-        libiupcdSONAME* = "libiupcd.so"
-        libcdSONAME* = "libcd.so"
-        libiupcontrolsSONAME* = "libiupcontrols.so"
-        libiupglcontrolsSONAME* = "libiupglcontrols.so"
-        libiupglSONAME* = "libiupgl.so"
-        libiupimglibSONAME* = "libiupimglib.so"
-        libiupimSONAME* = "libiupim.so"
-        libiup_mglplotSONAME* = "libiup_mglplot.so"
-        libiup_plotSONAME* = "libiup_plot.so"
-        libiup_scintillaSONAME* = "libiup_scintilla.so"
-        libiuptuioSONAME* = "libiuptuio.so"
-        libiupwebSONAME* = "libiupweb.so"
+include niup/inc/sonames
 
 EOF
 
-echo -e "\n#Lib IM" >> niupc.nim
-cat im_concat.nim >> niupc.nim
-echo -e "\n#Lib CD" >> niupc.nim
-cat cd_concat.nim >> niupc.nim
-echo -e "\n#Lib IUP" >> niupc.nim
-cat iup_concat.nim >> niupc.nim
+rm -rf inc
+mkdir inc
+
+sed -n '/^const/,/^$/p' im_concat.nim > inc/im_const.nim
+sed -n '/^type/,/^$/p' im_concat.nim > inc/im_type.nim
+sed -n '/^template/,/^$/p' im_concat.nim > inc/im_template.nim
+sed -n '/^\(const\|template\|type\)/,/^$/!p' im_concat.nim > inc/im_proc.nim
+
+sed -n '/^const/,/^$/p' cd_concat.nim > inc/cd_const.nim
+sed -n '/^type/,/^$/p' cd_concat.nim > inc/cd_type.nim
+sed -n '/^template/,/^$/p' cd_concat.nim > inc/cd_template.nim
+sed -n '/^\(const\|template\|type\)/,/^$/!p' cd_concat.nim > inc/cd_proc.nim
+
+sed -n '/^const/,/^$/p' iup_concat.nim > inc/iup_const.nim
+sed -n '/^type/,/^$/p' iup_concat.nim > inc/iup_type.nim
+sed -n '/^template/,/^$/p' iup_concat.nim > inc/iup_template.nim
+sed -n '/^\(const\|template\|type\)/,/^$/!p' iup_concat.nim > inc/iup_proc.nim
+
+echo -e "when defined(gendoc):\n  include niup/inc/sonames\n" >> inc/libim.nim
+echo -e "include niup/inc/c/im_template" >> inc/libim.nim
+echo -e "include niup/inc/c/im_const" >> inc/libim.nim
+echo -e "include niup/inc/c/im_type" >> inc/libim.nim
+echo -e "include niup/inc/c/im_proc" >> inc/libim.nim
+echo -e "include niup/inc/c/libim" >> niupc.nim
+
+echo -e "when defined(gendoc):\n  include niup/inc/sonames\n" >> inc/libcd.nim
+echo -e "include niup/inc/c/cd_template" >> inc/libcd.nim
+echo -e "include niup/inc/c/cd_const" >> inc/libcd.nim
+echo -e "include niup/inc/c/cd_type" >> inc/libcd.nim
+echo -e "include niup/inc/c/cd_proc" >> inc/libcd.nim
+echo -e "include niup/inc/c/libcd" >> niupc.nim
+
+echo -e "when defined(gendoc):" >> inc/libiup.nim
+echo -e "  include niup/inc/sonames" >> inc/libiup.nim
+echo -e "  include niup/inc/c/im_type" >> inc/libiup.nim
+echo -e "  include niup/inc/c/cd_type\n" >> inc/libiup.nim
+echo -e "include niup/inc/c/iup_template" >> inc/libiup.nim
+echo -e "include niup/inc/c/iup_const" >> inc/libiup.nim
+echo -e "include niup/inc/c/iup_type" >> inc/libiup.nim
+echo -e "include niup/inc/c/iup_proc" >> inc/libiup.nim
+echo -e "include niup/inc/c/libiup" >> niupc.nim
+
 rm iup_concat.*
 rm im_concat.*
 rm cd_concat.*
+
 #discardable
 sed -i -E '
     /^proc .*\): cint \{/{
@@ -237,6 +230,10 @@ sed -i -E '
         s/\.\}/, discardable.\}/
     };
     s/cuchar/uint8/g
-    ' niupc.nim
+    ' inc/*.nim
 
 mv niupc.nim ../src/niup/
+mkdir -p ../src/niup/inc
+rm -rf ../src/niup/inc/c
+mv inc ../src/niup/inc/c
+

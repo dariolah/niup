@@ -1,19 +1,19 @@
 ## This module implements helper macros, templates and procs to make C API more Nim like
 
-import niup
+import niup/niupc
 import macros
 
 template Open*() =
   ## Initializes IUP library with empty command line arguments
   var argc:cint=0
   var argv:cstringArray=nil
-  discard niup.Open(argc, addr argv)
+  discard niupc.Open(argc, addr argv)
 
 template InitConfig*(config:PIhandle, appName:string) =
   ## Initializes `config` and sets application name to `appName`
-  config = niup.Config()
-  niup.SetAttribute(config, "APP_NAME", appName)
-  discard niup.ConfigLoad(config)
+  config = niupc.Config()
+  niupc.SetAttribute(config, "APP_NAME", appName)
+  discard niupc.ConfigLoad(config)
 
 template SetCallback*(pih: PIhandle, name:string, cb_func: proc) =
   ## Sets callback function on `pih`, with action `name` and callback function `cb_func`.
