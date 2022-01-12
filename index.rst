@@ -7,12 +7,12 @@ IUP is a multi-platform toolkit for building graphical user interfaces.
 API documentation for NIUP_ module. Strong typed wrapper over NIUPC.
 
 API documentation for NIUPC_ module. FFI bindings generated from IUP C
-headers.
+headers. Low-level API covering IUP libraries on C level.
 
 Main guide to IUP and detailed documentation is at IUP_ home site. 
 
-.. _NIUP: https://dariolah.github.io/niup/niup.html
-.. _NIUPC: https://dariolah.github.io/niup/niup/niupc.html
+.. _NIUP: niup.html
+.. _NIUPC: niupc.html
 .. _IUP: https://www.tecgraf.puc-rio.br/iup/
 
 
