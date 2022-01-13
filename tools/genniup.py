@@ -47,15 +47,19 @@ def get_all_classes(iup_json_metadata):
 def load_nimc():
     proc_re = re.compile(r"proc (?P<func>.*)\*\((?P<args>.*)\)(: (?P<ret>.*))? {(?P<pragma>.*)}")
     result = {}
-    with open('../src/niup/niupc.nim', 'r') as fp:
-        for line in fp:
-            line = line.strip()
-            m = proc_re.match(line)
-            if m:
-                result[m.group('func').lower()] = {'func': m.group('func'),
-                                                   'args': m.group('args'),
-                                                   'ret': m.group('ret'),
-                                                   'pragma': m.group('pragma')}
+    sources = ['../src/niup/inc/c/cd_proc.nim',
+               '../src/niup/inc/c/im_proc.nim',
+               '../src/niup/inc/c/iup_proc.nim']
+    for src in sources:
+        with open(src, 'r') as fp:
+            for line in fp:
+                line = line.strip()
+                m = proc_re.match(line)
+                if m:
+                    result[m.group('func').lower()] = {'func': m.group('func'),
+                                                       'args': m.group('args'),
+                                                       'ret': m.group('ret'),
+                                                       'pragma': m.group('pragma')}
     return result
 
 
@@ -114,10 +118,7 @@ def gen_ctor_macro(n, ret, doc):
                   ),
                )
             let inner = nnkCall.newTree(
-                    nnkDotExpr.newTree(
-                      newIdentNode("niupc"),
-                      newIdentNode("{n['func']}")
-                    )
+                    newIdentNode("{n['func']}")
                   )
         
             if args.len > 0:
@@ -134,7 +135,12 @@ def gen_ctor_macro(n, ret, doc):
 def get_args(n):
     c2nim = {'cstring': 'string',
              'PIhandle': 'IUPhandle_t',
-             'ptr uint8': 'openArray[uint8]'}
+             'ptr PIhandle': 'ptr IUPhandle_t',
+             'ptr uint8': 'openArray[uint8]',
+             'uptr_t': 'clong',
+             'sptr_t': 'clong',
+             ' stringArray': ' cstringArray' # fix previous rename :(
+             }
 
     args = n['args']
     for key, value in c2nim.items():
@@ -151,15 +157,22 @@ def get_args(n):
         v = v.strip()
         t = t.strip()
 
-        if t in ['cint', 'cstring']:
+        if t in ['cint', 'var cint', 'var cdouble', 'cdouble', 'cuint', 'ptr cdouble', 'pointer',
+                 'cstringArray', 'cfloat', 'uint8', 'ptr clong', 'clong', 'ptr cint', ]:
             call_args.append(v)
+        elif t == 'cstring':
+            call_args.append(f"cstring({v})")
         elif t == 'ptr uint8':
             call_args.append(f'cast[ptr uint8]({v})')
-        elif t == 'PIhandle':
-            call_args.append(f'cast[PIhandle]({v})')
+        elif t in ['PIhandle', 'ptr PIhandle', 'Icallback']:
+            call_args.append(f"cast[{t}]({v})")
+        elif t in ['ptr cdContext', 'ptr cdCanvas', 'ptr imImage']:
+            call_args.append(v)
+        elif t in ['uptr_t', 'sptr_t']:
+            call_args.append(v)
         else:
-            print("TODO:", v,t)
-            sys.exit()
+            #print("TODO:", v,t)
+            call_args.append(v)
 
     return args, ", ".join(call_args)
 
@@ -270,7 +283,7 @@ def gen_attr_setter(class_name, attr_name, data_type, data_format, doc, handle, 
 def gen_attr_setter_str(class_name, doc, attr_name, nimc):
     proc = attr_name.lower()
     niup_type = f"{nimc[class_name]['func']}_t"
-    code = f"    SetAttribute(cast[PIhandle](ih), \"{attr_name}\", cstring(value))"
+    code = f"    SetAttribute(cast[PIhandle](ih), cstring(\"{attr_name}\"), cstring(value))"
     p = f"proc `{proc}=`*(ih: {niup_type}, value: string) {{.cdecl.}} ="
     print(f"{p}\n{doc}{code}")
     print()
@@ -283,7 +296,7 @@ def gen_attr_setter_str(class_name, doc, attr_name, nimc):
 def gen_attr_setter_alt(class_name, doc, attr_name, nimc, alt_ctor, alt_call):
     proc = attr_name.lower()
     niup_type = f"{nimc[class_name]['func']}_t"
-    code = f"    SetAttribute(cast[PIhandle](ih), \"{attr_name}\", cstring({alt_call}))"
+    code = f"    SetAttribute(cast[PIhandle](ih), cstring(\"{attr_name}\"), cstring({alt_call}))"
     p = f"proc `{proc}=`*(ih: {niup_type}, {alt_ctor}) {{.cdecl.}} ="
     print(f"{p}\n{doc}{code}")
     print()
@@ -296,7 +309,7 @@ def gen_attr_setter_alt(class_name, doc, attr_name, nimc, alt_ctor, alt_call):
 def gen_attr_setter_handle(class_name, doc, attr_name, nimc, handle_type):
     proc = attr_name.lower()
     niup_type = f"{nimc[class_name]['func']}_t"
-    code = f"    SetAttributeHandle(cast[PIhandle](ih), \"{attr_name}\", cast[PIhandle](handle))"
+    code = f"    SetAttributeHandle(cast[PIhandle](ih), cstring(\"{attr_name}\"), cast[PIhandle](handle))"
     p = f"proc `{proc}=`*(ih: {niup_type}, handle: {handle_type}) {{.cdecl.}} ="
     print(f"{p}\n{doc}{code}")
     print()
@@ -311,7 +324,7 @@ def gen_attr_getter_str(class_name, attr_name, nimc):
     niup_type = f"{nimc[class_name]['func']}_t"
     code = f"""
     proc `{proc}`*(ih: {niup_type}): string {{.cdecl.}} =
-        return $GetAttribute(cast[PIhandle](ih), \"{attr_name}\")
+        return $GetAttribute(cast[PIhandle](ih), cstring(\"{attr_name}\"))
     """
     print(inspect.cleandoc(code))
     print()
@@ -330,7 +343,7 @@ def gen_attr_getter_alt(class_name, attr_name, nimc, get_type, get_exp):
 
 def gen_attr_getter(class_name, data_type, attr_name, nimc):
     if data_type == 'Boolean':
-        gen_attr_getter_alt(class_name, attr_name, nimc, 'bool', f'$GetAttribute(cast[PIhandle](ih), "{attr_name}") == "YES"')
+        gen_attr_getter_alt(class_name, attr_name, nimc, 'bool', f'$GetAttribute(cast[PIhandle](ih), cstring("{attr_name}")) == "YES"')
     else:
         gen_attr_getter_str(class_name, attr_name, nimc)
 
@@ -415,16 +428,16 @@ def gen_callback_code(args, callback_md, niup_type):
         doc = ""
 
     p = f'proc `{proc}=`*(ih: {niup_type}, cb: {cb_proto} {{.cdecl.}}) {{.cdecl.}} ='
-    code = f'    SetCallback(cast[PIhandle](ih), "{attr_name}", cast[Icallback](cb))'
+    code = f'    SetCallback(cast[PIhandle](ih), cstring("{attr_name}"), cast[Icallback](cb))'
     print(f"{p}\n{doc}{code}")
     print()
     p = f'proc `{proc}`*(ih: {niup_type}, cb: {cb_proto} {{.cdecl.}}) {{.cdecl.}} ='
-    code = f'    SetCallback(cast[PIhandle](ih), "{attr_name}", cast[Icallback](cb))'
+    code = f'    SetCallback(cast[PIhandle](ih), cstring("{attr_name}"), cast[Icallback](cb))'
     print(f"{p}\n{code}")
     print()
 
     p = f'proc `{proc}`*(ih: {niup_type}): proc (ih: PIhandle): cint {{.cdecl.}} ='
-    code = f'    return cast[proc (ih: PIhandle): cint {{.cdecl.}}](GetCallback(cast[PIhandle](ih), "{attr_name}"))'
+    code = f'    return cast[proc (ih: PIhandle): cint {{.cdecl.}}](GetCallback(cast[PIhandle](ih), cstring("{attr_name}")))'
     print(f"{p}\n{code}")
     print()
 
@@ -460,6 +473,48 @@ def gen_code(all_classes, iup_json_metadata, nimc, alt_ctors, iup_callbacks_json
         gen_callbacks_code(class_name, iup_json_metadata, iup_callbacks_json_metadata, nimc)
 
 
+def gen_misc_fn(class_name, nimc):
+    n = nimc[class_name]
+    proc = n['func']
+    ret = n['ret']
+    args, call_args = get_args(n)
+    discard = ''
+
+    if ret in ['uptr_t', 'sptr_t']:
+        ret = 'clong'
+    elif ret == 'cstring':
+        ret = 'string'
+
+    if 'varargs' in n['pragma']:
+        code = f"# TODO varargs: {proc}({args}){call_args}"
+    else:
+        if ret:
+            if ret == 'string':
+                retstr = '$'
+            else:
+                retstr = ''
+            call = f"  return {retstr}niupc.{proc}({call_args})"
+            ret = f": {ret}"
+            exception_procs = ['Open', 'SetFocus', 'GetFile', 'SetHandle', 'Map', 'ShowXY', 'Show', 'MainLoop',
+                               'SetAttributes']
+            if proc in exception_procs:
+                discard = ', discardable'
+        else:
+            ret = ""
+            call = f"  niupc.{proc}({call_args})"
+
+        print(f"proc {proc}*({args}){ret} {{.cdecl{discard}.}} =")
+        print(f"  {call}")
+        print()
+
+
+def gen_misc(all_classes, nimc):
+    for class_name in nimc.keys():
+        if class_name in all_classes:
+            continue
+        gen_misc_fn(class_name, nimc)
+
+
 def main():
     iup_json_metadata = load_iup_json()
     iup_callbacks_json_metadata = load_iup_callbacks_json()
@@ -472,7 +527,7 @@ def main():
 
     gen_types(all_classes, nimc)
     gen_code(all_classes, iup_json_metadata, nimc, alt_ctors, iup_callbacks_json_metadata, iup_attrs_json_metadata)
-    # TODO nimc other than controls, having PIhandle args or ret
+    gen_misc(all_classes, nimc)
 
 
 if __name__ == "__main__":

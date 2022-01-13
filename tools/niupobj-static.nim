@@ -2,16 +2,17 @@ import niup/niupc
 import std/macros
 import strformat
 
-export niupc except Dialog, Timer, User
 
-proc Open*(utf8Mode: bool = false, imageLib: bool = false) {.cdecl.} =
-  var argc:cint=0
-  var argv:cstringArray=nil
-  Open(argc, addr argv)
+export niupc.PIhandle, # type used in callbacks
+  # macros, required
+  niupc.Vbox, niupc.Hbox, niupc.Cbox, niupc.FlatTabs, niupc.GridBox, niupc.Menu,
+  niupc.MultiBox, niupc.Normalizer, niupc.ParamBox, niupc.Tabs, niupc.Zbox
 
-  if utf8Mode:
-    SetGlobal("UTF8MODE", "Yes")
-
-  if imageLib:
-    ImageLibOpen()
+# re-use types for IUP, IM and CD
+include niup/inc/c/im_template
+include niup/inc/c/cd_template
+include niup/inc/c/iup_template
+include niup/inc/c/im_const
+include niup/inc/c/cd_const
+include niup/inc/c/iup_const
 
