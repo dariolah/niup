@@ -8,7 +8,7 @@ All includes are exported from NIUPC module and are used as single NIUPC module 
 
 Code is generated from IUP C header files with c2nim.
 
-.. _libim: niup/inc/c/libim.html
-.. _libcd: niup/inc/c/libcd.html
-.. _libiup: niup/inc/c/libiup.html
+.. _libim: /niup/niup/inc/c/libim.html
+.. _libcd: /niup/niup/inc/c/libcd.html
+.. _libiup: /niup/niup/inc/c/libiup.html
 

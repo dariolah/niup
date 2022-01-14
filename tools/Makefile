@@ -1,5 +1,6 @@
 all:
-	cat niupobj-static.nim > ../src/niup.nim && \
-	       	python3 genniup.py >> ../src/niup.nim && \
-		cat niupobj-static-fn.nim >> ../src/niup.nim
+	cat niupobj-static.nim > ../src/niup.nim
+	echo >> ../src/niup.nim
+	echo 'include niup/inc/misc' >> ../src/niup.nim
+	echo 'include niup/inc/k_callbacks' >> ../src/niup.nim
 

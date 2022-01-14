@@ -1,8 +1,10 @@
 import inspect
 import json
+import os
 import re
 import sys
 import textwrap
+from contextlib import redirect_stdout
 
 
 def load_iup_json():
@@ -84,9 +86,9 @@ def gen_ctors(class_name, iup_json_metadata, nimc, alt_ctors):
     doc = iup_json_metadata[class_name]['Documentation']
     if doc is not None:
         doc = textwrap.wrap(iup_json_metadata[class_name]['Documentation'],
-                            initial_indent='    # ', subsequent_indent='    # ')
+                            initial_indent='    ## ', subsequent_indent='    ## ')
         doc = "\n".join(doc)
-        doc = f'{doc}\n'
+        doc = f'{doc}\n'.replace('*', '\*')
     else:
         doc = ""
 
@@ -180,9 +182,9 @@ def get_args(n):
 def gen_attr_setter(class_name, attr_name, data_type, data_format, doc, handle, nimc):
     if doc is not None:
         doc = textwrap.wrap(doc,
-                            initial_indent='    # ', subsequent_indent='    # ')
+                            initial_indent='    ## ', subsequent_indent='    ## ')
         doc = "\n".join(doc)
-        doc = f"{doc}\n"
+        doc = f"{doc}\n".replace('*', '\*')
     else:
         doc = ""
 
@@ -421,9 +423,9 @@ def gen_callback_code(args, callback_md, niup_type):
 
     if doc is not None:
         doc = textwrap.wrap(doc,
-                            initial_indent='    # ', subsequent_indent='    # ')
+                            initial_indent='    ## ', subsequent_indent='    ## ')
         doc = "\n".join(doc)
-        doc = f"{doc}\n"
+        doc = f"{doc}\n".replace('*', '\*')
     else:
         doc = ""
 
@@ -468,9 +470,44 @@ def gen_code(all_classes, iup_json_metadata, nimc, alt_ctors, iup_callbacks_json
     classes = sorted(list(all_classes))
 
     for class_name in classes:
-        gen_ctors(class_name, iup_json_metadata, nimc, alt_ctors)
-        gen_attrs_code(class_name, iup_json_metadata, nimc, iup_attrs_json_metadata)
-        gen_callbacks_code(class_name, iup_json_metadata, iup_callbacks_json_metadata, nimc)
+        with open(f'inc/{class_name}.nim', 'w') as f:
+            print(f'include niup/inc/{class_name}.nim')
+            with redirect_stdout(f):
+                print("when defined(gendocniup):")
+                print("  # required for generation of documentation")
+                print("  import std/macros")
+                print("  import niup/niupc")
+                print("  include niup/inc/doctypes")
+                print("  import strformat")
+                print("  #\n")
+                module_type_doc(class_name, nimc, alt_ctors)
+                gen_ctors(class_name, iup_json_metadata, nimc, alt_ctors)
+                gen_attrs_code(class_name, iup_json_metadata, nimc, iup_attrs_json_metadata)
+                gen_callbacks_code(class_name, iup_json_metadata, iup_callbacks_json_metadata, nimc)
+
+
+def module_type_doc(class_name, nimc, alt_ctors):
+    n = nimc[class_name]
+    ret = f"{n['func']}_t"
+    args, call_args = get_args(n)
+
+    print(f"## IUP class: {n['func']}")
+    print("##")
+    print(f"## NIUP type: {n['func']}_t")
+    print("##")
+    print("## constructors")
+    print("##")
+    if 'varargs' in n['pragma']:
+        print(f"##    macro {n['func']}(args: varargs[untyped]): {ret}")
+        print("##")
+    else:
+        print(f"##    proc {n['func']}({args}): {ret}")
+        print("##")
+
+    if class_name in alt_ctors:
+        print(f"##    proc {n['func']}({alt_ctors[class_name]['args']}): {ret}")
+        print("##")
+    print()
 
 
 def gen_misc_fn(class_name, nimc):
@@ -525,9 +562,30 @@ def main():
     all_classes = get_all_classes(iup_json_metadata)
     nimc = load_nimc()
 
-    gen_types(all_classes, nimc)
+    print('include niup/inc/types.nim')
+    with open('inc/types.nim', 'w') as f:
+        with redirect_stdout(f):
+            print("when defined(gendocniup):")
+            print("  # required for generation of documentation")
+            print("  import std/macros")
+            print("  import niup/niupc")
+            print("  import strformat")
+            print("  #\n")
+            gen_types(all_classes, nimc)
+
     gen_code(all_classes, iup_json_metadata, nimc, alt_ctors, iup_callbacks_json_metadata, iup_attrs_json_metadata)
-    gen_misc(all_classes, nimc)
+
+    print('include niup/inc/utilsfn.nim')
+    with open('inc/utilsfn.nim', 'w') as f:
+        with redirect_stdout(f):
+            print("when defined(gendocniup):")
+            print("  # required for generation of documentation")
+            print("  import std/macros")
+            print("  import niup/niupc")
+            print("  include niup/inc/doctypes")
+            print("  import strformat")
+            print("  #\n")
+            gen_misc(all_classes, nimc)
 
 
 if __name__ == "__main__":

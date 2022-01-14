@@ -11,8 +11,8 @@ headers. Low-level API covering IUP libraries on C level.
 
 Main guide to IUP and detailed documentation is at IUP_ home site. 
 
-.. _NIUP: niup.html
-.. _NIUPC: niupc.html
+.. _NIUP: /niup/niup.html
+.. _NIUPC: /niup/niup/niupc.html
 .. _IUP: https://www.tecgraf.puc-rio.br/iup/
 
 
