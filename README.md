@@ -9,10 +9,6 @@ Tested with Nim 1.6.0 and IUP 3.30
 - Windows on Linux (cross-compiling, mingw, wine)
 - Windows (reported working)
 
-TODO
-- improve documentation
-  - split 'niup' into submodules per IUP control
-  
 #### Table of Contents
 
 - [Installation](#installation)
